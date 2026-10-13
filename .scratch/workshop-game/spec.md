@@ -1,242 +1,242 @@
-# Spec: Jogo de Prompts 8-bit para o Workshop
+# Spec: 8-bit Prompt Game for the Workshop
 
 Status: ready-for-agent
 
 ## Problem Statement
 
-Num workshop de engenharia de prompt, o Facilitador precisa ensinar uma turma inteira a escrever prompts **estruturados**: com papel, contexto, tarefa clara, formato, restrições e exemplos. Hoje o material é estático. A atividade de referência é um HTML de página única: cada pessoa faz o exercício sozinha, cola a resposta de uma LLM e recebe uma nota que só ela vê. Não existe senso de turma, competição, progresso ao longo do workshop nem momento coletivo de aprender com o prompt dos colegas. O Facilitador não tem como conduzir a turma no mesmo ritmo nem ver, em tempo real, quem está engajado.
+In a prompt engineering workshop, the Facilitator needs to teach a whole class to write **structured** prompts: with a role, context, a clear task, format, constraints and examples. Today the material is static. The reference activity is a single-page HTML: each person does the exercise alone, pastes an LLM's answer and gets a score that only they see. There is no sense of class, competition, progress across the workshop, or a shared moment to learn from colleagues' prompts. The Facilitator has no way to run the class at the same pace or to see, in real time, who is engaged.
 
-Para o participante, falta feedback imediato e específico sobre *o que* falta no prompt dele. Também falta um motivo divertido para tentar de novo e melhorar.
+For the participant, there is no immediate, specific feedback on *what* is missing from their prompt. There is also no fun reason to try again and improve.
 
 ## Solution
 
-Uma aplicação web em tempo real com cara de jogo: uma área de trabalho MS-DOS com estética 8-bit, toda em pt-BR. Cada Jogador entra só com um Nickname e ganha um Avatar com as duas primeiras letras do nome. O Facilitador conduz o workshop em Rodadas. Ele abre um Desafio (um cenário do tipo "escreva o prompt que marca uma reunião de alinhamento"), e todos os Jogadores escrevem prompts na sua Janela pessoal (`PROMPT.EXE`), com até 3 Tentativas por Rodada.
+A real-time web application with the feel of a game: an MS-DOS desktop with an 8-bit aesthetic, all in pt-BR. Each Player logs in with only a Nickname and gets an Avatar made of the first two letters of the name. The Facilitator runs the workshop in Rounds. They open a Challenge (a scenario such as "write the prompt that schedules an alignment meeting"), and all Players write prompts in their personal Window (`PROMPT.EXE`), with up to 3 Attempts per Round.
 
-Cada Tentativa recebe na hora uma Nota de 0 a 100, calculada **sem chamar nenhuma LLM**: o próprio prompt é avaliado contra seis Critérios de estrutura (Papel, Contexto, Tarefa, Formato, Restrições, Exemplos). O Jogador vê um checklist ✓/✕ com uma dica para cada Critério que faltou. A melhor Tentativa da Rodada entra no Placar, que todos veem ao vivo, junto com um feed de eventos, Conquistas, sons 8-bit e animações de LEVEL UP.
+Each Attempt gets a Score from 0 to 100 immediately, calculated **without calling any LLM**: the prompt itself is evaluated against six structure Criteria (Role, Context, Task, Format, Constraints, Examples). The Player sees a ✓/✕ checklist with a tip for each Criterion that is missing. The best Attempt of the Round goes onto the Scoreboard, which everyone sees live, together with an event feed, Achievements, 8-bit sounds and LEVEL UP animations.
 
-Os prompts dos outros Jogadores ficam ocultos durante a Rodada. Quando o Facilitador encerra a Rodada, todos veem o Prompt de referência do Desafio e os prompts do top 3. É o momento de aprendizado coletivo. O Facilitador projeta tudo num Telão.
+The other Players' prompts stay hidden during the Round. When the Facilitator closes the Round, everyone sees the Challenge's Reference prompt and the prompts of the top 3. This is the moment of collective learning. The Facilitator projects everything on the Big screen.
 
 ## User Stories
 
-### Login e identidade
+### Login and identity
 
-1. Como Jogador, quero entrar digitando apenas um Nickname, para começar a jogar sem cadastro nem senha.
-2. Como Jogador, quero que a tela de login me explique que meu Avatar será formado pelas duas primeiras letras do meu Nickname, para entender como vou aparecer para os outros.
-3. Como Jogador, quero ver o preview do meu Avatar 8-bit atualizando enquanto digito o Nickname, para escolher um nome que gere um Avatar de que eu goste.
-4. Como Jogador, quero receber uma mensagem clara quando o Nickname já estiver em uso na Sala, para escolher outro.
-5. Como Jogador, quero receber uma mensagem clara quando o Nickname for curto demais, longo demais ou tiver caracteres inválidos, para corrigir sem adivinhar a regra.
-6. Como Jogador, quero que "joão" e "JOAO" sejam tratados como o mesmo Nickname, para que ninguém se passe por mim com uma variação de maiúscula ou acento.
-7. Como Jogador, quero voltar automaticamente para o meu Jogador se eu recarregar a página ou fechar e reabrir a aba no mesmo navegador, para não perder minhas Tentativas nem minha posição no Placar.
-8. Como Jogador, quero que meu Avatar use letras maiúsculas sem acento ("Élio" vira "EL"), para que todos os Avatares tenham o mesmo visual pixelado.
+1. As a Player, I want to enter by typing only a Nickname, so I can start playing without registration or a password.
+2. As a Player, I want the login screen to explain that my Avatar is made of the first two letters of my Nickname, so I understand how I will appear to others.
+3. As a Player, I want to see a preview of my 8-bit Avatar updating while I type the Nickname, so I can pick a name that produces an Avatar I like.
+4. As a Player, I want a clear message when the Nickname is already in use in the Room, so I can choose another.
+5. As a Player, I want a clear message when the Nickname is too short, too long or has invalid characters, so I can fix it without guessing the rule.
+6. As a Player, I want "joão" and "JOAO" to be treated as the same Nickname, so nobody can impersonate me with a case or accent variation.
+7. As a Player, I want to automatically get back to my Player if I reload the page or close and reopen the tab in the same browser, so I do not lose my Attempts or my position on the Scoreboard.
+8. As a Player, I want my Avatar to use uppercase letters without accents ("Élio" becomes "EL"), so all Avatars have the same pixelated look.
 
-### Área de trabalho e Janela
+### Desktop and Window
 
-9. Como Jogador, quero ver uma área de trabalho estilo MS-DOS com as janelas `PROMPT.EXE`, `DESAFIO.TXT` e `PLACAR.EXE`, para sentir que estou dentro de um jogo retrô.
-10. Como Jogador, quero arrastar, minimizar e restaurar as janelas da área de trabalho, para organizar a tela do meu jeito.
-11. Como Jogador, quero que a posição das minhas janelas fique salva no meu navegador, para não precisar reorganizar a tela depois de recarregar.
-12. Como Jogador, quero que só eu veja a minha Janela, para escrever meus prompts sem que copiem de mim.
-13. Como Jogador, quero ver `AGUARDANDO O FACILITADOR..._` com o cursor piscando quando não houver Rodada aberta, para saber que o jogo ainda não começou ou está entre Rodadas.
-14. Como Jogador, quero ler o cenário do Desafio atual em `DESAFIO.TXT` assim que a Rodada abrir, para saber o que meu prompt precisa pedir.
-15. Como Jogador, quero ver quantas Tentativas ainda tenho na Rodada, para administrar minhas chances.
-16. Como Jogador, quero ver o cronômetro da Rodada quando o Facilitador tiver definido um, para saber quanto tempo me resta.
+9. As a Player, I want to see an MS-DOS-style desktop with the windows `PROMPT.EXE`, `DESAFIO.TXT` and `PLACAR.EXE`, so I feel I am inside a retro game.
+10. As a Player, I want to drag, minimize and restore the desktop windows, so I can organize the screen my way.
+11. As a Player, I want the position of my windows to be saved in my browser, so I do not have to rearrange the screen after reloading.
+12. As a Player, I want only me to see my Window, so I can write my prompts without anyone copying them.
+13. As a Player, I want to see `AGUARDANDO O FACILITADOR..._` with a blinking cursor when there is no open Round, so I know the game has not started or is between Rounds.
+14. As a Player, I want to read the current Challenge's scenario in `DESAFIO.TXT` as soon as the Round opens, so I know what my prompt needs to ask for.
+15. As a Player, I want to see how many Attempts I have left in the Round, so I can manage my chances.
+16. As a Player, I want to see the Round's timer when the Facilitator has set one, so I know how much time I have left.
 
-### Tentativas e Avaliação
+### Attempts and Evaluation
 
-17. Como Jogador, quero escrever meu prompt num campo de texto livre, sem um formulário com campos prontos, para aprender a estruturar o prompt eu mesmo.
-18. Como Jogador, quero enviar meu prompt e receber a Nota na hora, para iterar rápido.
-19. Como Jogador, quero ver a Nota de 0 a 100 com um veredito curto ("Na mosca!", "Quase lá", etc.), para entender de relance como me saí.
-20. Como Jogador, quero ver o checklist dos seis Critérios com ✓/✕ e os pontos de cada um, para saber exatamente onde ganhei e onde perdi pontos.
-21. Como Jogador, quero ver uma dica prática para cada Critério que não atendi, para saber como melhorar na próxima Tentativa.
-22. Como Jogador, quero ver o trecho do meu prompt que fez um Critério ser atendido, para entender o que o sistema reconheceu.
-23. Como Jogador, quero que o sistema reconheça a estrutura do meu prompt tanto com rótulos explícitos (`Papel:`, `## Contexto`, `<contexto>`) quanto com frases naturais ("Atue como…", "Responda em…"), para não ser punido por escrever de forma natural.
-24. Como Jogador, quero que prompts escritos em inglês também sejam reconhecidos, para poder praticar no idioma que uso no dia a dia.
-25. Como Jogador, quero que um Critério só conte quando houver conteúdo de verdade, e não apenas o rótulo vazio, para que a Nota reflita um prompt realmente bem estruturado.
-26. Como Jogador, quero que o Critério Tarefa exija que meu prompt fale do assunto do Desafio, para que reaproveitar o prompt de outra Rodada não funcione.
-27. Como Jogador, quero ver o histórico das minhas Tentativas da Rodada com prompt e Nota, para comparar versões e aprender com a evolução.
-28. Como Jogador, quero ser impedido de enviar um prompt vazio ou com mais de 4.000 caracteres, e ver o motivo, para não gastar uma Tentativa à toa.
-29. Como Jogador, quero que o envio fique bloqueado quando minhas 3 Tentativas acabarem, para entender que já usei todas.
-30. Como Jogador, quero que o envio fique bloqueado quando a Rodada for encerrada, inclusive se eu estava digitando, para que todos joguem com as mesmas regras.
+17. As a Player, I want to write my prompt in a free text field, not a form with ready-made fields, so I learn to structure the prompt myself.
+18. As a Player, I want to submit my prompt and get the Score right away, so I can iterate quickly.
+19. As a Player, I want to see the Score from 0 to 100 with a short verdict ("Na mosca!", "Quase lá", etc.), so I can tell at a glance how I did.
+20. As a Player, I want to see the checklist of the six Criteria with ✓/✕ and the points of each, so I know exactly where I gained and lost points.
+21. As a Player, I want to see a practical tip for each Criterion I did not meet, so I know how to improve on my next Attempt.
+22. As a Player, I want to see the excerpt of my prompt that met a Criterion, so I understand what the system recognized.
+23. As a Player, I want the system to recognize my prompt's structure both with explicit labels (`Papel:`, `## Contexto`, `<contexto>`) and with natural phrases ("Atue como…", "Responda em…"), so I am not penalized for writing naturally.
+24. As a Player, I want prompts written in English to be recognized too, so I can practice in the language I use day to day.
+25. As a Player, I want a Criterion to count only when there is real content, not just an empty label, so the Score reflects a prompt that is truly well structured.
+26. As a Player, I want the Task Criterion to require my prompt to address the Challenge's subject, so that reusing a prompt from another Round does not work.
+27. As a Player, I want to see the history of my Round's Attempts with prompt and Score, so I can compare versions and learn from my progress.
+28. As a Player, I want to be prevented from submitting an empty prompt or one with more than 4,000 characters, and to see the reason, so I do not waste an Attempt by mistake.
+29. As a Player, I want submitting to be blocked when my 3 Attempts are used up, so I understand that I have used them all.
+30. As a Player, I want submitting to be blocked when the Round closes, even if I was typing, so everyone plays under the same rules.
 
-### Placar e eventos
+### Scoreboard and events
 
-31. Como Jogador, quero ver no `PLACAR.EXE` todos os Jogadores com Avatar, Nickname e pontuação total, ordenados, para saber minha posição.
-32. Como Jogador, quero que o Placar atualize em tempo real quando qualquer Jogador enviar uma Tentativa, para sentir a competição acontecendo.
-33. Como Jogador, quero que só a minha melhor Tentativa de cada Rodada conte no Placar, para poder arriscar sem medo de piorar.
-34. Como Jogador, quero que o total seja a soma das minhas melhores Notas de cada Rodada, para que a consistência ao longo do workshop seja recompensada.
-35. Como Jogador, quero que os empates sejam decididos por menos Tentativas usadas e, depois, por quem atingiu a Nota primeiro, para que o desempate seja justo e previsível.
-36. Como Jogador, quero ver no Placar o status de cada Jogador (online, offline, enviou na Rodada, Tentativas usadas), para saber quem está ativo.
-37. Como Jogador, quero continuar no Placar com meus pontos mesmo ficando offline, para não perder o progresso por causa da conexão.
-38. Como Jogador, quero ver um feed de eventos ao vivo ("JO tirou 100!", "AN enviou a 2ª Tentativa", "MA ganhou Evolução"), para acompanhar o jogo mesmo sem ver as Janelas dos outros.
-39. Como Jogador, quero nunca ver o texto do prompt de outro Jogador durante a Rodada, para que a competição seja justa.
+31. As a Player, I want to see all Players with Avatar, Nickname and total score in `PLACAR.EXE`, ordered, so I know my position.
+32. As a Player, I want the Scoreboard to update in real time when any Player submits an Attempt, so I can feel the competition happening.
+33. As a Player, I want only my best Attempt of each Round to count on the Scoreboard, so I can take risks without fear of making things worse.
+34. As a Player, I want the total to be the sum of my best Scores from each Round, so consistency across the workshop is rewarded.
+35. As a Player, I want ties to be decided by fewer Attempts used and then by who reached the Score first, so the tiebreaker is fair and predictable.
+36. As a Player, I want to see each Player's status on the Scoreboard (online, offline, sent in the Round, Attempts used), so I know who is active.
+37. As a Player, I want to stay on the Scoreboard with my points even when I go offline, so I do not lose progress because of my connection.
+38. As a Player, I want a live event feed ("JO tirou 100!", "AN enviou a 2ª Tentativa", "MA ganhou Evolução"), so I can follow the game even without seeing other Players' Windows.
+39. As a Player, I want to never see another Player's prompt text during the Round, so the competition is fair.
 
-### Conquistas e feedback de jogo
+### Achievements and game feedback
 
-40. Como Jogador, quero ganhar a Conquista **Na mosca** ao tirar 100 numa Tentativa, para ser reconhecido pelo prompt perfeito.
-41. Como Jogador, quero ganhar a Conquista **De primeira** ao tirar 100 já na 1ª Tentativa da Rodada, para ser reconhecido por acertar sem iterar.
-42. Como Jogador, quero ganhar a Conquista **Primeiro sangue** ao fazer o primeiro envio da Rodada, para ser recompensado pela agilidade.
-43. Como Jogador, quero ganhar a Conquista **Evolução** quando uma Tentativa minha superar em 30 pontos ou mais a minha primeira Tentativa da mesma Rodada, para ser recompensado por ler o feedback e melhorar.
-44. Como Jogador, quero ganhar a Conquista **Campeão da Rodada** ao terminar a Rodada em primeiro, para ter um troféu por Rodada.
-45. Como Jogador, quero ver minhas Conquistas e as dos outros Jogadores no Placar, para comparar.
-46. Como Jogador, quero ver uma animação de LEVEL UP quando minha Nota melhorar ou eu subir no Placar, para sentir a progressão.
-47. Como Jogador, quero ouvir efeitos sonoros 8-bit ao enviar, ao receber a Nota e ao subir de posição, para que o jogo fique mais divertido.
-48. Como Jogador, quero que o som venha desligado e haja um botão para ligar, para não atrapalhar a sala do workshop.
+40. As a Player, I want to earn the **Na mosca** Achievement by scoring 100 on an Attempt, so I am recognized for a perfect prompt.
+41. As a Player, I want to earn the **De primeira** Achievement by scoring 100 already on the Round's 1st Attempt, so I am recognized for getting it right without iterating.
+42. As a Player, I want to earn the **Primeiro sangue** Achievement by making the first submission of the Round, so I am rewarded for speed.
+43. As a Player, I want to earn the **Evolução** Achievement when one of my Attempts beats my first Attempt of the same Round by 30 points or more, so I am rewarded for reading the feedback and improving.
+44. As a Player, I want to earn the **Campeão da Rodada** Achievement by finishing first in the Round, so I have a trophy per Round.
+45. As a Player, I want to see my Achievements and those of other Players on the Scoreboard, so I can compare.
+46. As a Player, I want to see a LEVEL UP animation when my Score improves or I move up on the Scoreboard, so I can feel my progression.
+47. As a Player, I want to hear 8-bit sound effects when I submit, when I receive my Score and when I move up in position, so the game is more fun.
+48. As a Player, I want sound to start off and to have a button to turn it on, so it does not disturb the workshop room.
 
-### Fim da Rodada e aprendizado
+### End of Round and learning
 
-49. Como Jogador, quero ver o Prompt de referência do Desafio quando a Rodada encerrar, para comparar com o meu e aprender.
-50. Como Jogador, quero ver os prompts do top 3 da Rodada, com Avatar e Nota, quando ela encerrar, para aprender com quem foi melhor.
-51. Como Jogador, quero continuar vendo o reveal da última Rodada até o Facilitador abrir a próxima, para ter tempo de ler e discutir.
+49. As a Player, I want to see the Challenge's Reference prompt when the Round closes, so I can compare it with mine and learn.
+50. As a Player, I want to see the prompts of the Round's top 3, with Avatar and Score, when it closes, so I can learn from those who did best.
+51. As a Player, I want to keep seeing the reveal of the last Round until the Facilitator opens the next one, so I have time to read and discuss.
 
-### Facilitador
+### Facilitator
 
-52. Como Facilitador, quero entrar pela rota `/facilitador` com um PIN, para que só eu controle o jogo.
-53. Como Facilitador, quero não aparecer no Placar, para que o ranking mostre só os Jogadores.
-54. Como Facilitador, quero ver a lista de Desafios com a indicação dos que já foram jogados nesta partida, para escolher o próximo.
-55. Como Facilitador, quero abrir uma Rodada com o Desafio escolhido, para que todos os Jogadores comecem ao mesmo tempo.
-56. Como Facilitador, quero definir, de forma opcional, um cronômetro ao abrir a Rodada, para controlar o tempo do workshop.
-57. Como Facilitador, quero que a Rodada encerre sozinha quando o cronômetro zerar, para não precisar ficar de olho no relógio.
-58. Como Facilitador, quero encerrar a Rodada manualmente a qualquer momento, para adaptar o ritmo à turma.
-59. Como Facilitador, quero ver quantos Jogadores já enviaram na Rodada atual, para decidir quando encerrar.
-60. Como Facilitador, quero remover um Jogador (por exemplo, por um Nickname ofensivo), liberando o Nickname e tirando-o do Placar, para manter o ambiente adequado.
-61. Como Facilitador, quero resetar a partida, apagando Jogadores, Tentativas, Conquistas e Rodadas depois de uma confirmação, para começar um novo workshop do zero.
-62. Como Facilitador, quero um modo Telão em tela cheia com o Placar grande, o cronômetro, a contagem de envios e o feed de eventos, para projetar para a turma.
-63. Como Facilitador, quero que o Telão mostre o reveal (Prompt de referência e top 3) quando a Rodada encerrar, para conduzir a discussão com todos olhando para a mesma tela.
-64. Como Facilitador, quero que a partida sobreviva a um restart do servidor no meio do workshop, para não perder o progresso da turma.
+52. As a Facilitator, I want to enter through the `/facilitador` route with a PIN, so that only I control the game.
+53. As a Facilitator, I want not to appear on the Scoreboard, so the ranking shows only Players.
+54. As a Facilitator, I want to see the list of Challenges marking those already played in this match, so I can choose the next one.
+55. As a Facilitator, I want to open a Round with the chosen Challenge, so all Players start at the same time.
+56. As a Facilitator, I want to optionally set a timer when opening the Round, so I can control the workshop's time.
+57. As a Facilitator, I want the Round to close on its own when the timer reaches zero, so I do not have to keep an eye on the clock.
+58. As a Facilitator, I want to close the Round manually at any time, so I can adapt the pace to the class.
+59. As a Facilitator, I want to see how many Players have already submitted in the current Round, so I can decide when to close it.
+60. As a Facilitator, I want to remove a Player (for example, for an offensive Nickname), freeing the Nickname and taking them off the Scoreboard, so I can keep the environment appropriate.
+61. As a Facilitator, I want to reset the match, deleting Players, Attempts, Achievements and Rounds after a confirmation, so I can start a new workshop from scratch.
+62. As a Facilitator, I want a full-screen Big screen mode with the large Scoreboard, the timer, the submission count and the event feed, so I can project it for the class.
+63. As a Facilitator, I want the Big screen to show the reveal (Reference prompt and top 3) when the Round closes, so I can lead the discussion with everyone looking at the same screen.
+64. As a Facilitator, I want the match to survive a server restart in the middle of the workshop, so the class does not lose progress.
 
-### Desafios
+### Challenges
 
-65. Como Facilitador, quero que a partida venha com cinco Desafios prontos, em dificuldade crescente, para não precisar preparar conteúdo antes do workshop.
-66. Como Facilitador, quero poder revisar e editar o texto dos Desafios num arquivo versionado antes do workshop, para ajustar o conteúdo à turma.
+65. As a Facilitator, I want the match to come with five ready Challenges, in increasing difficulty, so I do not have to prepare content before the workshop.
+66. As a Facilitator, I want to be able to review and edit the Challenges' text in a versioned file before the workshop, so I can adjust the content to the class.
 
 ## Implementation Decisions
 
-### Arquitetura e stack
+### Architecture and stack
 
-- Next.js com **servidor Node customizado** hospedando Socket.IO no mesmo processo; deploy em máquina ou container único, nunca serverless (ADR-0001).
-- Prisma sobre **SQLite em arquivo**, nunca `:memory:`, para a partida sobreviver a um restart (ADR-0001).
-- **Nenhuma chamada a LLM**: a Nota vem de heurística determinística sobre o texto do prompt (ADR-0002).
-- UI com Tailwind, shadcn e componentes do registry **8bitcn**; estética MS-DOS mais 8-bit, no clima de jogo de RPG; todo o texto da interface em pt-BR.
-- Paleta: terminal preto e cinza, como o prompt padrão do Windows (fundo preto, texto cinza claro, destaques brancos). **Sem azul de fundo nem verde**. Erros em vermelho (`destructive`). Os componentes 8bitcn ficam com a classe `dark` no `<html>` para ativar as bordas pixeladas.
-- Gerenciador **pnpm**; o projeto começa com `git init` e `main` como branch padrão.
-- Uma única Sala por instância; não existe conceito de múltiplas salas.
+- Next.js with a **custom Node server** hosting Socket.IO in the same process; deployed on a single machine or container, never serverless (ADR-0001).
+- Prisma over **SQLite in a file**, never `:memory:`, so the match survives a restart (ADR-0001).
+- **No LLM calls**: the Score comes from deterministic heuristics over the prompt text (ADR-0002).
+- UI with Tailwind, shadcn and components from the **8bitcn** registry; MS-DOS plus 8-bit aesthetic, with an RPG game vibe; all interface text in pt-BR.
+- Palette: black and grey terminal, like the default Windows prompt (black background, light grey text, white highlights). **No blue background and no green**. Errors in red (`destructive`). The 8bitcn components get the `dark` class on `<html>` to enable the pixelated borders.
+- Package manager **pnpm**; the project starts with `git init` and `main` as the default branch.
+- A single Room per instance; there is no concept of multiple rooms.
 
-### Módulos
+### Modules
 
-1. **Avaliador** (módulo profundo, puro, sem I/O). Interface: `avaliar(prompt, desafio) → Avaliação`.
-   - `Avaliação` = Nota (0–100), veredito (título e texto) e a lista dos seis Critérios. Cada item da lista traz o identificador e o nome do Critério, se foi atendido, os pontos obtidos e o máximo, a dica (quando não atendido) e o trecho reconhecido (quando atendido).
-   - Critérios fixos e iguais para todos os Desafios:
+1. **Evaluator** (deep module, pure, no I/O). Interface: `evaluate(prompt, challenge) → Evaluation`.
+   - `Evaluation` = Score (0–100), verdict (title and text) and the list of the six Criteria. Each item in the list carries the Criterion's id and name, whether it was met, the points obtained and the maximum, the tip (when not met) and the recognized excerpt (when met).
+   - Fixed Criteria, the same for all Challenges (the display names are the pt-BR names shown in the UI, and the recognized markers are pt-BR and English input, which the Evaluator matches):
 
-     | Critério | Pontos | Reconhece (pt-BR e inglês, sem diferenciar maiúscula nem acento) |
+     | Criterion | Points | Recognizes (pt-BR and English, case- and accent-insensitive) |
      |---|---|---|
-     | Papel | 15 | "você é", "atue/aja como", "seu papel", rótulo `Papel:`/`Persona:`/`Role:`, "you are", "act as" |
-     | Contexto | 20 | rótulo `Contexto:`/`Context:`, público ("para a diretoria", "o público é"), situação ("estou/estamos…"), objetivo ("o objetivo é…") |
-     | Tarefa | 20 | verbo de ação no imperativo (liste, escreva, redija, resuma, extraia, gere, identifique, crie, analise; list, write…) **e** pelo menos 2 grupos distintos de Palavras-chave do Desafio |
-     | Formato | 20 | "formato", lista ou tópicos, numerada, tabela, JSON, markdown, títulos, quantidade de itens ("3 itens"), tamanho ("no máximo N palavras"), rótulo `Formato:`/`Format:` |
-     | Restrições | 15 | "não inclua/use/escreva", "evite", "sem …", "apenas", "somente", "no máximo", "nunca", rótulo `Restrições:`, "don't", "avoid", "only" |
-     | Exemplos | 10 | "por exemplo", "exemplo:", "ex.:", trecho entre aspas ou em bloco apresentado como exemplo, "example" |
+     | Papel | 15 | "você é", "atue/aja como", "seu papel", label `Papel:`/`Persona:`/`Role:`, "you are", "act as" |
+     | Contexto | 20 | label `Contexto:`/`Context:`, audience ("para a diretoria", "o público é"), situation ("estou/estamos…"), goal ("o objetivo é…") |
+     | Tarefa | 20 | action verb in the imperative (liste, escreva, redija, resuma, extraia, gere, identifique, crie, analise; list, write…) **and** at least 2 distinct groups of the Challenge's Keywords |
+     | Formato | 20 | "formato", list or bullets, numbered, table, JSON, markdown, titles, item count ("3 itens"), size ("no máximo N palavras"), label `Formato:`/`Format:` |
+     | Restrições | 15 | "não inclua/use/escreva", "evite", "sem …", "apenas", "somente", "no máximo", "nunca", label `Restrições:`, "don't", "avoid", "only" |
+     | Exemplos | 10 | "por exemplo", "exemplo:", "ex.:", a quoted excerpt or a block presented as an example, "example" |
 
-   - Os rótulos podem aparecer como `Rótulo:`, `## Rótulo`, `**Rótulo**` ou `<rotulo>…</rotulo>`.
-   - **Mínimo de conteúdo**: o trecho que dispara o Critério (o conteúdo após o rótulo até o próximo rótulo, ou a frase que contém o marcador natural) precisa ter pelo menos 4 palavras além do próprio marcador. Rótulo vazio ou com 1 a 3 palavras não pontua.
-   - Um mesmo trecho pode atender mais de um Critério (por exemplo, "no máximo 6 palavras por item" vale para Formato e para Restrições).
-   - Vereditos: 100 é "Na mosca!"; de 80 a 99, "Quase lá"; de 50 a 79, "No caminho certo"; abaixo de 50, "Longe do alvo". Os textos de apoio seguem o tom do HTML de referência.
-   - Cada Critério tem uma dica fixa em pt-BR que diz o que acrescentar, com um mini-exemplo.
+   - Labels can appear as `Rótulo:`, `## Rótulo`, `**Rótulo**` or `<rotulo>…</rotulo>`.
+   - **Minimum content**: the excerpt that triggers a Criterion (the content after the label up to the next label, or the sentence containing the natural marker) must have at least 4 words besides the marker itself. An empty label or one with 1 to 3 words does not score.
+   - The same excerpt can meet more than one Criterion (for example, "no máximo 6 palavras por item" counts for Format and for Constraints).
+   - Verdicts: 100 is "Na mosca!"; 80 to 99 is "Quase lá"; 50 to 79 is "No caminho certo"; below 50 is "Longe do alvo". The supporting texts follow the tone of the reference HTML.
+   - Each Criterion has a fixed tip in pt-BR that says what to add, with a mini example.
 
-2. **Catálogo de Desafios**: arquivo de seed versionado no repositório, carregado pelo servidor; os Desafios não ficam no banco. Cada Desafio tem identificador estável, ordem, título, cenário (texto do `DESAFIO.TXT`), Palavras-chave (em grupos de sinônimos, como os `groups` do HTML de referência) e Prompt de referência. Os Prompts de referência precisam tirar 100 no Avaliador. Os cinco Desafios:
-   1. **Vantagens e desvantagens do trabalho remoto**: o Prompt de referência é o do HTML de referência, enriquecido com Papel, Contexto e Exemplo. Palavras-chave: trabalho remoto/home office, vantagens/prós, desvantagens/contras.
-   2. **E-mail marcando uma reunião de alinhamento**: Palavras-chave: e-mail, reunião, alinhamento, data/horário, participantes.
-   3. **Resumo da reunião para a pauta da próxima**: o cenário traz anotações soltas de uma reunião; o prompt deve transformá-las num resumo com decisões, pendências e responsáveis, organizado como pauta da próxima reunião. Palavras-chave: anotações/ata, resumo, decisões, pendências, responsáveis, pauta.
-   4. **Extrair dados de um contrato em .docx**: o Jogador vai anexar um contrato .docx a uma LLM e precisa extrair contratante, contratado, valor, vigência e multa em **JSON**, marcando "não encontrado" no que faltar. Palavras-chave: contrato, docx/documento, extrair, JSON, contratante, valor, vigência, multa.
-   5. **Pontos-chave de um e-mail recebido**: o cenário traz um e-mail longo e confuso de um cliente; o prompt deve extrair os pontos-chave, as perguntas que exigem resposta e o prazo, em tópicos curtos. Palavras-chave: e-mail, cliente, pontos-chave, perguntas, prazo, tópicos.
+2. **Challenge catalog**: a versioned seed file in the repository, loaded by the server; Challenges do not live in the database. Each Challenge has a stable identifier, order, title, scenario (text of `DESAFIO.TXT`), Keywords (in groups of synonyms, like the `groups` of the reference HTML) and a Reference prompt. Reference prompts must score 100 in the Evaluator. The five Challenges:
+   1. **Advantages and disadvantages of remote work**: the Reference prompt is the one from the reference HTML, enriched with Role, Context and Example. Keywords: trabalho remoto/home office, vantagens/prós, desvantagens/contras.
+   2. **Email scheduling an alignment meeting**: Keywords: e-mail, reunião, alinhamento, data/horário, participantes.
+   3. **Meeting summary for the next agenda**: the scenario brings loose notes from a meeting; the prompt must turn them into a summary with decisions, pending items and owners, organized as the agenda of the next meeting. Keywords: anotações/ata, resumo, decisões, pendências, responsáveis, pauta.
+   4. **Extract data from a .docx contract**: the Player will attach a .docx contract to an LLM and must extract the contracting party, contracted party, value, term and penalty in **JSON**, marking "não encontrado" for anything missing. Keywords: contrato, docx/documento, extrair, JSON, contratante, valor, vigência, multa.
+   5. **Key points of a received email**: the scenario brings a long, confusing email from a client; the prompt must extract the key points, the questions that require an answer and the deadline, in short bullets. Keywords: e-mail, cliente, pontos-chave, perguntas, prazo, tópicos.
 
-3. **Motor do Jogo** (módulo profundo, a única porta para mudar o estado da Sala). Recebe comandos e devolve resultado e eventos; depende de um repositório (Prisma) e de um relógio injetável. Comandos:
-   - `entrar(nickname)` devolve o Jogador e o token. `retomar(token)` devolve o Jogador ou um erro.
-   - `abrirRodada(desafioId, duracao?)`, só para o Facilitador.
-   - `enviarTentativa(token, prompt)` devolve a Tentativa com a Avaliação.
-   - `encerrarRodada()`, só para o Facilitador. `verificarPrazo(agora)` encerra a Rodada se o prazo tiver passado.
-   - `removerJogador(jogadorId)` e `resetarPartida()`, só para o Facilitador.
-   - Consultas: `estadoDoJogador(token)` (snapshot para a tela do Jogador, **sem** prompts alheios), `estadoDoFacilitador()` e `placar()`.
-   - Invariantes:
-     - No máximo uma Rodada aberta.
-     - Cada Desafio é jogado no máximo uma vez por partida.
-     - Até 3 Tentativas por Jogador por Rodada.
-     - Envio recusado sem Rodada aberta, com a Rodada encerrada, com prompt vazio ou com mais de 4.000 caracteres. Envio recusado não consome Tentativa.
-   - Nickname: depois de aparar espaços, tem de 2 a 16 caracteres, apenas letras (com acento), números e espaço, e pelo menos 2 caracteres alfanuméricos. A unicidade compara a forma normalizada (minúscula e sem acento). Iniciais do Avatar: os 2 primeiros caracteres alfanuméricos, sem acento, em maiúsculo.
-   - Placar: cada Jogador soma, para cada Rodada (encerrada ou aberta), a Nota da sua melhor Tentativa. Empate: menor soma de Tentativas usadas nas Rodadas em que pontuou, depois quem atingiu primeiro a pontuação. O Facilitador não aparece.
-   - Conquistas: avaliadas dentro do Motor a cada envio e ao encerrar a Rodada. Cada uma é concedida no máximo uma vez por Jogador por Rodada.
-     - **Na mosca**: Nota 100.
-     - **De primeira**: Nota 100 na 1ª Tentativa.
-     - **Primeiro sangue**: primeira Tentativa aceita da Rodada.
-     - **Evolução**: Nota de uma Tentativa posterior ≥ Nota da 1ª Tentativa + 30.
-     - **Campeão da Rodada**: 1º lugar da Rodada pela melhor Nota com o mesmo desempate; só é concedida se a melhor Nota for maior que 0.
-   - Eventos emitidos: Jogador entrou/saiu/ficou offline, Tentativa avaliada (para o próprio Jogador, com a Avaliação completa), Placar atualizado (para todos, **sem** texto de prompt), Conquista concedida, Rodada aberta, Rodada encerrada com reveal (Prompt de referência mais o top 3 com Avatar, Nickname, Nota e prompt), Jogador removido e partida resetada.
-   - Remover um Jogador apaga as Tentativas e Conquistas dele e libera o Nickname. O Jogador removido volta para a tela de login.
-   - Resetar apaga Jogadores, Rodadas, Tentativas e Conquistas; todos os clientes voltam para a tela de login.
+3. **Game Engine** (deep module, the only entry point for changing the Room's state). It receives commands and returns results and events; it depends on a repository (Prisma) and an injectable clock. Commands:
+   - `enter(nickname)` returns the Player and the token. `resume(token)` returns the Player or an error.
+   - `openRound(challengeId, duration?)`, Facilitator only.
+   - `submitAttempt(token, prompt)` returns the Attempt with its Evaluation.
+   - `closeRound()`, Facilitator only. `checkDeadline(now)` closes the Round if the deadline has passed.
+   - `removePlayer(playerId)` and `resetMatch()`, Facilitator only.
+   - Queries: `playerState(token)` (snapshot for the Player's screen, **without** other Players' prompts), `facilitatorState()` and `scoreboard()`.
+   - Invariants:
+     - At most one open Round.
+     - Each Challenge is played at most once per match.
+     - Up to 3 Attempts per Player per Round.
+     - Submission refused without an open Round, with the Round closed, with an empty prompt or with more than 4,000 characters. A refused submission does not consume an Attempt.
+   - Nickname: after trimming spaces, it has 2 to 16 characters, only letters (with accents), numbers and spaces, and at least 2 alphanumeric characters. Uniqueness compares the normalized form (lowercase and without accents). Avatar initials: the first 2 alphanumeric characters, without accents, in uppercase.
+   - Scoreboard: each Player sums, for each Round (closed or open), the Score of their best Attempt. Tie: smaller sum of Attempts used in the Rounds where they scored, then who reached the score first. The Facilitator does not appear.
+   - Achievements: evaluated inside the Engine on each submission and when the Round closes. Each one is granted at most once per Player per Round.
+     - **Na mosca**: Score 100.
+     - **De primeira**: Score 100 on the 1st Attempt.
+     - **Primeiro sangue**: first accepted Attempt of the Round.
+     - **Evolução**: Score of a later Attempt ≥ Score of the 1st Attempt + 30.
+     - **Campeão da Rodada**: 1st place in the Round by best Score with the same tiebreaker; only granted if the best Score is greater than 0.
+   - Events emitted: Player entered/left/went offline, Attempt evaluated (to the Player themselves, with the full Evaluation), Scoreboard updated (to everyone, **without** prompt text), Achievement granted, Round opened, Round closed with reveal (Reference prompt plus the top 3 with Avatar, Nickname, Score and prompt), Player removed and match reset.
+   - Removing a Player deletes their Attempts and Achievements and frees the Nickname. The removed Player goes back to the login screen.
+   - Reset deletes Players, Rounds, Attempts and Achievements; all clients go back to the login screen.
 
-4. **Persistência** (Prisma/SQLite). Esquema conceitual:
-   - Jogador: id, nickname, nickname normalizado (único), iniciais, token (único), criadoEm.
-   - Rodada: id, desafioId, abertaEm, prazo (opcional), encerradaEm (opcional).
-   - Tentativa: id, jogadorId, rodadaId, número (1–3), prompt, Nota, Avaliação serializada, criadaEm.
-   - Conquista: id, jogadorId, rodadaId, tipo, criadaEm.
-   - Presença (online/offline) fica só em memória, derivada das conexões de socket.
+4. **Persistence** (Prisma/SQLite). Conceptual schema (the Prisma models and columns are mapped to the EN names in the code):
+   - Player: id, nickname, normalized nickname (unique), initials, token (unique), createdAt.
+   - Round: id, challengeId, openedAt, deadline (optional), closedAt (optional).
+   - Attempt: id, playerId, roundId, number (1–3), prompt, Score, serialized Evaluation, createdAt.
+   - Achievement: id, playerId, roundId, type, createdAt.
+   - Presence (online/offline) lives only in memory, derived from socket connections.
 
-5. **Transporte em tempo real** (Socket.IO, casca fina). Traduz mensagens de socket em comandos do Motor e distribui os eventos. A sala de broadcast dos Jogadores nunca recebe texto de prompt alheio antes do reveal. O canal do Facilitador exige sessão autenticada pelo PIN. Ao conectar, o cliente recebe o snapshot completo do seu papel. Um tick periódico chama `verificarPrazo`.
+5. **Real-time transport** (Socket.IO, thin shell). Translates socket messages into Engine commands and distributes the events. The Players' broadcast room never receives another Player's prompt text before the reveal. The Facilitator channel requires a session authenticated by the PIN. On connect, the client receives the full snapshot for its role. A periodic tick calls `checkDeadline`.
 
-6. **Autenticação do Facilitador**: o PIN fica numa variável de ambiente. A rota `/facilitador` pede o PIN e, se ele estiver correto, emite uma sessão (cookie httpOnly) que o socket valida.
+6. **Facilitator authentication**: the PIN lives in an environment variable. The `/facilitador` route asks for the PIN and, if it is correct, issues a session (httpOnly cookie) that the socket validates.
 
-7. **UI do Jogador**:
-   - Tela de login com campo de Nickname, explicação sobre o Avatar e preview ao vivo; o token fica salvo no navegador.
-   - Área de trabalho DOS com três janelas arrastáveis e minimizáveis; as posições ficam salvas por navegador.
-   - `PROMPT.EXE`: estado de espera, campo de prompt, contador de caracteres, Tentativas restantes, cronômetro, resultado (Nota, veredito, checklist com dicas e trechos), histórico da Rodada e reveal.
-   - `DESAFIO.TXT`: cenário da Rodada atual.
-   - `PLACAR.EXE`: ranking, status, Conquistas e feed de eventos.
-   - Botão de som, desligado por padrão. Animação de LEVEL UP ao melhorar a Nota ou subir de posição.
+7. **Player UI**:
+   - Login screen with a Nickname field, an explanation about the Avatar and a live preview; the token is saved in the browser.
+   - DOS desktop with three draggable and minimizable windows; positions are saved per browser.
+   - `PROMPT.EXE`: waiting state, prompt field, character counter, Attempts left, timer, result (Score, verdict, checklist with tips and excerpts), Round history and reveal.
+   - `DESAFIO.TXT`: scenario of the current Round.
+   - `PLACAR.EXE`: ranking, status, Achievements and event feed.
+   - Sound button, off by default. LEVEL UP animation when the Score improves or the Player moves up.
 
-8. **UI do Facilitador e Telão**: painel de controle (Desafios com marcação de jogados, abrir com cronômetro opcional, encerrar, contagem de envios, lista de Jogadores com botão de remover, reset com confirmação) e modo Telão em tela cheia (Placar grande, cronômetro, contagem de envios, feed e reveal).
+8. **Facilitator UI and Big screen**: control panel (Challenges with played markers, open with optional timer, close, submission count, list of Players with a remove button, reset with confirmation) and a full-screen Big screen mode (large Scoreboard, timer, submission count, feed and reveal).
 
 ## Testing Decisions
 
-- **O que é um bom teste aqui**: exercita só o comportamento externo pela interface pública de um dos dois pontos de teste e afirma sobre resultados e eventos observáveis, nunca sobre estrutura interna, regex específica ou chamadas ao Prisma. Os testes leem como regras do jogo ("um prompt só com rótulos vazios tira menos de 20").
-- **Ponto 1, Avaliador**: testado como função pura, com TDD (vermelho, verde, refatorar). Casos mínimos:
-  - Prompt ruim de uma linha tira nota baixa.
-  - Cada Critério é reconhecido por rótulo e por frase natural, em pt-BR e em inglês.
-  - Rótulos sem conteúdo ("Papel: x. Contexto: x. …") não pontuam.
-  - A Tarefa falha quando o prompt é ótimo, mas fala de outro Desafio (prompt da Rodada 1 avaliado no Desafio 2).
-  - O mesmo trecho pode pontuar em Formato e Restrições.
-  - Os limites dos vereditos ficam corretos (49/50, 79/80, 99/100).
-  - **O Prompt de referência de cada Desafio do seed tira 100** (protege o seed contra regressões).
-- **Ponto 2, Motor do Jogo**: testado por comandos contra um SQLite de teste real (um banco limpo por teste) e com relógio injetável. Casos mínimos:
-  - Regras de Nickname e unicidade normalizada; iniciais.
-  - Retomar pelo token.
-  - Ciclo da Rodada (abrir, enviar, encerrar); recusas sem Rodada, com Rodada encerrada, na 4ª Tentativa, com prompt vazio ou acima de 4.000 caracteres, e recusa que não consome Tentativa.
-  - Desafio não pode ser reaberto; prazo vencido encerra via `verificarPrazo`.
-  - Placar pela melhor Tentativa e pela soma entre Rodadas; desempates.
-  - Cada uma das cinco Conquistas, incluindo os casos de não concessão.
-  - Os eventos de Placar nunca contêm texto de prompt; o reveal contém o top 3 e o Prompt de referência.
-  - Remoção de Jogador libera o Nickname e limpa o Placar; reset limpa tudo.
-- **Sem testes automatizados**: transporte Socket.IO, UI do Jogador e UI do Facilitador e Telão. Ficam finos o bastante para que a verificação seja manual, rodando a app com mais de uma aba.
-- **Ferramenta**: Vitest.
-- **Prior art**: o repositório parte do zero, sem testes existentes. O HTML "Workshop Prompts" usado como referência (função `analyze`, que devolve `score` e uma lista de checks) é o modelo conceitual para o formato da Avaliação.
+- **What makes a good test here**: it exercises only the external behavior through the public interface of one of the two test points, and asserts on observable results and events, never on internal structure, specific regex or Prisma calls. The tests read like the game's rules ("a prompt with only empty labels scores less than 20").
+- **Point 1, Evaluator**: tested as a pure function, with TDD (red, green, refactor). Minimum cases:
+  - A one-line bad prompt scores low.
+  - Each Criterion is recognized by label and by natural phrase, in pt-BR and in English.
+  - Labels without content ("Papel: x. Contexto: x. …") do not score.
+  - The Task fails when the prompt is excellent but addresses another Challenge (Round 1's prompt evaluated on Challenge 2).
+  - The same excerpt can score for Format and for Constraints.
+  - The verdict boundaries are correct (49/50, 79/80, 99/100).
+  - **Each seed Challenge's Reference prompt scores 100** (protects the seed against regressions).
+- **Point 2, Game Engine**: tested through commands against a real SQLite test database (a clean database per test) and with an injectable clock. Minimum cases:
+  - Nickname rules and normalized uniqueness; initials.
+  - Resume by token.
+  - Round lifecycle (open, submit, close); refusals without an open Round, with the Round closed, on the 4th Attempt, with an empty prompt or above 4,000 characters, and a refusal that does not consume an Attempt.
+  - A Challenge cannot be reopened; an expired deadline closes via `checkDeadline`.
+  - Scoreboard by best Attempt and by the sum across Rounds; tiebreakers.
+  - Each of the five Achievements, including the non-grant cases.
+  - Scoreboard events never contain prompt text; the reveal contains the top 3 and the Reference prompt.
+  - Removing a Player frees the Nickname and clears it from the Scoreboard; reset clears everything.
+- **No automated tests**: the Socket.IO transport, the Player UI and the Facilitator UI and Big screen. They are thin enough that verification is manual, running the app with more than one tab open.
+- **Tool**: Vitest.
+- **Prior art**: the repository starts from scratch, with no existing tests. The "Workshop Prompts" HTML used as reference (the `analyze` function, which returns `score` and a list of checks) is the conceptual model for the Evaluation format.
 
 ## Out of Scope
 
-- Qualquer chamada a LLM: gerar a resposta do prompt, LLM-juíza, embeddings (ADR-0002).
-- Resposta-alvo e comparação da saída da LLM com um alvo (o mecanismo do HTML original).
-- Múltiplas Salas, códigos de sala, workshops simultâneos.
-- Criar ou editar Desafios pela UI; Critérios ou pesos diferentes por Desafio.
-- Login com senha, e-mail ou SSO; contas persistentes entre partidas.
-- Ver a Janela ou o prompt de outro Jogador durante a Rodada; posição de janelas compartilhada entre Jogadores.
-- Chat entre Jogadores.
-- Histórico de partidas anteriores depois de um reset.
-- Testes E2E por navegador.
-- Deploy serverless (Vercel e similares) ou serviço de tempo real externo (ADR-0001).
-- Layout pensado para celular: o alvo é notebook ou desktop. O layout pode degradar de forma aceitável em telas menores.
+- Any LLM call: generating the prompt's answer, LLM-as-judge, embeddings (ADR-0002).
+- Target answer and comparison of the LLM output against a target (the mechanism of the original HTML).
+- Multiple Rooms, room codes, simultaneous workshops.
+- Creating or editing Challenges through the UI; different Criteria or weights per Challenge.
+- Login with password, email or SSO; persistent accounts across matches.
+- Seeing another Player's Window or prompt during the Round; window positions shared between Players.
+- Chat between Players.
+- History of previous matches after a reset.
+- Browser-based E2E tests.
+- Serverless deployment (Vercel and similar) or an external real-time service (ADR-0001).
+- Mobile-first layout: the target is laptop or desktop. The layout may degrade acceptably on smaller screens.
 
 ## Further Notes
 
-- O vocabulário segue o `CONTEXT.md` (Jogador, Nickname, Avatar, Facilitador, Telão, Sala, Desafio, Palavras-chave, Prompt de referência, Critério, Nota, Rodada, Tentativa, Janela, Placar, Conquista). As janelas `DESAFIO.TXT` e `PLACAR.EXE` não são "Janela" no sentido do glossário.
-- ADRs relevantes: `docs/adr/0001-servidor-node-unico-com-sqlite.md` e `docs/adr/0002-avaliar-o-prompt-sem-chamar-llm.md`.
-- O HTML de referência ("Workshop Prompts", Atividade 1) inspirou o Desafio 1, o formato do checklist ✓/✕ com pontos e os vereditos. A mecânica de Resposta-alvo dele foi descartada de propósito.
-- Decisão tomada nesta spec sem discussão explícita: cada Desafio pode ser jogado no máximo uma vez por partida, para que a soma do Placar não conte o mesmo Desafio duas vezes. Se o Facilitador precisar repetir um Desafio, isso vira uma nova spec.
-- Os textos dos cenários, dicas e Prompts de referência são redigidos na implementação e revisados pelo Facilitador antes do workshop (história 66).
-- Decisão de cores (revisada na implementação): a primeira versão usava as cores de terminal DOS (fundo azul, texto verde) e ficou ruim de ler. Foi trocada por preto e cinza, como o prompt padrão do Windows, com os tokens do 8bitcn. É uma decisão visual e reversível, por isso ficou aqui e não em ADR. Os destaques usam branco no lugar do amarelo e do verde, então a hierarquia depende de tamanho e peso da fonte, não de cor.
-- A heurística sempre pode ser burlada com esforço; o mínimo de conteúdo e as Palavras-chave tornam isso trabalhoso, e o reveal do top 3 expõe abusos. A precisão perfeita não é objetivo.
+- The vocabulary follows `CONTEXT.md` (Player, Nickname, Avatar, Facilitator, Big screen, Room, Challenge, Keywords, Reference prompt, Criterion, Score, Round, Attempt, Window, Scoreboard, Achievement). The `DESAFIO.TXT` and `PLACAR.EXE` windows are not a "Window" in the glossary's sense.
+- Relevant ADRs: `docs/adr/0001-single-node-server-with-sqlite.md` and `docs/adr/0002-evaluate-prompt-without-llm.md`.
+- The reference HTML ("Workshop Prompts", Atividade 1) inspired Challenge 1, the ✓/✕ checklist format with points and the verdicts. Its target-answer mechanism was deliberately dropped.
+- Decision taken in this spec without explicit discussion: each Challenge can be played at most once per match, so the Scoreboard sum does not count the same Challenge twice. If the Facilitator needs to repeat a Challenge, that becomes a new spec.
+- The texts of scenarios, tips and Reference prompts are written during implementation and reviewed by the Facilitator before the workshop (story 66).
+- Color decision (revised during implementation): the first version used DOS terminal colors (blue background, green text) and was hard to read. It was replaced with black and grey, like the default Windows prompt, using the 8bitcn tokens. It is a visual decision and reversible, so it lives here and not in an ADR. Highlights use white instead of yellow and green, so the hierarchy depends on font size and weight, not on color.
+- The heuristic can always be gamed with effort; the minimum content and the Keywords make that laborious, and the top 3 reveal exposes abuses. Perfect precision is not the goal.

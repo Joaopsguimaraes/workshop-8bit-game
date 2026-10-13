@@ -3,13 +3,13 @@ import { Press_Start_2P, VT323 } from "next/font/google";
 import "./globals.css";
 
 const fontePixel = Press_Start_2P({
-  variable: "--fonte-pixel",
+  variable: "--font-pixel-source",
   weight: "400",
   subsets: ["latin"],
 });
 
 const fonteTerminal = VT323({
-  variable: "--fonte-terminal",
+  variable: "--font-terminal-source",
   weight: "400",
   subsets: ["latin"],
 });

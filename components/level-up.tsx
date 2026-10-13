@@ -2,22 +2,22 @@
 
 import { useEffect } from "react";
 
-type Props = { motivo: string; onFim: () => void };
+type Props = { reason: string; onDone: () => void };
 
-const DURACAO_MS = 1800;
+const DURATION_MS = 1800;
 
-// Animação de LEVEL UP: aparece sobre a área de trabalho por um instante e some sozinha.
-export function LevelUp({ motivo, onFim }: Props) {
+// LEVEL UP animation: appears over the desktop for a moment and disappears on its own.
+export function LevelUp({ reason, onDone }: Props) {
   useEffect(() => {
-    const id = window.setTimeout(onFim, DURACAO_MS);
-    return () => window.clearTimeout(id);
-  }, [onFim]);
+    const timer = window.setTimeout(onDone, DURATION_MS);
+    return () => window.clearTimeout(timer);
+  }, [onDone]);
 
   return (
     <div role="status" aria-live="assertive" className="pointer-events-none fixed inset-x-0 top-1/3 z-50 flex justify-center">
-      <div className="animacao-level-up font-pixel border-4 border-foreground bg-background px-6 py-4 text-center text-primary">
+      <div className="level-up-animation font-pixel border-4 border-foreground bg-background px-6 py-4 text-center text-primary">
         <p className="text-[20px]">LEVEL UP!</p>
-        <p className="mt-2 text-[10px] text-foreground">{motivo}</p>
+        <p className="mt-2 text-[10px] text-foreground">{reason}</p>
       </div>
     </div>
   );

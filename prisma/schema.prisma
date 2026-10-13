@@ -7,50 +7,56 @@ datasource db {
   provider = "sqlite"
 }
 
-model Jogador {
-  id                  String      @id @default(cuid())
-  nickname            String
-  nicknameNormalizado String      @unique
-  iniciais            String
-  token               String      @unique
-  criadoEm            DateTime    @default(now())
-  tentativas          Tentativa[]
-  conquistas          Conquista[]
+model Player {
+  id                 String        @id @default(cuid())
+  nickname           String
+  normalizedNickname String        @unique @map("nicknameNormalizado")
+  initials           String        @map("iniciais")
+  token              String        @unique
+  createdAt          DateTime      @default(now()) @map("criadoEm")
+  attempts           Attempt[]
+  achievements       Achievement[]
+
+  @@map("Jogador")
 }
 
-model Rodada {
-  id          String      @id @default(cuid())
-  desafioId   String
-  abertaEm    DateTime
-  prazo       DateTime?
-  encerradaEm DateTime?
-  tentativas  Tentativa[]
-  conquistas  Conquista[]
+model Round {
+  id           String        @id @default(cuid())
+  challengeId  String        @map("desafioId")
+  openedAt     DateTime      @map("abertaEm")
+  deadline     DateTime?     @map("prazo")
+  closedAt     DateTime?     @map("encerradaEm")
+  attempts     Attempt[]
+  achievements Achievement[]
+
+  @@map("Rodada")
 }
 
-model Tentativa {
+model Attempt {
+  id         String   @id @default(cuid())
+  playerId   String   @map("jogadorId")
+  roundId    String   @map("rodadaId")
+  number     Int      @map("numero")
+  prompt     String
+  score      Int      @map("nota")
+  evaluation String   @map("avaliacao")
+  createdAt  DateTime @default(now()) @map("criadaEm")
+  player     Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  round      Round    @relation(fields: [roundId], references: [id], onDelete: Cascade)
+
+  @@unique([playerId, roundId, number])
+  @@map("Tentativa")
+}
+
+model Achievement {
   id        String   @id @default(cuid())
-  jogadorId String
-  rodadaId  String
-  numero    Int
-  prompt    String
-  nota      Int
-  avaliacao String
-  criadaEm  DateTime @default(now())
-  jogador   Jogador  @relation(fields: [jogadorId], references: [id], onDelete: Cascade)
-  rodada    Rodada   @relation(fields: [rodadaId], references: [id], onDelete: Cascade)
+  playerId  String   @map("jogadorId")
+  roundId   String   @map("rodadaId")
+  type      String   @map("tipo")
+  createdAt DateTime @default(now()) @map("criadaEm")
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  round     Round    @relation(fields: [roundId], references: [id], onDelete: Cascade)
 
-  @@unique([jogadorId, rodadaId, numero])
-}
-
-model Conquista {
-  id        String   @id @default(cuid())
-  jogadorId String
-  rodadaId  String
-  tipo      String
-  criadaEm  DateTime @default(now())
-  jogador   Jogador  @relation(fields: [jogadorId], references: [id], onDelete: Cascade)
-  rodada    Rodada   @relation(fields: [rodadaId], references: [id], onDelete: Cascade)
-
-  @@unique([jogadorId, rodadaId, tipo])
+  @@unique([playerId, roundId, type])
+  @@map("Conquista")
 }

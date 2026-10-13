@@ -1,37 +1,37 @@
-# Workshop de Prompts
+# Prompt Workshop
 
-Jogo colaborativo em tempo real, com estética MS-DOS/8-bit, para o workshop de engenharia de prompt.
-Veja o contexto em `CONTEXT.md`, a spec em `.scratch/workshop-game/spec.md` e as decisões em `docs/adr/`.
+A real-time collaborative game, with an MS-DOS/8-bit look, for the prompt engineering workshop.
+See the domain context in `CONTEXT.md`, the spec in `.scratch/workshop-game/spec.md` and the decisions in `docs/adr/`.
 
-## Como rodar
+## How to run
 
-Pré-requisitos: Node 20.19+ (testado em 25) e pnpm.
+Prerequisites: Node 20.19+ (tested on 25) and pnpm.
 
 ```bash
 pnpm install
-cp .env.example .env     # DATABASE_URL do SQLite em arquivo
-pnpm db:deploy           # aplica as migrações (use db:migrate ao criar uma nova)
-pnpm dev                 # Next + Socket.IO no mesmo processo, em http://localhost:3000
+cp .env.example .env     # DATABASE_URL of the SQLite file
+pnpm db:deploy           # applies the migrations (use db:migrate when creating a new one)
+pnpm dev                 # Next + Socket.IO in the same process, at http://localhost:3000
 ```
 
 ## Scripts
 
-| Script | O que faz |
+| Script | What it does |
 | --- | --- |
-| `pnpm dev` | Sobe Next e Socket.IO em desenvolvimento |
-| `pnpm build` | Build de produção do Next |
-| `pnpm start` | Sobe a versão de produção (`NODE_ENV=production`) |
-| `pnpm db:migrate` | Cria uma nova migração a partir do `schema.prisma` |
-| `pnpm db:deploy` | Aplica as migrações pendentes |
-| `pnpm typecheck` | Gera os tipos do Next e roda `tsc` |
-| `pnpm test` | Roda a suíte Vitest uma vez |
+| `pnpm dev` | Starts Next and Socket.IO in development |
+| `pnpm build` | Production build of Next |
+| `pnpm start` | Starts the production version (`NODE_ENV=production`) |
+| `pnpm db:migrate` | Creates a new migration from `schema.prisma` |
+| `pnpm db:deploy` | Applies the pending migrations |
+| `pnpm typecheck` | Generates the Next types and runs `tsc` |
+| `pnpm test` | Runs the Vitest suite once |
 
-## Estrutura
+## Structure
 
-- `server.ts`: servidor Node único com Next e Socket.IO (ADR-0001).
-- `lib/motor/`: Motor do Jogo, a única porta para mudar o estado da Sala, com testes contra SQLite limpo por teste.
-- `lib/nickname.ts`: regras de Nickname e Avatar.
-- `lib/presenca.ts`: presença online só em memória, derivada das conexões de socket.
-- `lib/tempo-real.ts`: casca fina do Socket.IO sobre o Motor.
-- `components/`: login, área de trabalho DOS, janelas arrastáveis e Placar.
-- `components/ui/8bit/`: componentes do registry 8bitcn (`pnpm dlx shadcn@latest add @8bitcn/<nome>`).
+- `server.ts`: single Node server with Next and Socket.IO (ADR-0001).
+- `lib/engine/`: Game Engine, the only entry point for changing the Room's state, with tests against a clean SQLite database per test.
+- `lib/nickname.ts`: Nickname and Avatar rules.
+- `lib/presence.ts`: online presence, in memory only, derived from socket connections.
+- `lib/realtime.ts`: thin Socket.IO shell over the Engine.
+- `components/`: login, DOS desktop, draggable windows and the Scoreboard. The UI text is pt-BR.
+- `components/ui/8bit/`: components from the 8bitcn registry (`pnpm dlx shadcn@latest add @8bitcn/<name>`).

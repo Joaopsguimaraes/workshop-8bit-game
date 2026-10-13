@@ -1,15 +1,15 @@
-export type ResultadoNickname =
-  | { ok: true; nickname: string; normalizado: string; iniciais: string }
-  | { ok: false; erro: string };
+export type NicknameResult =
+  | { ok: true; nickname: string; normalized: string; initials: string }
+  | { ok: false; error: string };
 
-const MINIMO = 2;
-const MAXIMO = 16;
+const MIN = 2;
+const MAX = 16;
 
-// Letras latinas (com acento), números e espaço. Tudo o mais é inválido.
-const CARACTERES_PERMITIDOS = /^[\p{Script=Latin}\p{N} ]+$/u;
+// Latin letters (with accents), numbers and spaces. Anything else is invalid.
+const ALLOWED_CHARACTERS = /^[\p{Script=Latin}\p{N} ]+$/u;
 
-// Letras latinas que não se decompõem em NFD ganham a equivalente mais próxima.
-const EQUIVALENTES: Record<string, string> = {
+// Latin letters that do not decompose in NFD get their closest equivalent.
+const EQUIVALENTS: Record<string, string> = {
   ø: "o",
   Ø: "O",
   ł: "l",
@@ -30,46 +30,46 @@ const EQUIVALENTES: Record<string, string> = {
   Þ: "TH",
 };
 
-function semAcento(texto: string): string {
-  return texto
+function withoutAccents(text: string): string {
+  return text
     .normalize("NFD")
     .replace(/\p{M}/gu, "")
-    .replace(/[øØłŁæÆœŒßđĐħĦıðÐþÞ]/gu, (letra) => EQUIVALENTES[letra] ?? letra);
+    .replace(/[øØłŁæÆœŒßđĐħĦıðÐþÞ]/gu, (letter) => EQUIVALENTS[letter] ?? letter);
 }
 
-function alfanumericos(texto: string): string {
-  return semAcento(texto).replace(/[^A-Za-z0-9]/g, "");
+function alphanumeric(text: string): string {
+  return withoutAccents(text).replace(/[^A-Za-z0-9]/g, "");
 }
 
-export function normalizarNickname(nome: string): string {
-  return semAcento(nome).replace(/\s+/g, " ").trim().toLowerCase();
+export function normalizeNickname(name: string): string {
+  return withoutAccents(name).replace(/\s+/g, " ").trim().toLowerCase();
 }
 
-export function iniciaisDoAvatar(nome: string): string {
-  return alfanumericos(nome).slice(0, 2).toUpperCase();
+export function avatarInitials(name: string): string {
+  return alphanumeric(name).slice(0, 2).toUpperCase();
 }
 
-export function validarNickname(bruto: string): ResultadoNickname {
-  const nickname = bruto.normalize("NFC").trim().replace(/\s+/g, " ");
-  const tamanho = [...nickname].length;
+export function validateNickname(raw: string): NicknameResult {
+  const nickname = raw.normalize("NFC").trim().replace(/\s+/g, " ");
+  const length = [...nickname].length;
 
-  if (tamanho < MINIMO) {
-    return { ok: false, erro: "O Nickname precisa ter pelo menos 2 caracteres." };
+  if (length < MIN) {
+    return { ok: false, error: "O Nickname precisa ter pelo menos 2 caracteres." };
   }
-  if (tamanho > MAXIMO) {
-    return { ok: false, erro: "O Nickname pode ter no máximo 16 caracteres." };
+  if (length > MAX) {
+    return { ok: false, error: "O Nickname pode ter no máximo 16 caracteres." };
   }
-  if (!CARACTERES_PERMITIDOS.test(nickname)) {
-    return { ok: false, erro: "Use apenas letras, números e espaços." };
+  if (!ALLOWED_CHARACTERS.test(nickname)) {
+    return { ok: false, error: "Use apenas letras, números e espaços." };
   }
-  if (alfanumericos(nickname).length < MINIMO) {
-    return { ok: false, erro: "Use pelo menos 2 letras ou números." };
+  if (alphanumeric(nickname).length < MIN) {
+    return { ok: false, error: "Use pelo menos 2 letras ou números." };
   }
 
   return {
     ok: true,
     nickname,
-    normalizado: normalizarNickname(nickname),
-    iniciais: iniciaisDoAvatar(nickname),
+    normalized: normalizeNickname(nickname),
+    initials: avatarInitials(nickname),
   };
 }

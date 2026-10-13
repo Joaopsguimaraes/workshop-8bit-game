@@ -1,14 +1,14 @@
 import { connection } from "next/server";
-import { PainelFacilitador } from "@/components/facilitador/painel-facilitador";
-import { TelaPinFacilitador } from "@/components/facilitador/tela-pin";
-import { facilitadorAutenticado } from "@/lib/facilitador/guarda";
+import { FacilitatorPanel } from "@/components/facilitator/facilitator-panel";
+import { PinScreen } from "@/components/facilitator/pin-screen";
+import { isFacilitatorAuthenticated } from "@/lib/facilitator/guard";
 
-// Depende do cookie da requisição e não precisa de navegação instantânea.
+// Depends on the request cookie and does not need instant navigation.
 export const instant = false;
 
-// Decide no servidor entre pedir o PIN e mostrar o painel, a partir do cookie de sessão.
-export default async function PaginaFacilitador() {
-  // A checagem depende da hora da requisição, então a página nunca é pré-renderizada.
+// Decides on the server between asking for the PIN and showing the panel, based on the session cookie.
+export default async function FacilitatorPage() {
+  // The check depends on the request time, so the page is never prerendered.
   await connection();
-  return (await facilitadorAutenticado()) ? <PainelFacilitador /> : <TelaPinFacilitador />;
+  return (await isFacilitatorAuthenticated()) ? <FacilitatorPanel /> : <PinScreen />;
 }

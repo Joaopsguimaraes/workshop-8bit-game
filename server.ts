@@ -1,18 +1,18 @@
 import "dotenv/config";
 import { createServer } from "node:http";
 import next from "next";
-import { obterMotor } from "./lib/motor/servico";
-import { criarPresenca } from "./lib/presenca";
-import { instalarTempoReal } from "./lib/tempo-real";
+import { getEngine } from "./lib/engine/service";
+import { createPresence } from "./lib/presence";
+import { installRealtime } from "./lib/realtime";
 
-// Next e Socket.IO compartilham o mesmo processo e a mesma porta (ADR-0001).
-async function iniciar() {
-  const porta = Number(process.env.PORT ?? 3000);
+// Next and Socket.IO share the same process and the same port (ADR-0001).
+async function start() {
+  const port = Number(process.env.PORT ?? 3000);
   const hostname = process.env.HOSTNAME ?? "localhost";
   const dev = process.env.NODE_ENV !== "production";
 
   const httpServer = createServer();
-  const app = next({ dev, hostname, port: porta, httpServer });
+  const app = next({ dev, hostname, port, httpServer });
   const handle = app.getRequestHandler();
   await app.prepare();
 
@@ -20,18 +20,18 @@ async function iniciar() {
     void handle(req, res);
   });
 
-  instalarTempoReal({
+  installRealtime({
     httpServer,
-    motor: obterMotor(),
-    presenca: criarPresenca(),
+    engine: getEngine(),
+    presence: createPresence(),
   });
 
-  httpServer.listen(porta, () => {
-    console.log(`> Pronto em http://${hostname}:${porta} (${dev ? "desenvolvimento" : "produção"})`);
+  httpServer.listen(port, () => {
+    console.log(`> Pronto em http://${hostname}:${port} (${dev ? "desenvolvimento" : "produção"})`);
   });
 }
 
-iniciar().catch((erro) => {
-  console.error(erro);
+start().catch((error) => {
+  console.error(error);
   process.exit(1);
 });

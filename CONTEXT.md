@@ -1,73 +1,75 @@
-# Workshop de Prompts
+# Prompt Workshop
 
-Jogo colaborativo em tempo real, com estética MS-DOS/8-bit, para ensinar participantes de um workshop a escrever prompts bons e estruturados para LLMs.
+A real-time collaborative game with an MS-DOS/8-bit look, for teaching workshop participants to write good, structured prompts for LLMs.
+
+This file is the domain glossary. The terms below are the English names used in code and developer docs. The user-facing UI is in pt-BR, so where a term appears on screen under a different pt-BR word, the description notes it (for example, Big screen is shown as "Telão").
 
 ## Language
 
-### Pessoas
+### People
 
-**Jogador**:
-Participante do workshop identificado apenas por um Nickname único na Sala.
-_Avoid_: Usuário, participante, player
+**Player**:
+A workshop participant, identified only by a unique Nickname in the Room (shown in the UI as "Jogador").
+_Avoid_: User, participant
 
 **Nickname**:
-Nome escolhido pelo Jogador no login; é sua única identidade e é único na Sala.
-_Avoid_: Username, login, nome
+The name a Player picks at login; it is their only identity and is unique in the Room.
+_Avoid_: Username, login, name
 
 **Avatar**:
-Representação visual do Jogador formada pelas duas primeiras letras do Nickname.
-_Avoid_: Foto, ícone
+The visual representation of a Player, made of the first two letters of the Nickname.
+_Avoid_: Photo, icon
 
-**Facilitador**:
-Pessoa que conduz o workshop, abrindo e encerrando cada Rodada para todos os Jogadores; não aparece no Placar.
-_Avoid_: Admin, host, moderador, instrutor
+**Facilitator**:
+The person who runs the workshop, opening and closing each Round for all Players; does not appear on the Scoreboard.
+_Avoid_: Admin, host, moderator, instructor
 
-**Telão**:
-Visão em tela cheia do Facilitador, projetada para a turma, com o Placar ao vivo e o reveal do fim de cada Rodada.
-_Avoid_: Projetor, dashboard, painel público
+**Big screen**:
+The full-screen view of the Facilitator, projected for the class, with the live Scoreboard and the reveal at the end of each Round (shown in the UI as "Telão").
+_Avoid_: Projector, dashboard, public panel
 
-### Jogo
+### Game
 
-**Sala**:
-O único espaço compartilhado da aplicação onde todos os Jogadores jogam juntos.
-_Avoid_: Room, lobby, partida
+**Room**:
+The single shared space of the application where all Players play together (shown in the UI as "Sala").
+_Avoid_: Lobby, match, game
 
-**Desafio**:
-Cenário que descreve o que o Jogador precisa pedir a uma LLM, acompanhado de Palavras-chave e de um Prompt de referência.
-_Avoid_: Atividade, exercício, nível, fase
+**Challenge**:
+A scenario that describes what the Player must ask an LLM for, together with Keywords and a Reference prompt (shown in the UI as "Desafio").
+_Avoid_: Activity, exercise, level, stage
 
-**Palavras-chave**:
-Termos do assunto de um Desafio que o prompt precisa mencionar para atender ao Critério Tarefa.
-_Avoid_: Keywords, tags
+**Keywords**:
+Terms about a Challenge's subject that the prompt must mention to meet the Task Criterion (shown in the UI as "Palavras-chave").
+_Avoid_: Tags, key terms
 
-**Prompt de referência**:
-Um exemplo de prompt bem estruturado para o Desafio, revelado a todos quando a Rodada encerra.
-_Avoid_: Gabarito, resposta certa, prompt ideal
+**Reference prompt**:
+An example of a well-structured prompt for a Challenge, revealed to everyone when the Round closes (shown in the UI as "Prompt de referência").
+_Avoid_: Answer key, right answer, ideal prompt
 
-**Critério**:
-Uma verificação sobre a estrutura do prompt (ex.: define um papel, dá contexto, especifica o formato) que vale um número fixo de pontos; os Critérios são os mesmos em todos os Desafios.
-_Avoid_: Regra, check, requisito
+**Criterion**:
+A check on the structure of a prompt (for example, defines a role, gives context, specifies the format) that is worth a fixed number of points; the Criteria are the same for every Challenge (shown in the UI as "Critério").
+_Avoid_: Rule, check, requirement
 
-**Nota**:
-Soma, de 0 a 100, dos pontos dos Critérios atendidos por uma Tentativa.
-_Avoid_: Score, pontuação, resultado
+**Score**:
+The sum, from 0 to 100, of the points of the Criteria met by an Attempt (shown in the UI as "Nota").
+_Avoid_: Grade, result
 
-**Rodada**:
-Período em que um Desafio está aberto para todos os Jogadores, iniciado e encerrado pelo Facilitador.
-_Avoid_: Round, turno
+**Round**:
+A period in which a Challenge is open to all Players, started and closed by the Facilitator (shown in the UI as "Rodada").
+_Avoid_: Turn
 
-**Tentativa**:
-Um envio de prompt de um Jogador em uma Rodada; cada Jogador tem no máximo 3 por Rodada.
-_Avoid_: Submissão, envio, jogada
+**Attempt**:
+One prompt submission by a Player in a Round; each Player has at most 3 per Round (shown in the UI as "Tentativa").
+_Avoid_: Submission, send, move
 
-**Janela**:
-A janela flutuante pessoal do Jogador onde ele escreve prompts e vê os resultados das suas Tentativas; só o próprio Jogador a vê.
-_Avoid_: Painel, card, modal
+**Window**:
+The Player's personal floating window where they write prompts and see the results of their Attempts; only that Player sees it (shown in the UI as "Janela").
+_Avoid_: Panel, card, modal
 
-**Placar**:
-Lista de Jogadores ordenada pela soma da melhor Nota de cada Rodada, visível para todos e atualizada em tempo real. Empates são decididos por menos Tentativas usadas nas Rodadas em que o Jogador pontuou e, depois, por quem atingiu a pontuação primeiro.
-_Avoid_: Leaderboard, ranking, listagem
+**Scoreboard**:
+The list of Players ordered by the sum of each Round's best Score, visible to everyone and updated in real time (shown in the UI as "Placar"). Ties are broken by fewer Attempts used in the Rounds where the Player scored and then by who reached the score first.
+_Avoid_: Leaderboard, ranking, listing
 
-**Conquista**:
-Distintivo que um Jogador ganha ao cumprir um feito no jogo (ex.: Nota máxima, primeiro a enviar).
-_Avoid_: Badge, troféu, medalha
+**Achievement**:
+A badge a Player earns by reaching a milestone in the game (for example, a maximum Score, or being the first to send) (shown in the UI as "Conquista").
+_Avoid_: Badge, trophy, medal

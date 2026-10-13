@@ -1,5 +1,5 @@
-import { Jogo } from "@/components/jogo";
+import { Game } from "@/components/game";
 
 export default function Page() {
-  return <Jogo />;
+  return <Game />;
 }

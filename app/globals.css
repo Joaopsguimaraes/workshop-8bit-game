@@ -48,7 +48,7 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Terminal preto e cinza, como o prompt padrão do Windows: fundo preto, texto cinza claro. Sem azul nem verde. */
+/* Black and gray terminal, like the default Windows prompt: black background, light gray text. No blue or green. */
 :root {
   --radius: 0px;
   --background: #000000;
@@ -96,31 +96,31 @@
   }
 }
 
-/* Fontes pixelada e de terminal; as cores vêm dos tokens do 8bitcn acima. */
+/* Pixel and terminal fonts; the colors come from the 8bitcn tokens above. */
 @theme inline {
-  --font-pixel: var(--fonte-pixel);
-  --font-terminal: var(--fonte-terminal);
+  --font-pixel: var(--font-pixel-source);
+  --font-terminal: var(--font-terminal-source);
 }
 
 @layer base {
   body {
-    font-family: var(--fonte-terminal), monospace;
+    font-family: var(--font-terminal-source), monospace;
     font-size: 20px;
   }
 }
 
-/* Cursor de terminal piscando. */
-@keyframes cursor-piscar {
+/* Blinking terminal cursor. */
+@keyframes cursor-blink {
   50% {
     opacity: 0;
   }
 }
 
-.cursor-piscante {
-  animation: cursor-piscar 1s steps(1) infinite;
+.cursor-blink {
+  animation: cursor-blink 1s steps(1) infinite;
 }
 
-/* LEVEL UP: surge, pisca e some em passos, no estilo 8-bit. */
+/* LEVEL UP: surges, blinks and fades out in steps, 8-bit style. */
 @keyframes level-up {
   0% {
     opacity: 0;
@@ -143,12 +143,12 @@
   }
 }
 
-.animacao-level-up {
+.level-up-animation {
   animation: level-up 1.8s steps(9) forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animacao-level-up {
+  .level-up-animation {
     animation: none;
   }
 }

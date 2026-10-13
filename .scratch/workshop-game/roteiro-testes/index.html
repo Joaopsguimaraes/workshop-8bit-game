@@ -516,7 +516,7 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
 <h3>Desafios (histórias 65 e 66)</h3>
 <ul class="checklist">
   <li><span class="caixa"></span>Os cinco Desafios aparecem, em ordem de dificuldade (65).</li>
-  <li><span class="caixa"></span>Os textos podem ser revisados no arquivo do seed <code>lib/desafios/seed.ts</code> (66). <em>Não testado aqui: é uma edição de arquivo, não uma tela.</em></li>
+  <li><span class="caixa"></span>Os textos podem ser revisados no arquivo do seed <code>lib/challenges/seed.ts</code> (66). <em>Não testado aqui: é uma edição de arquivo, não uma tela.</em></li>
 </ul>
 
 <!-- ============================================================ -->
@@ -570,7 +570,7 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
 
 <div class="passo">
   <h3>Achado 2 · DESAFIO.TXT fica escondido atrás da PROMPT.EXE no layout padrão</h3>
-  <p><strong>O que acontece:</strong> a posição padrão da <code>DESAFIO.TXT</code> é x=32, y=360 (<code>lib/cliente/janelas.ts</code>), e a <code>PROMPT.EXE</code> começa em x=32, y=32 e é alta o bastante para cobrir essa posição. Na captura 05 (janela do Lucas), não há nenhum sinal da <code>DESAFIO.TXT</code> na tela. Ela só aparece na barra de tarefas.</p>
+  <p><strong>O que acontece:</strong> a posição padrão da <code>DESAFIO.TXT</code> é x=32, y=360 (<code>lib/client/windows.ts</code>), e a <code>PROMPT.EXE</code> começa em x=32, y=32 e é alta o bastante para cobrir essa posição. Na captura 05 (janela do Lucas), não há nenhum sinal da <code>DESAFIO.TXT</code> na tela. Ela só aparece na barra de tarefas.</p>
   <p><strong>Impacto:</strong> o Jogador pode não ver o cenário (história 14), e o Desafio fica "invisível" no primeiro uso. O Jogador precisa descobrir que deve minimizar a <code>PROMPT.EXE</code> ou arrastar a outra janela.</p>
   <p><strong>Sugestão:</strong> posicionar a <code>DESAFIO.TXT</code> num lugar que não fique sob a <code>PROMPT.EXE</code> no layout padrão, ou destacar a <code>DESAFIO.TXT</code> quando uma Rodada abre.</p>
 </div>
