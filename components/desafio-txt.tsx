@@ -10,7 +10,7 @@ export function DesafioTxt({ desafio }: Props) {
 
   return (
     <article aria-label="Conteúdo do desafio" className="flex min-h-40 flex-col gap-3">
-      <h2 className="uppercase text-dos-amarelo">{desafio.titulo}</h2>
+      <h2 className="uppercase text-primary">{desafio.titulo}</h2>
       <p className="whitespace-pre-line">{desafio.cenario}</p>
     </article>
   );

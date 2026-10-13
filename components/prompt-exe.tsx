@@ -71,7 +71,7 @@ export function PromptExe({ estado, onEnviar }: Props) {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="uppercase text-dos-amarelo">
+      <p className="uppercase text-primary">
         RODADA ABERTA · TENTATIVAS RESTANTES: {restantes}/{LIMITE_DE_TENTATIVAS}
       </p>
       {restanteMs !== null && (
@@ -91,19 +91,19 @@ export function PromptExe({ estado, onEnviar }: Props) {
           disabled={restantes === 0 || tempoEsgotado}
           rows={6}
           placeholder="Escreva seu prompt aqui..."
-          className="w-full resize-y border-2 border-dos-verde bg-dos-preto p-2 text-dos-verde placeholder:text-dos-cinza-escuro disabled:opacity-60"
+          className="w-full resize-y border-2 border-foreground bg-background p-2 text-foreground placeholder:text-muted-foreground disabled:opacity-60"
         />
         <div className="flex flex-wrap justify-between gap-2 text-lg">
-          <span className={caracteres > LIMITE_DE_CARACTERES ? "text-dos-vermelho" : ""}>
+          <span className={caracteres > LIMITE_DE_CARACTERES ? "text-destructive" : ""}>
             {caracteres}/{LIMITE_DE_CARACTERES}
           </span>
-          {motivoBloqueio && <span className="text-dos-vermelho">{motivoBloqueio}</span>}
+          {motivoBloqueio && <span className="text-destructive">{motivoBloqueio}</span>}
         </div>
         <Button type="submit" disabled={!podeEnviar} className="font-pixel text-[12px]">
           {enviando ? "ENVIANDO..." : "ENVIAR"}
         </Button>
         {erro && (
-          <p role="alert" className="text-dos-vermelho">
+          <p role="alert" className="text-destructive">
             {erro}
           </p>
         )}
@@ -121,15 +121,15 @@ export function PromptExe({ estado, onEnviar }: Props) {
 function RevelacaoDaRodada({ revelacao }: { revelacao: Revelacao }) {
   return (
     <div className="flex flex-col gap-4" aria-label="Revelação da Rodada">
-      <p className="font-pixel text-[12px] text-dos-amarelo">REVELAÇÃO</p>
+      <p className="font-pixel text-[12px] text-primary">REVELAÇÃO</p>
 
       <section className="flex flex-col gap-2">
-        <h3 className="uppercase text-dos-amarelo">Prompt de referência</h3>
-        <p className="whitespace-pre-line text-dos-verde">{revelacao.desafio.promptReferencia}</p>
+        <h3 className="uppercase text-primary">Prompt de referência</h3>
+        <p className="whitespace-pre-line text-foreground">{revelacao.desafio.promptReferencia}</p>
       </section>
 
-      <section className="flex flex-col gap-3 border-t-2 border-dos-cinza pt-3">
-        <h3 className="uppercase text-dos-amarelo">Top 3</h3>
+      <section className="flex flex-col gap-3 border-t-2 border-ring pt-3">
+        <h3 className="uppercase text-primary">Top 3</h3>
         {revelacao.top3.length === 0 ? (
           <p className="uppercase">NINGUÉM PONTUOU NESTA RODADA.</p>
         ) : (
@@ -141,9 +141,9 @@ function RevelacaoDaRodada({ revelacao }: { revelacao: Revelacao }) {
                   <span className="flex-1 truncate">
                     {item.posicao}º {item.nickname}
                   </span>
-                  <span className="text-dos-amarelo">NOTA {item.nota}</span>
+                  <span className="text-primary">NOTA {item.nota}</span>
                 </div>
-                <p className="whitespace-pre-line text-dos-cinza">{item.prompt}</p>
+                <p className="whitespace-pre-line text-muted-foreground">{item.prompt}</p>
               </li>
             ))}
           </ol>
@@ -158,8 +158,8 @@ function RevelacaoDaRodada({ revelacao }: { revelacao: Revelacao }) {
 function AvaliacaoDaTentativa({ tentativa }: { tentativa: TentativaPublica }) {
   const { avaliacao } = tentativa;
   return (
-    <section aria-label="Avaliação da Tentativa" className="flex flex-col gap-2 border-t-2 border-dos-cinza pt-3">
-      <p className="font-pixel text-[12px] text-dos-amarelo">
+    <section aria-label="Avaliação da Tentativa" className="flex flex-col gap-2 border-t-2 border-ring pt-3">
+      <p className="font-pixel text-[12px] text-primary">
         TENTATIVA {tentativa.numero} · NOTA {tentativa.nota}
       </p>
       <p>
@@ -168,15 +168,15 @@ function AvaliacaoDaTentativa({ tentativa }: { tentativa: TentativaPublica }) {
       <ul className="flex flex-col gap-1">
         {avaliacao.criterios.map((criterio) => (
           <li key={criterio.id}>
-            <span className={criterio.atendido ? "text-dos-verde" : "text-dos-vermelho"}>
+            <span className={criterio.atendido ? "text-foreground" : "text-destructive"}>
               {criterio.atendido ? "✓" : "✕"}
             </span>{" "}
             {criterio.nome} {criterio.pontos}/{criterio.maximo}
             {criterio.atendido && criterio.trecho && (
-              <span className="block text-dos-cinza">reconhecido: “{criterio.trecho}”</span>
+              <span className="block text-muted-foreground">reconhecido: “{criterio.trecho}”</span>
             )}
             {!criterio.atendido && criterio.dica && (
-              <span className="block text-dos-ciano">dica: {criterio.dica}</span>
+              <span className="block text-foreground">dica: {criterio.dica}</span>
             )}
           </li>
         ))}
@@ -187,15 +187,15 @@ function AvaliacaoDaTentativa({ tentativa }: { tentativa: TentativaPublica }) {
 
 function Historico({ tentativas }: { tentativas: TentativaPublica[] }) {
   return (
-    <section aria-label="Histórico das Tentativas" className="flex flex-col gap-2 border-t-2 border-dos-cinza pt-3">
+    <section aria-label="Histórico das Tentativas" className="flex flex-col gap-2 border-t-2 border-ring pt-3">
       <p className="font-pixel text-[10px]">HISTÓRICO DA RODADA</p>
       <ol className="flex flex-col gap-2">
         {tentativas.map((tentativa) => (
           <li key={tentativa.numero}>
-            <span className="text-dos-amarelo">
+            <span className="text-primary">
               #{tentativa.numero} · NOTA {tentativa.nota}
             </span>
-            <span className="block whitespace-pre-line text-dos-cinza">{tentativa.prompt}</span>
+            <span className="block whitespace-pre-line text-muted-foreground">{tentativa.prompt}</span>
           </li>
         ))}
       </ol>

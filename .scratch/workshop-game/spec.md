@@ -115,7 +115,8 @@ Os prompts dos outros Jogadores ficam ocultos durante a Rodada. Quando o Facilit
 - Next.js com **servidor Node customizado** hospedando Socket.IO no mesmo processo; deploy em máquina ou container único, nunca serverless (ADR-0001).
 - Prisma sobre **SQLite em arquivo**, nunca `:memory:`, para a partida sobreviver a um restart (ADR-0001).
 - **Nenhuma chamada a LLM**: a Nota vem de heurística determinística sobre o texto do prompt (ADR-0002).
-- UI com Tailwind, shadcn e componentes do registry **8bitcn**; estética MS-DOS mais 8-bit; todo o texto da interface em pt-BR.
+- UI com Tailwind, shadcn e componentes do registry **8bitcn**; estética MS-DOS mais 8-bit, no clima de jogo de RPG; todo o texto da interface em pt-BR.
+- Paleta: terminal preto e cinza, como o prompt padrão do Windows (fundo preto, texto cinza claro, destaques brancos). **Sem azul de fundo nem verde**. Erros em vermelho (`destructive`). Os componentes 8bitcn ficam com a classe `dark` no `<html>` para ativar as bordas pixeladas.
 - Gerenciador **pnpm**; o projeto começa com `git init` e `main` como branch padrão.
 - Uma única Sala por instância; não existe conceito de múltiplas salas.
 
@@ -237,4 +238,5 @@ Os prompts dos outros Jogadores ficam ocultos durante a Rodada. Quando o Facilit
 - O HTML de referência ("Workshop Prompts", Atividade 1) inspirou o Desafio 1, o formato do checklist ✓/✕ com pontos e os vereditos. A mecânica de Resposta-alvo dele foi descartada de propósito.
 - Decisão tomada nesta spec sem discussão explícita: cada Desafio pode ser jogado no máximo uma vez por partida, para que a soma do Placar não conte o mesmo Desafio duas vezes. Se o Facilitador precisar repetir um Desafio, isso vira uma nova spec.
 - Os textos dos cenários, dicas e Prompts de referência são redigidos na implementação e revisados pelo Facilitador antes do workshop (história 66).
+- Decisão de cores (revisada na implementação): a primeira versão usava as cores de terminal DOS (fundo azul, texto verde) e ficou ruim de ler. Foi trocada por preto e cinza, como o prompt padrão do Windows, com os tokens do 8bitcn. É uma decisão visual e reversível, por isso ficou aqui e não em ADR. Os destaques usam branco no lugar do amarelo e do verde, então a hierarquia depende de tamanho e peso da fonte, não de cor.
 - A heurística sempre pode ser burlada com esforço; o mínimo de conteúdo e as Palavras-chave tornam isso trabalhoso, e o reveal do top 3 expõe abusos. A precisão perfeita não é objetivo.

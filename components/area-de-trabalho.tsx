@@ -95,14 +95,14 @@ export function AreaDeTrabalho({ nickname, iniciais, token, onSessaoInvalida }: 
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="flex items-center justify-between bg-dos-cinza-escuro px-4 py-2 text-dos-branco">
+      <header className="flex items-center justify-between bg-muted-foreground px-4 py-2 text-foreground">
         <span className="font-pixel text-[10px]">C:\WORKSHOP&gt; EXECUTAR</span>
         <span className="flex items-center gap-3">
           <button
             type="button"
             aria-pressed={ligado}
             onClick={alternarSom}
-            className="font-pixel border-2 border-dos-branco px-2 py-1 text-[10px] text-dos-branco hover:bg-dos-azul"
+            className="font-pixel border-2 border-foreground px-2 py-1 text-[10px] text-foreground hover:bg-accent"
           >
             SOM: {ligado ? "LIGADO" : "DESLIGADO"}
           </button>
@@ -142,7 +142,7 @@ export function AreaDeTrabalho({ nickname, iniciais, token, onSessaoInvalida }: 
 
       <nav
         aria-label="Barra de tarefas"
-        className="flex flex-wrap gap-2 bg-dos-cinza px-3 py-2"
+        className="flex flex-wrap gap-2 bg-foreground px-3 py-2"
       >
         {idsJanelas.map((id) => {
           const minimizada = janelas[id].minimizada;
@@ -153,10 +153,10 @@ export function AreaDeTrabalho({ nickname, iniciais, token, onSessaoInvalida }: 
               aria-pressed={!minimizada}
               onClick={() => alternarMinimizada(id)}
               className={
-                "font-pixel border-2 border-dos-preto px-3 py-2 text-[10px] " +
+                "font-pixel border-2 border-background px-3 py-2 text-[10px] " +
                 (minimizada
-                  ? "bg-dos-cinza text-dos-preto"
-                  : "bg-dos-preto text-dos-verde")
+                  ? "bg-foreground text-background"
+                  : "bg-background text-foreground")
               }
             >
               {TITULOS[id]}

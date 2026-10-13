@@ -40,14 +40,14 @@ export function TelaPinFacilitador() {
     <main className="flex min-h-dvh items-center justify-center p-4">
       <section
         aria-labelledby="titulo-facilitador"
-        className="flex w-full max-w-xl flex-col gap-6 border-4 border-dos-cinza bg-dos-preto p-6 text-dos-verde [box-shadow:4px_4px_0_0_#000]"
+        className="flex w-full max-w-xl flex-col gap-6 border-4 border-ring bg-background p-6 text-foreground [box-shadow:4px_4px_0_0_#000]"
       >
-        <h1 id="titulo-facilitador" className="font-pixel text-base leading-relaxed text-dos-amarelo">
+        <h1 id="titulo-facilitador" className="font-pixel text-base leading-relaxed text-primary">
           FACILITADOR
         </h1>
         <form onSubmit={entrar} className="flex flex-col gap-4" noValidate>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="pin" className="font-pixel text-[10px] text-dos-cinza">
+            <Label htmlFor="pin" className="font-pixel text-[10px] text-muted-foreground">
               PIN
             </Label>
             <Input
@@ -61,7 +61,7 @@ export function TelaPinFacilitador() {
             />
           </div>
           {erro && (
-            <p role="alert" className="text-dos-vermelho">
+            <p role="alert" className="text-destructive">
               {erro}
             </p>
           )}

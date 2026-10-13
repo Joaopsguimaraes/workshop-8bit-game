@@ -53,10 +53,10 @@ export function TelaDeLogin({ onEntrou }: Props) {
     <main className="flex min-h-dvh items-center justify-center p-4">
       <section
         aria-labelledby="titulo-login"
-        className="flex w-full max-w-xl flex-col gap-6 border-4 border-dos-cinza bg-dos-preto p-6 text-dos-verde [box-shadow:4px_4px_0_0_#000]"
+        className="flex w-full max-w-xl flex-col gap-6 border-4 border-ring bg-background p-6 text-foreground [box-shadow:4px_4px_0_0_#000]"
       >
         <header className="flex flex-col gap-3">
-          <h1 id="titulo-login" className="font-pixel text-base leading-relaxed text-dos-amarelo">
+          <h1 id="titulo-login" className="font-pixel text-base leading-relaxed text-primary">
             WORKSHOP DE PROMPTS
           </h1>
           <p className="text-2xl">
@@ -67,7 +67,7 @@ export function TelaDeLogin({ onEntrou }: Props) {
 
         <form onSubmit={entrar} className="flex flex-col gap-4" noValidate>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="nickname" className="font-pixel text-[10px] text-dos-cinza">
+            <Label htmlFor="nickname" className="font-pixel text-[10px] text-muted-foreground">
               NICKNAME
             </Label>
             <Input
@@ -83,17 +83,17 @@ export function TelaDeLogin({ onEntrou }: Props) {
               className="text-2xl"
             />
             {erro && (
-              <p id="erro-nickname" role="alert" className="text-2xl text-dos-vermelho">
+              <p id="erro-nickname" role="alert" className="text-2xl text-destructive">
                 {erro}
               </p>
             )}
           </div>
 
-          <div className="flex items-center gap-4 border-2 border-dos-cinza-escuro p-3">
+          <div className="flex items-center gap-4 border-2 border-border p-3">
             <Avatar iniciais={iniciais} tamanho="grande" />
             <div className="flex flex-col gap-1">
-              <span className="font-pixel text-[10px] text-dos-cinza">PREVIEW DO AVATAR</span>
-              <span className="text-xl text-dos-cinza-escuro">
+              <span className="font-pixel text-[10px] text-muted-foreground">PREVIEW DO AVATAR</span>
+              <span className="text-xl text-muted-foreground">
                 Ele muda enquanto você digita.
               </span>
             </div>

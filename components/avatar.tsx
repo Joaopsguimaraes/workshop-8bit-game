@@ -18,8 +18,8 @@ export function Avatar({ iniciais, tamanho = "pequeno", className }: Props) {
     <div
       aria-label={`Avatar ${iniciais || "vazio"}`}
       className={cn(
-        "font-pixel flex shrink-0 items-center justify-center bg-dos-azul-escuro text-dos-amarelo",
-        "border-dos-branco border-4 [box-shadow:4px_4px_0_0_#000]",
+        "font-pixel flex shrink-0 items-center justify-center bg-card text-primary",
+        "border-foreground border-4 [box-shadow:4px_4px_0_0_#000]",
         TAMANHOS[tamanho],
         className,
       )}

@@ -48,40 +48,40 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Paleta de terminal: o app usa um único tema, sem modo claro/escuro. */
+/* Terminal preto e cinza, como o prompt padrão do Windows: fundo preto, texto cinza claro. Sem azul nem verde. */
 :root {
-  --background: #000000;
-  --foreground: #55ff55;
-  --card: #000000;
-  --card-foreground: #55ff55;
-  --popover: #000000;
-  --popover-foreground: #55ff55;
-  --primary: #55ff55;
-  --primary-foreground: #000000;
-  --secondary: #c0c0c0;
-  --secondary-foreground: #000000;
-  --muted: #202020;
-  --muted-foreground: #808080;
-  --accent: #0000aa;
-  --accent-foreground: #ffffff;
-  --destructive: #ff5555;
-  --border: #c0c0c0;
-  --input: #c0c0c0;
-  --ring: #55ffff;
-  --chart-1: #55ff55;
-  --chart-2: #55ffff;
-  --chart-3: #ffff55;
-  --chart-4: #ff55ff;
-  --chart-5: #ff5555;
   --radius: 0px;
+  --background: #000000;
+  --foreground: #cccccc;
+  --card: #000000;
+  --card-foreground: #cccccc;
+  --popover: #000000;
+  --popover-foreground: #cccccc;
+  --primary: #ffffff;
+  --primary-foreground: #000000;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #cccccc;
+  --muted: #1a1a1a;
+  --muted-foreground: #808080;
+  --accent: #333333;
+  --accent-foreground: #ffffff;
+  --destructive: #ff6464;
+  --border: #cccccc;
+  --input: #cccccc;
+  --ring: #808080;
+  --chart-1: #ffffff;
+  --chart-2: #cccccc;
+  --chart-3: #999999;
+  --chart-4: #666666;
+  --chart-5: #404040;
   --sidebar: #000000;
-  --sidebar-foreground: #55ff55;
-  --sidebar-primary: #55ff55;
+  --sidebar-foreground: #cccccc;
+  --sidebar-primary: #ffffff;
   --sidebar-primary-foreground: #000000;
-  --sidebar-accent: #202020;
-  --sidebar-accent-foreground: #55ff55;
-  --sidebar-border: #c0c0c0;
-  --sidebar-ring: #55ffff;
+  --sidebar-accent: #333333;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #cccccc;
+  --sidebar-ring: #808080;
 }
 
 @layer base {
@@ -95,26 +95,15 @@
     @apply font-sans;
   }
 }
-/* Tema DOS/8-bit: cores de terminal, fontes pixelada e de terminal. */
+
+/* Fontes pixelada e de terminal; as cores vêm dos tokens do 8bitcn acima. */
 @theme inline {
-  --color-dos-azul: #0000aa;
-  --color-dos-azul-escuro: #000066;
-  --color-dos-preto: #000000;
-  --color-dos-cinza: #c0c0c0;
-  --color-dos-cinza-escuro: #808080;
-  --color-dos-branco: #ffffff;
-  --color-dos-verde: #55ff55;
-  --color-dos-amarelo: #ffff55;
-  --color-dos-ciano: #55ffff;
-  --color-dos-vermelho: #ff5555;
   --font-pixel: var(--fonte-pixel);
   --font-terminal: var(--fonte-terminal);
 }
 
 @layer base {
   body {
-    background-color: var(--color-dos-azul);
-    color: var(--color-dos-cinza);
     font-family: var(--fonte-terminal), monospace;
     font-size: 20px;
   }

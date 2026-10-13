@@ -78,7 +78,7 @@ export function PainelFacilitador() {
 
   if (!estado) {
     return (
-      <main className="font-pixel flex min-h-dvh items-center justify-center text-[12px] text-dos-amarelo">
+      <main className="font-pixel flex min-h-dvh items-center justify-center text-[12px] text-primary">
         CARREGANDO...
       </main>
     );
@@ -89,12 +89,12 @@ export function PainelFacilitador() {
   return (
     <main className="flex min-h-dvh flex-col gap-6 p-6">
       <header className="flex flex-wrap items-center justify-between gap-4">
-        <span className="font-pixel text-[12px] text-dos-amarelo">FACILITADOR</span>
+        <span className="font-pixel text-[12px] text-primary">FACILITADOR</span>
         <Link
           href="/facilitador/telao"
           target="_blank"
           rel="noreferrer"
-          className="font-pixel border-2 border-dos-branco px-3 py-2 text-[10px] text-dos-branco hover:bg-dos-azul"
+          className="font-pixel border-2 border-foreground px-3 py-2 text-[10px] text-foreground hover:bg-accent"
         >
           ABRIR TELÃO
         </Link>
@@ -102,7 +102,7 @@ export function PainelFacilitador() {
 
       <section
         aria-label="Rodada atual"
-        className="flex flex-col gap-3 border-4 border-dos-cinza bg-dos-preto p-4 text-2xl text-dos-verde"
+        className="flex flex-col gap-3 border-4 border-ring bg-background p-4 text-2xl text-foreground"
       >
         {rodada ? (
           <>
@@ -120,7 +120,7 @@ export function PainelFacilitador() {
       </section>
 
       <div className="flex max-w-sm flex-col gap-2">
-        <Label htmlFor="minutos" className="font-pixel text-[10px] text-dos-cinza">
+        <Label htmlFor="minutos" className="font-pixel text-[10px] text-muted-foreground">
           CRONÔMETRO EM MINUTOS (OPCIONAL)
         </Label>
         <Input
@@ -135,23 +135,23 @@ export function PainelFacilitador() {
       </div>
 
       {erro && (
-        <p role="alert" className="text-2xl text-dos-vermelho">
+        <p role="alert" className="text-2xl text-destructive">
           {erro}
         </p>
       )}
 
       <section aria-label="Desafios" className="flex flex-col gap-3">
-        <h2 className="font-pixel text-[12px] text-dos-amarelo">DESAFIOS</h2>
+        <h2 className="font-pixel text-[12px] text-primary">DESAFIOS</h2>
         <ul className="flex flex-col gap-3">
           {desafios.map((desafio) => (
             <li
               key={desafio.id}
-              className="flex flex-wrap items-center gap-3 border-2 border-dos-cinza bg-dos-preto p-3 text-2xl text-dos-verde"
+              className="flex flex-wrap items-center gap-3 border-2 border-ring bg-background p-3 text-2xl text-foreground"
             >
               <span className="flex-1">
                 {desafio.ordem}. {desafio.titulo}
               </span>
-              <span className={desafio.jogado ? "text-dos-cinza-escuro" : "text-dos-ciano"}>
+              <span className={desafio.jogado ? "text-muted-foreground" : "text-foreground"}>
                 {desafio.jogado ? "JOGADO" : "DISPONÍVEL"}
               </span>
               <Button
@@ -168,15 +168,15 @@ export function PainelFacilitador() {
       </section>
 
       <section aria-label="Jogadores" className="flex flex-col gap-3">
-        <h2 className="font-pixel text-[12px] text-dos-amarelo">JOGADORES</h2>
+        <h2 className="font-pixel text-[12px] text-primary">JOGADORES</h2>
         {jogadores.length === 0 ? (
-          <p className="text-2xl text-dos-cinza">NENHUM JOGADOR AINDA.</p>
+          <p className="text-2xl text-muted-foreground">NENHUM JOGADOR AINDA.</p>
         ) : (
           <ul className="flex flex-col gap-3">
             {jogadores.map((jogador) => (
               <li
                 key={jogador.id}
-                className="flex flex-wrap items-center gap-3 border-2 border-dos-cinza bg-dos-preto p-3 text-2xl text-dos-verde"
+                className="flex flex-wrap items-center gap-3 border-2 border-ring bg-background p-3 text-2xl text-foreground"
               >
                 <Avatar iniciais={jogador.iniciais} />
                 <span className="flex-1 truncate">{jogador.nickname}</span>
@@ -197,9 +197,9 @@ export function PainelFacilitador() {
 
       <section
         aria-label="Reiniciar a Sala"
-        className="flex flex-col gap-3 border-2 border-dos-vermelho bg-dos-preto p-4 text-2xl text-dos-verde"
+        className="flex flex-col gap-3 border-2 border-destructive bg-background p-4 text-2xl text-foreground"
       >
-        <h2 className="font-pixel text-[12px] text-dos-vermelho">REINICIAR A SALA</h2>
+        <h2 className="font-pixel text-[12px] text-destructive">REINICIAR A SALA</h2>
         {confirmandoReset ? (
           <>
             <p>

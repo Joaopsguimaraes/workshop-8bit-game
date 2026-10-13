@@ -59,7 +59,7 @@ export function Telao() {
 
   if (!estado) {
     return (
-      <main className="font-pixel flex min-h-dvh items-center justify-center text-[16px] text-dos-amarelo">
+      <main className="font-pixel flex min-h-dvh items-center justify-center text-[16px] text-primary">
         CARREGANDO...
       </main>
     );
@@ -68,9 +68,9 @@ export function Telao() {
   const { rodada, revelacao } = estado;
 
   return (
-    <main className="flex min-h-dvh flex-col gap-6 bg-dos-preto p-6">
-      <header className="flex flex-wrap items-center justify-between gap-4 border-b-4 border-dos-cinza pb-4">
-        <h1 className="font-pixel text-[18px] leading-relaxed text-dos-amarelo">
+    <main className="flex min-h-dvh flex-col gap-6 bg-background p-6">
+      <header className="flex flex-wrap items-center justify-between gap-4 border-b-4 border-ring pb-4">
+        <h1 className="font-pixel text-[18px] leading-relaxed text-primary">
           TELÃO · WORKSHOP DE PROMPTS
         </h1>
         <Button type="button" onClick={telaCheia} className="font-pixel text-[12px]">
@@ -126,9 +126,9 @@ function DesafioAoVivo({
 }) {
   return (
     <div className="flex flex-col gap-6">
-      <p className="font-pixel text-[16px] text-dos-verde">RODADA ABERTA</p>
-      <h2 className="font-pixel text-[24px] leading-relaxed text-dos-branco">{titulo}</h2>
-      <p className="whitespace-pre-line text-3xl text-dos-cinza">{cenario}</p>
+      <p className="font-pixel text-[16px] text-foreground">RODADA ABERTA</p>
+      <h2 className="font-pixel text-[24px] leading-relaxed text-foreground">{titulo}</h2>
+      <p className="whitespace-pre-line text-3xl text-muted-foreground">{cenario}</p>
       <div className="grid gap-6 sm:grid-cols-2">
         <Indicador
           rotulo="TEMPO"
@@ -143,9 +143,9 @@ function DesafioAoVivo({
 
 function Indicador({ rotulo, valor, destaque = false }: { rotulo: string; valor: string; destaque?: boolean }) {
   return (
-    <div className="flex flex-col gap-3 border-4 border-dos-cinza bg-dos-azul-escuro p-4">
-      <span className="font-pixel text-[16px] text-dos-cinza">{rotulo}</span>
-      <span className={`font-pixel text-[32px] ${destaque ? "text-dos-amarelo" : "text-dos-branco"}`}>
+    <div className="flex flex-col gap-3 border-4 border-ring bg-card p-4">
+      <span className="font-pixel text-[16px] text-muted-foreground">{rotulo}</span>
+      <span className={`font-pixel text-[32px] ${destaque ? "text-primary" : "text-foreground"}`}>
         {valor}
       </span>
     </div>
@@ -156,17 +156,17 @@ function Indicador({ rotulo, valor, destaque = false }: { rotulo: string; valor:
 function RevelacaoNoTelao({ revelacao }: { revelacao: Revelacao }) {
   return (
     <div className="flex flex-col gap-6" aria-label="Revelação da Rodada">
-      <p className="font-pixel text-[16px] text-dos-amarelo">REVELAÇÃO · {revelacao.desafio.titulo}</p>
+      <p className="font-pixel text-[16px] text-primary">REVELAÇÃO · {revelacao.desafio.titulo}</p>
 
-      <section className="flex flex-col gap-3 border-4 border-dos-verde p-4">
-        <h2 className="font-pixel text-[16px] text-dos-verde">PROMPT DE REFERÊNCIA</h2>
-        <p className="whitespace-pre-line text-3xl text-dos-branco">
+      <section className="flex flex-col gap-3 border-4 border-foreground p-4">
+        <h2 className="font-pixel text-[16px] text-foreground">PROMPT DE REFERÊNCIA</h2>
+        <p className="whitespace-pre-line text-3xl text-foreground">
           {revelacao.desafio.promptReferencia}
         </p>
       </section>
 
       <section className="flex flex-col gap-4">
-        <h2 className="font-pixel text-[16px] text-dos-amarelo">TOP 3</h2>
+        <h2 className="font-pixel text-[16px] text-primary">TOP 3</h2>
         {revelacao.top3.length === 0 ? (
           <p className="text-3xl uppercase">NINGUÉM PONTUOU NESTA RODADA.</p>
         ) : (
@@ -175,12 +175,12 @@ function RevelacaoNoTelao({ revelacao }: { revelacao: Revelacao }) {
               <li key={item.posicao} className="flex flex-col gap-3">
                 <div className="flex items-center gap-4">
                   <Avatar iniciais={item.iniciais} tamanho="medio" />
-                  <span className="flex-1 truncate text-3xl text-dos-branco">
+                  <span className="flex-1 truncate text-3xl text-foreground">
                     {item.posicao}º {item.nickname}
                   </span>
-                  <span className="font-pixel text-[16px] text-dos-amarelo">NOTA {item.nota}</span>
+                  <span className="font-pixel text-[16px] text-primary">NOTA {item.nota}</span>
                 </div>
-                <p className="whitespace-pre-line text-2xl text-dos-cinza">{item.prompt}</p>
+                <p className="whitespace-pre-line text-2xl text-muted-foreground">{item.prompt}</p>
               </li>
             ))}
           </ol>
@@ -193,7 +193,7 @@ function RevelacaoNoTelao({ revelacao }: { revelacao: Revelacao }) {
 function PlacarNoTelao({ jogadores }: { jogadores: EntradaPlacarAoVivo[] | null }) {
   return (
     <section aria-label="Placar" className="flex flex-col gap-4">
-      <h2 className="font-pixel text-[16px] text-dos-amarelo">PLACAR</h2>
+      <h2 className="font-pixel text-[16px] text-primary">PLACAR</h2>
       {jogadores === null ? (
         <p className="text-3xl uppercase">CARREGANDO JOGADORES...</p>
       ) : jogadores.length === 0 ? (
@@ -201,23 +201,23 @@ function PlacarNoTelao({ jogadores }: { jogadores: EntradaPlacarAoVivo[] | null 
       ) : (
         <ol className="flex flex-col gap-3" aria-label="Jogadores no Placar">
           {jogadores.map((jogador) => (
-            <li key={jogador.id} className="flex items-center gap-4 border-2 border-dos-cinza-escuro p-3">
-              <span className="font-pixel w-14 text-[16px] text-dos-amarelo">{jogador.posicao}º</span>
+            <li key={jogador.id} className="flex items-center gap-4 border-2 border-border p-3">
+              <span className="font-pixel w-14 text-[16px] text-primary">{jogador.posicao}º</span>
               <Avatar iniciais={jogador.iniciais} tamanho="medio" />
               <div className="flex min-w-0 flex-1 flex-col gap-1">
-                <span className="truncate text-3xl text-dos-branco">{jogador.nickname}</span>
+                <span className="truncate text-3xl text-foreground">{jogador.nickname}</span>
                 <span className="flex flex-wrap gap-x-4 text-xl">
-                  <span className={jogador.online ? "text-dos-verde" : "text-dos-cinza-escuro"}>
+                  <span className={jogador.online ? "text-foreground" : "text-muted-foreground"}>
                     {jogador.online ? "ONLINE" : "OFFLINE"}
                   </span>
                   {jogador.conquistas.length > 0 && (
-                    <span className="text-dos-amarelo">
+                    <span className="text-primary">
                       {jogador.conquistas.map((conquista) => NOME_DA_CONQUISTA[conquista.tipo]).join(" · ")}
                     </span>
                   )}
                 </span>
               </div>
-              <span aria-label="Pontuação" className="font-pixel text-[20px] text-dos-amarelo">
+              <span aria-label="Pontuação" className="font-pixel text-[20px] text-primary">
                 {jogador.pontuacao}
               </span>
             </li>
@@ -230,12 +230,12 @@ function PlacarNoTelao({ jogadores }: { jogadores: EntradaPlacarAoVivo[] | null 
 
 function FeedNoTelao({ feed }: { feed: ItemDoFeed[] }) {
   return (
-    <section aria-label="Feed de eventos" className="flex flex-col gap-2 border-t-4 border-dos-cinza pt-4">
-      <h2 className="font-pixel text-[16px] text-dos-amarelo">EVENTOS</h2>
+    <section aria-label="Feed de eventos" className="flex flex-col gap-2 border-t-4 border-ring pt-4">
+      <h2 className="font-pixel text-[16px] text-primary">EVENTOS</h2>
       {feed.length === 0 ? (
-        <p className="text-2xl text-dos-cinza">SEM EVENTOS AINDA.</p>
+        <p className="text-2xl text-muted-foreground">SEM EVENTOS AINDA.</p>
       ) : (
-        <ul className="flex flex-col gap-1 text-2xl text-dos-ciano">
+        <ul className="flex flex-col gap-1 text-2xl text-foreground">
           {[...feed]
             .reverse()
             .slice(0, FEED_NO_TELAO)

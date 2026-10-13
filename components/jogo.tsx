@@ -70,7 +70,7 @@ export function Jogo() {
 
   if (estado.tipo === "carregando") {
     return (
-      <main className="font-pixel flex min-h-dvh items-center justify-center text-[12px] text-dos-amarelo">
+      <main className="font-pixel flex min-h-dvh items-center justify-center text-[12px] text-primary">
         CARREGANDO...
       </main>
     );
@@ -79,7 +79,7 @@ export function Jogo() {
   if (estado.tipo === "erro") {
     return (
       <main className="flex min-h-dvh items-center justify-center p-4">
-        <section className="flex max-w-xl flex-col gap-6 border-4 border-dos-cinza bg-dos-preto p-6 text-dos-verde">
+        <section className="flex max-w-xl flex-col gap-6 border-4 border-ring bg-background p-6 text-foreground">
           <p className="text-2xl">Não foi possível conectar. Sua sessão continua salva.</p>
           <Button
             type="button"

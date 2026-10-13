@@ -60,8 +60,8 @@ export function Janela({
       onPointerDown={onFocar}
       style={{ left: estado.x, top: estado.y, width: largura, zIndex: emFrente ? 20 : 10 }}
       className={cn(
-        "absolute bg-dos-preto text-dos-verde",
-        "border-4 border-dos-cinza [box-shadow:inset_-2px_-2px_0_0_#808080,4px_4px_0_0_#000]",
+        "absolute bg-background text-foreground",
+        "border-4 border-ring [box-shadow:inset_-2px_-2px_0_0_#808080,4px_4px_0_0_#000]",
         estado.minimizada ? "hidden" : "flex flex-col",
       )}
     >
@@ -70,7 +70,7 @@ export function Janela({
         onPointerMove={arrastar}
         onPointerUp={terminarArrasto}
         onPointerCancel={terminarArrasto}
-        className="font-pixel flex cursor-move touch-none select-none items-center justify-between bg-dos-cinza px-2 py-1 text-[10px] text-dos-preto"
+        className="font-pixel flex cursor-move touch-none select-none items-center justify-between bg-foreground px-2 py-1 text-[10px] text-background"
       >
         <span>{titulo}</span>
         <button
@@ -78,7 +78,7 @@ export function Janela({
           onPointerDown={(evento) => evento.stopPropagation()}
           onClick={onMinimizar}
           aria-label={`Minimizar ${titulo}`}
-          className="font-pixel border-2 border-dos-preto bg-dos-cinza px-1.5 leading-none hover:bg-dos-branco"
+          className="font-pixel border-2 border-background bg-foreground px-1.5 leading-none hover:bg-muted-foreground"
         >
           _
         </button>

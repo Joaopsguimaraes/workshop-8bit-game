@@ -23,7 +23,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="pt-BR"
-      className={`${fontePixel.variable} ${fonteTerminal.variable} h-full antialiased`}
+      className={`dark ${fontePixel.variable} ${fonteTerminal.variable} h-full antialiased`}
     >
       <body className="min-h-full">{children}</body>
     </html>
