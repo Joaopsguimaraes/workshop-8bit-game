@@ -1,0 +1,209 @@
+PASS [Facilitador] PIN incorreto é recusado (401)
+PASS [Facilitador] PIN incorreto mostra "PIN incorreto."
+PASS [Facilitador] PIN correto emite sessão (201)
+PASS [Facilitador] Canal do Facilitador sem sessão é recusado
+PASS [Facilitador] Canal do Facilitador com sessão recebe o estado
+PASS [Facilitador] Desafios listados em ordem (5 Desafios)
+PASS [Facilitador] Nenhum Desafio jogado no início
+PASS [Nickname] "A" é curto demais
+PASS [Nickname] Nome de 30 caracteres é longo demais
+PASS [Nickname] "Ana@" tem caractere inválido
+PASS [Nickname] Só espaços conta como curto demais
+PASS [Nickname] Joao entra com Nickname (201)
+PASS [Nickname] Lucas entra com Nickname (201)
+PASS [Nickname] Pedro entra com Nickname (201)
+PASS [Nickname] Maria entra com Nickname (201)
+PASS [Avatar] Avatar de Joao = JO
+PASS [Avatar] Avatar de Maria = MA
+PASS [Nickname] "JOÃO" é o mesmo Nickname de "Joao" (em uso)
+PASS [Avatar] "Élio" vira avatar EL
+PASS [Nickname] "ÉLIO" conflita com "Élio"
+PASS [Nickname] Facilitador remove "Élio" (teste de moderação)
+PASS [Nickname] Remover libera o Nickname: "elio" entra de novo (201)
+PASS [Nickname] Placar tem só os 4 Jogadores depois de remover o Élio de teste
+PASS [Sessão] Jogador retoma pelo token ao conectar
+PASS [Sessão] Sem Rodada, a Janela mostra espera (rodada = null)
+PASS [Rodada] Sem Rodada aberta · Joao → recusado: "Nenhuma Rodada aberta no momento."
+PASS [Rodada] Desafio inexistente é recusado
+PASS [Rodada] Encerrar sem Rodada aberta é recusado
+PASS [Rodada 1] Facilitador abre a Rodada 1 (Desafio 1)
+PASS [Rodada 1] Rodada 1 sem cronômetro não tem prazo
+PASS [Rodada 1] Segunda Rodada com outra aberta é recusada
+PASS [Rodada 1] Prompt vazio · Joao → recusado: "Escreva um prompt antes de enviar."
+PASS [Rodada 1] Prompt de 4.001 caracteres · Joao → recusado: "O prompt pode ter no máximo 4.000 caracteres."
+PASS [Rodada 1] Envio recusado não consome Tentativa · Joao → Nota 20
+PASS [Rodada 1] Envio recusado não consome Tentativa · Joao → Tentativas restantes 2
+PASS [Rodada 1] Envio recusado não consome Tentativa · Joao → pontos por Critério
+PASS [Rodada 1] Pedro 1ª · Pedro → Nota 0
+PASS [Rodada 1] Pedro 1ª · Pedro → Tentativas restantes 2
+PASS [Rodada 1] Pedro 1ª · Pedro → pontos por Critério
+PASS [Rodada 1] Maria 1ª · Maria → Nota 0
+PASS [Rodada 1] Maria 1ª · Maria → Tentativas restantes 2
+PASS [Rodada 1] Maria 1ª · Maria → pontos por Critério
+PASS [Rodada 1] Lucas 1ª · Lucas → Nota 55
+PASS [Rodada 1] Lucas 1ª · Lucas → Tentativas restantes 2
+PASS [Rodada 1] Lucas 1ª · Lucas → pontos por Critério
+PASS [Rodada 1] Pedro 2ª · Pedro → Nota 40
+PASS [Rodada 1] Pedro 2ª · Pedro → Tentativas restantes 1
+PASS [Rodada 1] Pedro 2ª · Pedro → pontos por Critério
+PASS [Rodada 1] Lucas 2ª · Lucas → Nota 90
+PASS [Rodada 1] Lucas 2ª · Lucas → Tentativas restantes 1
+PASS [Rodada 1] Lucas 2ª · Lucas → pontos por Critério
+PASS [Rodada 1] Meio da Rodada 1: Joao só recebe as próprias Tentativas
+PASS [Rodada 1] Meio da Rodada 1: Lucas só recebe as próprias Tentativas
+PASS [Rodada 1] Meio da Rodada 1: Pedro só recebe as próprias Tentativas
+PASS [Rodada 1] Meio da Rodada 1: Maria só recebe as próprias Tentativas
+PASS [Rodada 1] Durante a Rodada 1: Lucas não recebeu o prompt de Joao durante a Rodada
+PASS [Rodada 1] Durante a Rodada 1: Pedro não recebeu o prompt de Joao durante a Rodada
+PASS [Rodada 1] Durante a Rodada 1: Maria não recebeu o prompt de Joao durante a Rodada
+PASS [Rodada 1] Durante a Rodada 1: Facilitador não recebeu o prompt de Joao durante a Rodada
+PASS [Rodada 1] Durante a Rodada 1: Joao não recebeu o prompt de Maria durante a Rodada
+PASS [Rodada 1] Durante a Rodada 1: Lucas não recebeu o prompt de Maria durante a Rodada
+PASS [Rodada 1] Durante a Rodada 1: Pedro não recebeu o prompt de Maria durante a Rodada
+PASS [Rodada 1] Durante a Rodada 1: Facilitador não recebeu o prompt de Maria durante a Rodada
+PASS [Rodada 1] Facilitador vê quantos já enviaram (4 Jogadores já enviaram)
+PASS [Rodada 1] Joao 2ª · Joao → Nota 100
+PASS [Rodada 1] Joao 2ª · Joao → Tentativas restantes 1
+PASS [Rodada 1] Joao 2ª · Joao → pontos por Critério
+PASS [Rodada 1] Maria 2ª (inglês) · Maria → Nota 100
+PASS [Rodada 1] Maria 2ª (inglês) · Maria → Tentativas restantes 1
+PASS [Rodada 1] Maria 2ª (inglês) · Maria → pontos por Critério
+PASS [Rodada 1] Pedro 3ª · Pedro → Nota 20
+PASS [Rodada 1] Pedro 3ª · Pedro → Tentativas restantes 0
+PASS [Rodada 1] Pedro 3ª · Pedro → pontos por Critério
+PASS [Rodada 1] Pedro 4ª (sem Tentativas) · Pedro → recusado: "Você já usou as 3 Tentativas desta Rodada."
+PASS [Rodada 1] Placar com Rodada 1 aberta: ordem do Placar
+PASS [Rodada 1] Placar com Rodada 1 aberta: pontuação total de Joao
+PASS [Rodada 1] Placar com Rodada 1 aberta: pontuação total de Maria
+PASS [Rodada 1] Placar com Rodada 1 aberta: pontuação total de Lucas
+PASS [Rodada 1] Placar com Rodada 1 aberta: pontuação total de Pedro
+PASS [Rodada 1] Rodada 1 aberta: Placar e feed nunca trazem texto de prompt
+PASS [Rodada 1] Facilitador encerra a Rodada 1
+PASS [Rodada 1] Joao não envia depois do encerramento
+PASS [Rodada 1] Desafio 1 não pode ser reaberto
+PASS [Rodada 1] Reveal traz o Prompt de referência do Desafio 1
+PASS [Rodada 1] Reveal top 3: Joao, Maria, Lucas (Notas 100, 100, 90)
+PASS [Rodada 1] Reveal top 3 traz o prompt do 1º colocado
+PASS [Rodada 1] Placar após a Rodada 1: ordem do Placar
+PASS [Rodada 1] Placar após a Rodada 1: pontuação total de Joao
+PASS [Rodada 1] Placar após a Rodada 1: pontuação total de Maria
+PASS [Rodada 1] Placar após a Rodada 1: pontuação total de Lucas
+PASS [Rodada 1] Placar após a Rodada 1: pontuação total de Pedro
+PASS [Rodada 1] Placar após a Rodada 1: Conquistas de Joao
+PASS [Rodada 1] Placar após a Rodada 1: Conquistas de Maria
+PASS [Rodada 1] Placar após a Rodada 1: Conquistas de Lucas
+PASS [Rodada 1] Placar após a Rodada 1: Conquistas de Pedro
+PASS [Rodada 2] Facilitador abre a Rodada 2 (Desafio 2)
+PASS [Rodada 2] Maria 1ª · Maria → Nota 40
+PASS [Rodada 2] Maria 1ª · Maria → Tentativas restantes 2
+PASS [Rodada 2] Maria 1ª · Maria → pontos por Critério
+PASS [Rodada 2] Pedro 1ª · Pedro → Nota 0
+PASS [Rodada 2] Pedro 1ª · Pedro → Tentativas restantes 2
+PASS [Rodada 2] Pedro 1ª · Pedro → pontos por Critério
+PASS [Rodada 2] Joao 1ª · Joao → Nota 20
+PASS [Rodada 2] Joao 1ª · Joao → Tentativas restantes 2
+PASS [Rodada 2] Joao 1ª · Joao → pontos por Critério
+PASS [Rodada 2] Lucas 1ª · Lucas → Nota 20
+PASS [Rodada 2] Lucas 1ª · Lucas → Tentativas restantes 2
+PASS [Rodada 2] Lucas 1ª · Lucas → pontos por Critério
+PASS [Rodada 2] Maria 2ª · Maria → Nota 100
+PASS [Rodada 2] Maria 2ª · Maria → Tentativas restantes 1
+PASS [Rodada 2] Maria 2ª · Maria → pontos por Critério
+PASS [Rodada 2] Pedro 2ª · Pedro → Nota 20
+PASS [Rodada 2] Pedro 2ª · Pedro → Tentativas restantes 1
+PASS [Rodada 2] Pedro 2ª · Pedro → pontos por Critério
+PASS [Rodada 2] Lucas 2ª · Lucas → Nota 35
+PASS [Rodada 2] Lucas 2ª · Lucas → Tentativas restantes 1
+PASS [Rodada 2] Lucas 2ª · Lucas → pontos por Critério
+PASS [Rodada 2] Joao 2ª · Joao → Nota 40
+PASS [Rodada 2] Joao 2ª · Joao → Tentativas restantes 1
+PASS [Rodada 2] Joao 2ª · Joao → pontos por Critério
+PASS [Rodada 2] Lucas 3ª · Lucas → Nota 55
+PASS [Rodada 2] Lucas 3ª · Lucas → Tentativas restantes 0
+PASS [Rodada 2] Lucas 3ª · Lucas → pontos por Critério
+PASS [Rodada 2] Meio da Rodada 2: Joao só recebe as próprias Tentativas
+PASS [Rodada 2] Meio da Rodada 2: Lucas só recebe as próprias Tentativas
+PASS [Rodada 2] Meio da Rodada 2: Pedro só recebe as próprias Tentativas
+PASS [Rodada 2] Meio da Rodada 2: Maria só recebe as próprias Tentativas
+PASS [Rodada 2] Facilitador encerra a Rodada 2
+PASS [Rodada 2] Reveal da Rodada 2: top 3 Maria 100, Lucas 55, Joao 40
+PASS [Rodada 2] Placar após a Rodada 2: ordem do Placar
+PASS [Rodada 2] Placar após a Rodada 2: pontuação total de Maria
+PASS [Rodada 2] Placar após a Rodada 2: pontuação total de Lucas
+PASS [Rodada 2] Placar após a Rodada 2: pontuação total de Joao
+PASS [Rodada 2] Placar após a Rodada 2: pontuação total de Pedro
+PASS [Rodada 2] Placar após a Rodada 2: Conquistas de Joao
+PASS [Rodada 2] Placar após a Rodada 2: Conquistas de Maria
+PASS [Rodada 2] Placar após a Rodada 2: Conquistas de Lucas
+PASS [Rodada 2] Placar após a Rodada 2: Conquistas de Pedro
+PASS [Rodada 3] Cronômetro de 0 segundo é recusado
+PASS [Rodada 3] Facilitador abre a Rodada 3 com cronômetro de 60 s
+PASS [Rodada 3] Prazo fica exatamente 60 s depois da abertura
+PASS [Rodada 3] Pedro 1ª · Pedro → Nota 20
+PASS [Rodada 3] Pedro 1ª · Pedro → Tentativas restantes 2
+PASS [Rodada 3] Pedro 1ª · Pedro → pontos por Critério
+PASS [Rodada 3] Maria 1ª · Maria → Nota 70
+PASS [Rodada 3] Maria 1ª · Maria → Tentativas restantes 2
+PASS [Rodada 3] Maria 1ª · Maria → pontos por Critério
+PASS [Rodada 3] Lucas 1ª · Lucas → Nota 0
+PASS [Rodada 3] Lucas 1ª · Lucas → Tentativas restantes 2
+PASS [Rodada 3] Lucas 1ª · Lucas → pontos por Critério
+PASS [Rodada 3] Joao 1ª · Joao → Nota 20
+PASS [Rodada 3] Joao 1ª · Joao → Tentativas restantes 2
+PASS [Rodada 3] Joao 1ª · Joao → pontos por Critério
+PASS [Rodada 3] Rodada 3 encerra sozinha quando o cronômetro zera
+PASS [Rodada 3] Joao envia depois do prazo e é recusado
+PASS [Rodada 3] Reveal da Rodada 3: top 3 Maria 70, Pedro 20, Joao 20 (empate: quem enviou antes)
+PASS [Rodada 3] Placar após a Rodada 3: ordem do Placar
+PASS [Rodada 3] Placar após a Rodada 3: pontuação total de Maria
+PASS [Rodada 3] Placar após a Rodada 3: pontuação total de Joao
+PASS [Rodada 3] Placar após a Rodada 3: pontuação total de Lucas
+PASS [Rodada 3] Placar após a Rodada 3: pontuação total de Pedro
+PASS [Rodada 3] Placar após a Rodada 3: Conquistas de Joao
+PASS [Rodada 3] Placar após a Rodada 3: Conquistas de Maria
+PASS [Rodada 3] Placar após a Rodada 3: Conquistas de Lucas
+PASS [Rodada 3] Placar após a Rodada 3: Conquistas de Pedro
+PASS [Rodada 4] Facilitador abre a Rodada 4 (Desafio 4)
+PASS [Rodada 4] Lucas 1ª · Lucas → Nota 40
+PASS [Rodada 4] Lucas 1ª · Lucas → Tentativas restantes 2
+PASS [Rodada 4] Lucas 1ª · Lucas → pontos por Critério
+PASS [Rodada 4] Joao 1ª · Joao → Nota 90
+PASS [Rodada 4] Joao 1ª · Joao → Tentativas restantes 2
+PASS [Rodada 4] Joao 1ª · Joao → pontos por Critério
+PASS [Rodada 4] Placar após a Rodada 4: ordem do Placar
+PASS [Rodada 4] Placar após a Rodada 4: pontuação total de Maria
+PASS [Rodada 4] Placar após a Rodada 4: pontuação total de Joao
+PASS [Rodada 4] Placar após a Rodada 4: pontuação total de Lucas
+PASS [Rodada 4] Placar após a Rodada 4: pontuação total de Pedro
+PASS [Rodada 4] Placar após a Rodada 4: Conquistas de Joao
+PASS [Rodada 4] Placar após a Rodada 4: Conquistas de Maria
+PASS [Rodada 4] Placar após a Rodada 4: Conquistas de Lucas
+PASS [Rodada 4] Placar após a Rodada 4: Conquistas de Pedro
+PASS [Rodada 5] Facilitador abre a Rodada 5 (Desafio 5)
+PASS [Rodada 5] Pedro com prompt vazio · Pedro → recusado: "Escreva um prompt antes de enviar."
+PASS [Rodada 5] Pedro 1ª · Pedro → Nota 40
+PASS [Rodada 5] Pedro 1ª · Pedro → Tentativas restantes 2
+PASS [Rodada 5] Pedro 1ª · Pedro → pontos por Critério
+PASS [Presença] Lucas offline continua no Placar com 185 pontos
+PASS [Presença] Lucas volta ao Placar com o mesmo token
+PASS [Rodada 5] Placar após a Rodada 5: ordem do Placar
+PASS [Rodada 5] Placar após a Rodada 5: pontuação total de Maria
+PASS [Rodada 5] Placar após a Rodada 5: pontuação total de Joao
+PASS [Rodada 5] Placar após a Rodada 5: pontuação total de Lucas
+PASS [Rodada 5] Placar após a Rodada 5: pontuação total de Pedro
+PASS [Rodada 5] Placar após a Rodada 5: Conquistas de Joao
+PASS [Rodada 5] Placar após a Rodada 5: Conquistas de Maria
+PASS [Rodada 5] Placar após a Rodada 5: Conquistas de Lucas
+PASS [Rodada 5] Placar após a Rodada 5: Conquistas de Pedro
+PASS [Moderação] Facilitador remove Pedro
+PASS [Moderação] Pedro removido sai do Placar
+PASS [Moderação] Token de Pedro removido não retoma mais (401)
+PASS [Moderação] Pedro removido é levado de volta ao login
+PASS [Moderação] Nickname liberado: novo Pedro entra (201)
+PASS [Moderação] Pedro novo começa com 0 pontos e sem Conquistas
+PASS [Reset] Facilitador reseta a partida
+PASS [Reset] Placar vazio após reset
+PASS [Reset] Desafios voltam a ficar disponíveis
+PASS [Reset] Jogadores antigos voltam ao login
+
+RESUMO {"total":207,"passaram":207,"falharam":0}

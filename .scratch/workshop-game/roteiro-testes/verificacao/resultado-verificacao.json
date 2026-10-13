@@ -1,0 +1,2142 @@
+{
+  "resumo": {
+    "total": 207,
+    "passaram": 207,
+    "falharam": 0
+  },
+  "resultados": [
+    {
+      "grupo": "Facilitador",
+      "nome": "PIN incorreto é recusado (401)",
+      "ok": true,
+      "obtido": 401,
+      "esperado": 401
+    },
+    {
+      "grupo": "Facilitador",
+      "nome": "PIN incorreto mostra \"PIN incorreto.\"",
+      "ok": true,
+      "obtido": "PIN incorreto.",
+      "esperado": "PIN incorreto."
+    },
+    {
+      "grupo": "Facilitador",
+      "nome": "PIN correto emite sessão (201)",
+      "ok": true,
+      "obtido": 201,
+      "esperado": 201
+    },
+    {
+      "grupo": "Facilitador",
+      "nome": "Canal do Facilitador sem sessão é recusado",
+      "ok": true,
+      "obtido": true,
+      "esperado": true
+    },
+    {
+      "grupo": "Facilitador",
+      "nome": "Canal do Facilitador com sessão recebe o estado",
+      "ok": true,
+      "obtido": true,
+      "esperado": true
+    },
+    {
+      "grupo": "Facilitador",
+      "nome": "Desafios listados em ordem (5 Desafios)",
+      "ok": true,
+      "obtido": [
+        "trabalho-remoto",
+        "reuniao-alinhamento",
+        "resumo-reuniao",
+        "contrato-json",
+        "pontos-do-email"
+      ],
+      "esperado": [
+        "trabalho-remoto",
+        "reuniao-alinhamento",
+        "resumo-reuniao",
+        "contrato-json",
+        "pontos-do-email"
+      ]
+    },
+    {
+      "grupo": "Facilitador",
+      "nome": "Nenhum Desafio jogado no início",
+      "ok": true,
+      "obtido": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "esperado": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "grupo": "Nickname",
+      "nome": "\"A\" é curto demais",
+      "ok": true,
+      "obtido": "O Nickname precisa ter pelo menos 2 caracteres.",
+      "esperado": "O Nickname precisa ter pelo menos 2 caracteres."
+    },
+    {
+      "grupo": "Nickname",
+      "nome": "Nome de 30 caracteres é longo demais",
+      "ok": true,
+      "obtido": "O Nickname pode ter no máximo 16 caracteres.",
+      "esperado": "O Nickname pode ter no máximo 16 caracteres."
+    },
+    {
+      "grupo": "Nickname",
+      "nome": "\"Ana@\" tem caractere inválido",
+      "ok": true,
+      "obtido": "Use apenas letras, números e espaços.",
+      "esperado": "Use apenas letras, números e espaços."
+    },
+    {
+      "grupo": "Nickname",
+      "nome": "Só espaços conta como curto demais",
+      "ok": true,
+      "obtido": "O Nickname precisa ter pelo menos 2 caracteres.",
+      "esperado": "O Nickname precisa ter pelo menos 2 caracteres."
+    },
+    {
+      "grupo": "Nickname",
+      "nome": "Joao entra com Nickname (201)",
+      "ok": true,
+      "obtido": 201,
+      "esperado": 201
+    },
+    {
+      "grupo": "Nickname",
+      "nome": "Lucas entra com Nickname (201)",
+      "ok": true,
+      "obtido": 201,
+      "esperado": 201
+    },
+    {
+      "grupo": "Nickname",
+      "nome": "Pedro entra com Nickname (201)",
+      "ok": true,
+      "obtido": 201,
+      "esperado": 201
+    },
+    {
+      "grupo": "Nickname",
+      "nome": "Maria entra com Nickname (201)",
+      "ok": true,
+      "obtido": 201,
+      "esperado": 201
+    },
+    {
+      "grupo": "Avatar",
+      "nome": "Avatar de Joao = JO",
+      "ok": true,
+      "obtido": "JO",
+      "esperado": "JO"
+    },
+    {
+      "grupo": "Avatar",
+      "nome": "Avatar de Maria = MA",
+      "ok": true,
+      "obtido": "MA",
+      "esperado": "MA"
+    },
+    {
+      "grupo": "Nickname",
+      "nome": "\"JOÃO\" é o mesmo Nickname de \"Joao\" (em uso)",
+      "ok": true,
+      "obtido": "Nickname já em uso",
+      "esperado": "Nickname já em uso"
+    },
+    {
+      "grupo": "Avatar",
+      "nome": "\"Élio\" vira avatar EL",
+      "ok": true,
+      "obtido": "EL",
+      "esperado": "EL"
+    },
+    {
+      "grupo": "Nickname",
+      "nome": "\"ÉLIO\" conflita com \"Élio\"",
+      "ok": true,
+      "obtido": "Nickname já em uso",
+      "esperado": "Nickname já em uso"
+    },
+    {
+      "grupo": "Nickname",
+      "nome": "Facilitador remove \"Élio\" (teste de moderação)",
+      "ok": true,
+      "obtido": true,
+      "esperado": true
+    },
+    {
+      "grupo": "Nickname",
+      "nome": "Remover libera o Nickname: \"elio\" entra de novo (201)",
+      "ok": true,
+      "obtido": 201,
+      "esperado": 201
+    },
+    {
+      "grupo": "Nickname",
+      "nome": "Placar tem só os 4 Jogadores depois de remover o Élio de teste",
+      "ok": true,
+      "obtido": [
+        "Joao",
+        "Lucas",
+        "Maria",
+        "Pedro"
+      ],
+      "esperado": [
+        "Joao",
+        "Lucas",
+        "Maria",
+        "Pedro"
+      ]
+    },
+    {
+      "grupo": "Sessão",
+      "nome": "Jogador retoma pelo token ao conectar",
+      "ok": true,
+      "obtido": "Joao",
+      "esperado": "Joao"
+    },
+    {
+      "grupo": "Sessão",
+      "nome": "Sem Rodada, a Janela mostra espera (rodada = null)",
+      "ok": true,
+      "obtido": null,
+      "esperado": null
+    },
+    {
+      "grupo": "Rodada",
+      "nome": "Sem Rodada aberta · Joao → recusado: \"Nenhuma Rodada aberta no momento.\"",
+      "ok": true,
+      "obtido": "Nenhuma Rodada aberta no momento.",
+      "esperado": "Nenhuma Rodada aberta no momento."
+    },
+    {
+      "grupo": "Rodada",
+      "nome": "Desafio inexistente é recusado",
+      "ok": true,
+      "obtido": "Desafio não encontrado.",
+      "esperado": "Desafio não encontrado."
+    },
+    {
+      "grupo": "Rodada",
+      "nome": "Encerrar sem Rodada aberta é recusado",
+      "ok": true,
+      "obtido": "Não há Rodada aberta.",
+      "esperado": "Não há Rodada aberta."
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Facilitador abre a Rodada 1 (Desafio 1)",
+      "ok": true,
+      "obtido": true,
+      "esperado": true
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Rodada 1 sem cronômetro não tem prazo",
+      "ok": true,
+      "obtido": null,
+      "esperado": null
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Segunda Rodada com outra aberta é recusada",
+      "ok": true,
+      "obtido": "Já existe uma Rodada aberta. Encerre-a antes de abrir outra.",
+      "esperado": "Já existe uma Rodada aberta. Encerre-a antes de abrir outra."
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Prompt vazio · Joao → recusado: \"Escreva um prompt antes de enviar.\"",
+      "ok": true,
+      "obtido": "Escreva um prompt antes de enviar.",
+      "esperado": "Escreva um prompt antes de enviar."
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Prompt de 4.001 caracteres · Joao → recusado: \"O prompt pode ter no máximo 4.000 caracteres.\"",
+      "ok": true,
+      "obtido": "O prompt pode ter no máximo 4.000 caracteres.",
+      "esperado": "O prompt pode ter no máximo 4.000 caracteres."
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Envio recusado não consome Tentativa · Joao → Nota 20",
+      "ok": true,
+      "obtido": 20,
+      "esperado": 20
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Envio recusado não consome Tentativa · Joao → Tentativas restantes 2",
+      "ok": true,
+      "obtido": 2,
+      "esperado": 2
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Envio recusado não consome Tentativa · Joao → pontos por Critério",
+      "ok": true,
+      "obtido": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "esperado": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Pedro 1ª · Pedro → Nota 0",
+      "ok": true,
+      "obtido": 0,
+      "esperado": 0
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Pedro 1ª · Pedro → Tentativas restantes 2",
+      "ok": true,
+      "obtido": 2,
+      "esperado": 2
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Pedro 1ª · Pedro → pontos por Critério",
+      "ok": true,
+      "obtido": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "esperado": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Maria 1ª · Maria → Nota 0",
+      "ok": true,
+      "obtido": 0,
+      "esperado": 0
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Maria 1ª · Maria → Tentativas restantes 2",
+      "ok": true,
+      "obtido": 2,
+      "esperado": 2
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Maria 1ª · Maria → pontos por Critério",
+      "ok": true,
+      "obtido": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "esperado": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Lucas 1ª · Lucas → Nota 55",
+      "ok": true,
+      "obtido": 55,
+      "esperado": 55
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Lucas 1ª · Lucas → Tentativas restantes 2",
+      "ok": true,
+      "obtido": 2,
+      "esperado": 2
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Lucas 1ª · Lucas → pontos por Critério",
+      "ok": true,
+      "obtido": [
+        15,
+        20,
+        20,
+        0,
+        0,
+        0
+      ],
+      "esperado": [
+        15,
+        20,
+        20,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Pedro 2ª · Pedro → Nota 40",
+      "ok": true,
+      "obtido": 40,
+      "esperado": 40
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Pedro 2ª · Pedro → Tentativas restantes 1",
+      "ok": true,
+      "obtido": 1,
+      "esperado": 1
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Pedro 2ª · Pedro → pontos por Critério",
+      "ok": true,
+      "obtido": [
+        0,
+        0,
+        20,
+        20,
+        0,
+        0
+      ],
+      "esperado": [
+        0,
+        0,
+        20,
+        20,
+        0,
+        0
+      ]
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Lucas 2ª · Lucas → Nota 90",
+      "ok": true,
+      "obtido": 90,
+      "esperado": 90
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Lucas 2ª · Lucas → Tentativas restantes 1",
+      "ok": true,
+      "obtido": 1,
+      "esperado": 1
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Lucas 2ª · Lucas → pontos por Critério",
+      "ok": true,
+      "obtido": [
+        15,
+        20,
+        20,
+        20,
+        15,
+        0
+      ],
+      "esperado": [
+        15,
+        20,
+        20,
+        20,
+        15,
+        0
+      ]
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Meio da Rodada 1: Joao só recebe as próprias Tentativas",
+      "ok": true,
+      "obtido": true,
+      "esperado": true
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Meio da Rodada 1: Lucas só recebe as próprias Tentativas",
+      "ok": true,
+      "obtido": true,
+      "esperado": true
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Meio da Rodada 1: Pedro só recebe as próprias Tentativas",
+      "ok": true,
+      "obtido": true,
+      "esperado": true
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Meio da Rodada 1: Maria só recebe as próprias Tentativas",
+      "ok": true,
+      "obtido": true,
+      "esperado": true
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Durante a Rodada 1: Lucas não recebeu o prompt de Joao durante a Rodada",
+      "ok": true,
+      "obtido": false,
+      "esperado": false
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Durante a Rodada 1: Pedro não recebeu o prompt de Joao durante a Rodada",
+      "ok": true,
+      "obtido": false,
+      "esperado": false
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Durante a Rodada 1: Maria não recebeu o prompt de Joao durante a Rodada",
+      "ok": true,
+      "obtido": false,
+      "esperado": false
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Durante a Rodada 1: Facilitador não recebeu o prompt de Joao durante a Rodada",
+      "ok": true,
+      "obtido": false,
+      "esperado": false
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Durante a Rodada 1: Joao não recebeu o prompt de Maria durante a Rodada",
+      "ok": true,
+      "obtido": false,
+      "esperado": false
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Durante a Rodada 1: Lucas não recebeu o prompt de Maria durante a Rodada",
+      "ok": true,
+      "obtido": false,
+      "esperado": false
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Durante a Rodada 1: Pedro não recebeu o prompt de Maria durante a Rodada",
+      "ok": true,
+      "obtido": false,
+      "esperado": false
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Durante a Rodada 1: Facilitador não recebeu o prompt de Maria durante a Rodada",
+      "ok": true,
+      "obtido": false,
+      "esperado": false
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Facilitador vê quantos já enviaram (4 Jogadores já enviaram)",
+      "ok": true,
+      "obtido": 4,
+      "esperado": 4
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Joao 2ª · Joao → Nota 100",
+      "ok": true,
+      "obtido": 100,
+      "esperado": 100
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Joao 2ª · Joao → Tentativas restantes 1",
+      "ok": true,
+      "obtido": 1,
+      "esperado": 1
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Joao 2ª · Joao → pontos por Critério",
+      "ok": true,
+      "obtido": [
+        15,
+        20,
+        20,
+        20,
+        15,
+        10
+      ],
+      "esperado": [
+        15,
+        20,
+        20,
+        20,
+        15,
+        10
+      ]
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Maria 2ª (inglês) · Maria → Nota 100",
+      "ok": true,
+      "obtido": 100,
+      "esperado": 100
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Maria 2ª (inglês) · Maria → Tentativas restantes 1",
+      "ok": true,
+      "obtido": 1,
+      "esperado": 1
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Maria 2ª (inglês) · Maria → pontos por Critério",
+      "ok": true,
+      "obtido": [
+        15,
+        20,
+        20,
+        20,
+        15,
+        10
+      ],
+      "esperado": [
+        15,
+        20,
+        20,
+        20,
+        15,
+        10
+      ]
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Pedro 3ª · Pedro → Nota 20",
+      "ok": true,
+      "obtido": 20,
+      "esperado": 20
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Pedro 3ª · Pedro → Tentativas restantes 0",
+      "ok": true,
+      "obtido": 0,
+      "esperado": 0
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Pedro 3ª · Pedro → pontos por Critério",
+      "ok": true,
+      "obtido": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "esperado": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Pedro 4ª (sem Tentativas) · Pedro → recusado: \"Você já usou as 3 Tentativas desta Rodada.\"",
+      "ok": true,
+      "obtido": "Você já usou as 3 Tentativas desta Rodada.",
+      "esperado": "Você já usou as 3 Tentativas desta Rodada."
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Placar com Rodada 1 aberta: ordem do Placar",
+      "ok": true,
+      "obtido": [
+        "1º Joao",
+        "2º Maria",
+        "3º Lucas",
+        "4º Pedro"
+      ],
+      "esperado": [
+        "1º Joao",
+        "2º Maria",
+        "3º Lucas",
+        "4º Pedro"
+      ]
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Placar com Rodada 1 aberta: pontuação total de Joao",
+      "ok": true,
+      "obtido": 100,
+      "esperado": 100
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Placar com Rodada 1 aberta: pontuação total de Maria",
+      "ok": true,
+      "obtido": 100,
+      "esperado": 100
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Placar com Rodada 1 aberta: pontuação total de Lucas",
+      "ok": true,
+      "obtido": 90,
+      "esperado": 90
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Placar com Rodada 1 aberta: pontuação total de Pedro",
+      "ok": true,
+      "obtido": 40,
+      "esperado": 40
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Rodada 1 aberta: Placar e feed nunca trazem texto de prompt",
+      "ok": true,
+      "obtido": false,
+      "esperado": false
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Facilitador encerra a Rodada 1",
+      "ok": true,
+      "obtido": true,
+      "esperado": true
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Joao não envia depois do encerramento",
+      "ok": true,
+      "obtido": "A Rodada foi encerrada.",
+      "esperado": "A Rodada foi encerrada."
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Desafio 1 não pode ser reaberto",
+      "ok": true,
+      "obtido": "Este Desafio já foi jogado nesta Sala.",
+      "esperado": "Este Desafio já foi jogado nesta Sala."
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Reveal traz o Prompt de referência do Desafio 1",
+      "ok": true,
+      "obtido": true,
+      "esperado": true
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Reveal top 3: Joao, Maria, Lucas (Notas 100, 100, 90)",
+      "ok": true,
+      "obtido": [
+        "Joao:100",
+        "Maria:100",
+        "Lucas:90"
+      ],
+      "esperado": [
+        "Joao:100",
+        "Maria:100",
+        "Lucas:90"
+      ]
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Reveal top 3 traz o prompt do 1º colocado",
+      "ok": true,
+      "obtido": "Papel: Você é um consultor de gestão de pessoas com experiência em modelos de trabalho. Contexto: Estamos decidindo se mantemos o trabalho remoto. O público é a diretoria. Tarefa: Liste as vantagens e as desvantagens do trabalho remoto para a empresa e para as pessoas. Formato: Duas listas com títulos, com no máximo 5 itens cada. Restrições: Evite opiniões pessoais e jargão técnico. Exemplo: Vantagem: economia com aluguel, por exemplo, com deslocamento.",
+      "esperado": "Papel: Você é um consultor de gestão de pessoas com experiência em modelos de trabalho. Contexto: Estamos decidindo se mantemos o trabalho remoto. O público é a diretoria. Tarefa: Liste as vantagens e as desvantagens do trabalho remoto para a empresa e para as pessoas. Formato: Duas listas com títulos, com no máximo 5 itens cada. Restrições: Evite opiniões pessoais e jargão técnico. Exemplo: Vantagem: economia com aluguel, por exemplo, com deslocamento."
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Placar após a Rodada 1: ordem do Placar",
+      "ok": true,
+      "obtido": [
+        "1º Joao",
+        "2º Maria",
+        "3º Lucas",
+        "4º Pedro"
+      ],
+      "esperado": [
+        "1º Joao",
+        "2º Maria",
+        "3º Lucas",
+        "4º Pedro"
+      ]
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Placar após a Rodada 1: pontuação total de Joao",
+      "ok": true,
+      "obtido": 100,
+      "esperado": 100
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Placar após a Rodada 1: pontuação total de Maria",
+      "ok": true,
+      "obtido": 100,
+      "esperado": 100
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Placar após a Rodada 1: pontuação total de Lucas",
+      "ok": true,
+      "obtido": 90,
+      "esperado": 90
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Placar após a Rodada 1: pontuação total de Pedro",
+      "ok": true,
+      "obtido": 40,
+      "esperado": 40
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Placar após a Rodada 1: Conquistas de Joao",
+      "ok": true,
+      "obtido": [
+        "campeao-da-rodada",
+        "evolucao",
+        "na-mosca",
+        "primeiro-sangue"
+      ],
+      "esperado": [
+        "campeao-da-rodada",
+        "evolucao",
+        "na-mosca",
+        "primeiro-sangue"
+      ]
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Placar após a Rodada 1: Conquistas de Maria",
+      "ok": true,
+      "obtido": [
+        "evolucao",
+        "na-mosca"
+      ],
+      "esperado": [
+        "evolucao",
+        "na-mosca"
+      ]
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Placar após a Rodada 1: Conquistas de Lucas",
+      "ok": true,
+      "obtido": [
+        "evolucao"
+      ],
+      "esperado": [
+        "evolucao"
+      ]
+    },
+    {
+      "grupo": "Rodada 1",
+      "nome": "Placar após a Rodada 1: Conquistas de Pedro",
+      "ok": true,
+      "obtido": [
+        "evolucao"
+      ],
+      "esperado": [
+        "evolucao"
+      ]
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Facilitador abre a Rodada 2 (Desafio 2)",
+      "ok": true,
+      "obtido": true,
+      "esperado": true
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Maria 1ª · Maria → Nota 40",
+      "ok": true,
+      "obtido": 40,
+      "esperado": 40
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Maria 1ª · Maria → Tentativas restantes 2",
+      "ok": true,
+      "obtido": 2,
+      "esperado": 2
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Maria 1ª · Maria → pontos por Critério",
+      "ok": true,
+      "obtido": [
+        0,
+        20,
+        20,
+        0,
+        0,
+        0
+      ],
+      "esperado": [
+        0,
+        20,
+        20,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Pedro 1ª · Pedro → Nota 0",
+      "ok": true,
+      "obtido": 0,
+      "esperado": 0
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Pedro 1ª · Pedro → Tentativas restantes 2",
+      "ok": true,
+      "obtido": 2,
+      "esperado": 2
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Pedro 1ª · Pedro → pontos por Critério",
+      "ok": true,
+      "obtido": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "esperado": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Joao 1ª · Joao → Nota 20",
+      "ok": true,
+      "obtido": 20,
+      "esperado": 20
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Joao 1ª · Joao → Tentativas restantes 2",
+      "ok": true,
+      "obtido": 2,
+      "esperado": 2
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Joao 1ª · Joao → pontos por Critério",
+      "ok": true,
+      "obtido": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "esperado": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Lucas 1ª · Lucas → Nota 20",
+      "ok": true,
+      "obtido": 20,
+      "esperado": 20
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Lucas 1ª · Lucas → Tentativas restantes 2",
+      "ok": true,
+      "obtido": 2,
+      "esperado": 2
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Lucas 1ª · Lucas → pontos por Critério",
+      "ok": true,
+      "obtido": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "esperado": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Maria 2ª · Maria → Nota 100",
+      "ok": true,
+      "obtido": 100,
+      "esperado": 100
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Maria 2ª · Maria → Tentativas restantes 1",
+      "ok": true,
+      "obtido": 1,
+      "esperado": 1
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Maria 2ª · Maria → pontos por Critério",
+      "ok": true,
+      "obtido": [
+        15,
+        20,
+        20,
+        20,
+        15,
+        10
+      ],
+      "esperado": [
+        15,
+        20,
+        20,
+        20,
+        15,
+        10
+      ]
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Pedro 2ª · Pedro → Nota 20",
+      "ok": true,
+      "obtido": 20,
+      "esperado": 20
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Pedro 2ª · Pedro → Tentativas restantes 1",
+      "ok": true,
+      "obtido": 1,
+      "esperado": 1
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Pedro 2ª · Pedro → pontos por Critério",
+      "ok": true,
+      "obtido": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "esperado": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Lucas 2ª · Lucas → Nota 35",
+      "ok": true,
+      "obtido": 35,
+      "esperado": 35
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Lucas 2ª · Lucas → Tentativas restantes 1",
+      "ok": true,
+      "obtido": 1,
+      "esperado": 1
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Lucas 2ª · Lucas → pontos por Critério",
+      "ok": true,
+      "obtido": [
+        15,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "esperado": [
+        15,
+        0,
+        20,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Joao 2ª · Joao → Nota 40",
+      "ok": true,
+      "obtido": 40,
+      "esperado": 40
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Joao 2ª · Joao → Tentativas restantes 1",
+      "ok": true,
+      "obtido": 1,
+      "esperado": 1
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Joao 2ª · Joao → pontos por Critério",
+      "ok": true,
+      "obtido": [
+        0,
+        20,
+        20,
+        0,
+        0,
+        0
+      ],
+      "esperado": [
+        0,
+        20,
+        20,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Lucas 3ª · Lucas → Nota 55",
+      "ok": true,
+      "obtido": 55,
+      "esperado": 55
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Lucas 3ª · Lucas → Tentativas restantes 0",
+      "ok": true,
+      "obtido": 0,
+      "esperado": 0
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Lucas 3ª · Lucas → pontos por Critério",
+      "ok": true,
+      "obtido": [
+        0,
+        0,
+        20,
+        20,
+        15,
+        0
+      ],
+      "esperado": [
+        0,
+        0,
+        20,
+        20,
+        15,
+        0
+      ]
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Meio da Rodada 2: Joao só recebe as próprias Tentativas",
+      "ok": true,
+      "obtido": true,
+      "esperado": true
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Meio da Rodada 2: Lucas só recebe as próprias Tentativas",
+      "ok": true,
+      "obtido": true,
+      "esperado": true
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Meio da Rodada 2: Pedro só recebe as próprias Tentativas",
+      "ok": true,
+      "obtido": true,
+      "esperado": true
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Meio da Rodada 2: Maria só recebe as próprias Tentativas",
+      "ok": true,
+      "obtido": true,
+      "esperado": true
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Facilitador encerra a Rodada 2",
+      "ok": true,
+      "obtido": true,
+      "esperado": true
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Reveal da Rodada 2: top 3 Maria 100, Lucas 55, Joao 40",
+      "ok": true,
+      "obtido": [
+        "Maria:100",
+        "Lucas:55",
+        "Joao:40"
+      ],
+      "esperado": [
+        "Maria:100",
+        "Lucas:55",
+        "Joao:40"
+      ]
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Placar após a Rodada 2: ordem do Placar",
+      "ok": true,
+      "obtido": [
+        "1º Maria",
+        "2º Lucas",
+        "3º Joao",
+        "4º Pedro"
+      ],
+      "esperado": [
+        "1º Maria",
+        "2º Lucas",
+        "3º Joao",
+        "4º Pedro"
+      ]
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Placar após a Rodada 2: pontuação total de Maria",
+      "ok": true,
+      "obtido": 200,
+      "esperado": 200
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Placar após a Rodada 2: pontuação total de Lucas",
+      "ok": true,
+      "obtido": 145,
+      "esperado": 145
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Placar após a Rodada 2: pontuação total de Joao",
+      "ok": true,
+      "obtido": 140,
+      "esperado": 140
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Placar após a Rodada 2: pontuação total de Pedro",
+      "ok": true,
+      "obtido": 60,
+      "esperado": 60
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Placar após a Rodada 2: Conquistas de Joao",
+      "ok": true,
+      "obtido": [
+        "campeao-da-rodada",
+        "evolucao",
+        "na-mosca",
+        "primeiro-sangue"
+      ],
+      "esperado": [
+        "campeao-da-rodada",
+        "evolucao",
+        "na-mosca",
+        "primeiro-sangue"
+      ]
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Placar após a Rodada 2: Conquistas de Maria",
+      "ok": true,
+      "obtido": [
+        "campeao-da-rodada",
+        "evolucao",
+        "evolucao",
+        "na-mosca",
+        "na-mosca",
+        "primeiro-sangue"
+      ],
+      "esperado": [
+        "campeao-da-rodada",
+        "evolucao",
+        "evolucao",
+        "na-mosca",
+        "na-mosca",
+        "primeiro-sangue"
+      ]
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Placar após a Rodada 2: Conquistas de Lucas",
+      "ok": true,
+      "obtido": [
+        "evolucao",
+        "evolucao"
+      ],
+      "esperado": [
+        "evolucao",
+        "evolucao"
+      ]
+    },
+    {
+      "grupo": "Rodada 2",
+      "nome": "Placar após a Rodada 2: Conquistas de Pedro",
+      "ok": true,
+      "obtido": [
+        "evolucao"
+      ],
+      "esperado": [
+        "evolucao"
+      ]
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Cronômetro de 0 segundo é recusado",
+      "ok": true,
+      "obtido": "A duração precisa ser de pelo menos 1 segundo.",
+      "esperado": "A duração precisa ser de pelo menos 1 segundo."
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Facilitador abre a Rodada 3 com cronômetro de 60 s",
+      "ok": true,
+      "obtido": true,
+      "esperado": true
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Prazo fica exatamente 60 s depois da abertura",
+      "ok": true,
+      "obtido": 60000,
+      "esperado": 60000
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Pedro 1ª · Pedro → Nota 20",
+      "ok": true,
+      "obtido": 20,
+      "esperado": 20
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Pedro 1ª · Pedro → Tentativas restantes 2",
+      "ok": true,
+      "obtido": 2,
+      "esperado": 2
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Pedro 1ª · Pedro → pontos por Critério",
+      "ok": true,
+      "obtido": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "esperado": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Maria 1ª · Maria → Nota 70",
+      "ok": true,
+      "obtido": 70,
+      "esperado": 70
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Maria 1ª · Maria → Tentativas restantes 2",
+      "ok": true,
+      "obtido": 2,
+      "esperado": 2
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Maria 1ª · Maria → pontos por Critério",
+      "ok": true,
+      "obtido": [
+        15,
+        20,
+        0,
+        20,
+        15,
+        0
+      ],
+      "esperado": [
+        15,
+        20,
+        0,
+        20,
+        15,
+        0
+      ]
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Lucas 1ª · Lucas → Nota 0",
+      "ok": true,
+      "obtido": 0,
+      "esperado": 0
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Lucas 1ª · Lucas → Tentativas restantes 2",
+      "ok": true,
+      "obtido": 2,
+      "esperado": 2
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Lucas 1ª · Lucas → pontos por Critério",
+      "ok": true,
+      "obtido": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "esperado": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Joao 1ª · Joao → Nota 20",
+      "ok": true,
+      "obtido": 20,
+      "esperado": 20
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Joao 1ª · Joao → Tentativas restantes 2",
+      "ok": true,
+      "obtido": 2,
+      "esperado": 2
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Joao 1ª · Joao → pontos por Critério",
+      "ok": true,
+      "obtido": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ],
+      "esperado": [
+        0,
+        0,
+        20,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Rodada 3 encerra sozinha quando o cronômetro zera",
+      "ok": true,
+      "obtido": true,
+      "esperado": true
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Joao envia depois do prazo e é recusado",
+      "ok": true,
+      "obtido": "A Rodada foi encerrada.",
+      "esperado": "A Rodada foi encerrada."
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Reveal da Rodada 3: top 3 Maria 70, Pedro 20, Joao 20 (empate: quem enviou antes)",
+      "ok": true,
+      "obtido": [
+        "Maria:70",
+        "Pedro:20",
+        "Joao:20"
+      ],
+      "esperado": [
+        "Maria:70",
+        "Pedro:20",
+        "Joao:20"
+      ]
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Placar após a Rodada 3: ordem do Placar",
+      "ok": true,
+      "obtido": [
+        "1º Maria",
+        "2º Joao",
+        "3º Lucas",
+        "4º Pedro"
+      ],
+      "esperado": [
+        "1º Maria",
+        "2º Joao",
+        "3º Lucas",
+        "4º Pedro"
+      ]
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Placar após a Rodada 3: pontuação total de Maria",
+      "ok": true,
+      "obtido": 270,
+      "esperado": 270
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Placar após a Rodada 3: pontuação total de Joao",
+      "ok": true,
+      "obtido": 160,
+      "esperado": 160
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Placar após a Rodada 3: pontuação total de Lucas",
+      "ok": true,
+      "obtido": 145,
+      "esperado": 145
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Placar após a Rodada 3: pontuação total de Pedro",
+      "ok": true,
+      "obtido": 80,
+      "esperado": 80
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Placar após a Rodada 3: Conquistas de Joao",
+      "ok": true,
+      "obtido": [
+        "campeao-da-rodada",
+        "evolucao",
+        "na-mosca",
+        "primeiro-sangue"
+      ],
+      "esperado": [
+        "campeao-da-rodada",
+        "evolucao",
+        "na-mosca",
+        "primeiro-sangue"
+      ]
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Placar após a Rodada 3: Conquistas de Maria",
+      "ok": true,
+      "obtido": [
+        "campeao-da-rodada",
+        "campeao-da-rodada",
+        "evolucao",
+        "evolucao",
+        "na-mosca",
+        "na-mosca",
+        "primeiro-sangue"
+      ],
+      "esperado": [
+        "campeao-da-rodada",
+        "campeao-da-rodada",
+        "evolucao",
+        "evolucao",
+        "na-mosca",
+        "na-mosca",
+        "primeiro-sangue"
+      ]
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Placar após a Rodada 3: Conquistas de Lucas",
+      "ok": true,
+      "obtido": [
+        "evolucao",
+        "evolucao"
+      ],
+      "esperado": [
+        "evolucao",
+        "evolucao"
+      ]
+    },
+    {
+      "grupo": "Rodada 3",
+      "nome": "Placar após a Rodada 3: Conquistas de Pedro",
+      "ok": true,
+      "obtido": [
+        "evolucao",
+        "primeiro-sangue"
+      ],
+      "esperado": [
+        "evolucao",
+        "primeiro-sangue"
+      ]
+    },
+    {
+      "grupo": "Rodada 4",
+      "nome": "Facilitador abre a Rodada 4 (Desafio 4)",
+      "ok": true,
+      "obtido": true,
+      "esperado": true
+    },
+    {
+      "grupo": "Rodada 4",
+      "nome": "Lucas 1ª · Lucas → Nota 40",
+      "ok": true,
+      "obtido": 40,
+      "esperado": 40
+    },
+    {
+      "grupo": "Rodada 4",
+      "nome": "Lucas 1ª · Lucas → Tentativas restantes 2",
+      "ok": true,
+      "obtido": 2,
+      "esperado": 2
+    },
+    {
+      "grupo": "Rodada 4",
+      "nome": "Lucas 1ª · Lucas → pontos por Critério",
+      "ok": true,
+      "obtido": [
+        0,
+        0,
+        20,
+        20,
+        0,
+        0
+      ],
+      "esperado": [
+        0,
+        0,
+        20,
+        20,
+        0,
+        0
+      ]
+    },
+    {
+      "grupo": "Rodada 4",
+      "nome": "Joao 1ª · Joao → Nota 90",
+      "ok": true,
+      "obtido": 90,
+      "esperado": 90
+    },
+    {
+      "grupo": "Rodada 4",
+      "nome": "Joao 1ª · Joao → Tentativas restantes 2",
+      "ok": true,
+      "obtido": 2,
+      "esperado": 2
+    },
+    {
+      "grupo": "Rodada 4",
+      "nome": "Joao 1ª · Joao → pontos por Critério",
+      "ok": true,
+      "obtido": [
+        15,
+        20,
+        20,
+        20,
+        15,
+        0
+      ],
+      "esperado": [
+        15,
+        20,
+        20,
+        20,
+        15,
+        0
+      ]
+    },
+    {
+      "grupo": "Rodada 4",
+      "nome": "Placar após a Rodada 4: ordem do Placar",
+      "ok": true,
+      "obtido": [
+        "1º Maria",
+        "2º Joao",
+        "3º Lucas",
+        "4º Pedro"
+      ],
+      "esperado": [
+        "1º Maria",
+        "2º Joao",
+        "3º Lucas",
+        "4º Pedro"
+      ]
+    },
+    {
+      "grupo": "Rodada 4",
+      "nome": "Placar após a Rodada 4: pontuação total de Maria",
+      "ok": true,
+      "obtido": 270,
+      "esperado": 270
+    },
+    {
+      "grupo": "Rodada 4",
+      "nome": "Placar após a Rodada 4: pontuação total de Joao",
+      "ok": true,
+      "obtido": 250,
+      "esperado": 250
+    },
+    {
+      "grupo": "Rodada 4",
+      "nome": "Placar após a Rodada 4: pontuação total de Lucas",
+      "ok": true,
+      "obtido": 185,
+      "esperado": 185
+    },
+    {
+      "grupo": "Rodada 4",
+      "nome": "Placar após a Rodada 4: pontuação total de Pedro",
+      "ok": true,
+      "obtido": 80,
+      "esperado": 80
+    },
+    {
+      "grupo": "Rodada 4",
+      "nome": "Placar após a Rodada 4: Conquistas de Joao",
+      "ok": true,
+      "obtido": [
+        "campeao-da-rodada",
+        "campeao-da-rodada",
+        "evolucao",
+        "na-mosca",
+        "primeiro-sangue"
+      ],
+      "esperado": [
+        "campeao-da-rodada",
+        "campeao-da-rodada",
+        "evolucao",
+        "na-mosca",
+        "primeiro-sangue"
+      ]
+    },
+    {
+      "grupo": "Rodada 4",
+      "nome": "Placar após a Rodada 4: Conquistas de Maria",
+      "ok": true,
+      "obtido": [
+        "campeao-da-rodada",
+        "campeao-da-rodada",
+        "evolucao",
+        "evolucao",
+        "na-mosca",
+        "na-mosca",
+        "primeiro-sangue"
+      ],
+      "esperado": [
+        "campeao-da-rodada",
+        "campeao-da-rodada",
+        "evolucao",
+        "evolucao",
+        "na-mosca",
+        "na-mosca",
+        "primeiro-sangue"
+      ]
+    },
+    {
+      "grupo": "Rodada 4",
+      "nome": "Placar após a Rodada 4: Conquistas de Lucas",
+      "ok": true,
+      "obtido": [
+        "evolucao",
+        "evolucao",
+        "primeiro-sangue"
+      ],
+      "esperado": [
+        "evolucao",
+        "evolucao",
+        "primeiro-sangue"
+      ]
+    },
+    {
+      "grupo": "Rodada 4",
+      "nome": "Placar após a Rodada 4: Conquistas de Pedro",
+      "ok": true,
+      "obtido": [
+        "evolucao",
+        "primeiro-sangue"
+      ],
+      "esperado": [
+        "evolucao",
+        "primeiro-sangue"
+      ]
+    },
+    {
+      "grupo": "Rodada 5",
+      "nome": "Facilitador abre a Rodada 5 (Desafio 5)",
+      "ok": true,
+      "obtido": true,
+      "esperado": true
+    },
+    {
+      "grupo": "Rodada 5",
+      "nome": "Pedro com prompt vazio · Pedro → recusado: \"Escreva um prompt antes de enviar.\"",
+      "ok": true,
+      "obtido": "Escreva um prompt antes de enviar.",
+      "esperado": "Escreva um prompt antes de enviar."
+    },
+    {
+      "grupo": "Rodada 5",
+      "nome": "Pedro 1ª · Pedro → Nota 40",
+      "ok": true,
+      "obtido": 40,
+      "esperado": 40
+    },
+    {
+      "grupo": "Rodada 5",
+      "nome": "Pedro 1ª · Pedro → Tentativas restantes 2",
+      "ok": true,
+      "obtido": 2,
+      "esperado": 2
+    },
+    {
+      "grupo": "Rodada 5",
+      "nome": "Pedro 1ª · Pedro → pontos por Critério",
+      "ok": true,
+      "obtido": [
+        0,
+        0,
+        20,
+        20,
+        0,
+        0
+      ],
+      "esperado": [
+        0,
+        0,
+        20,
+        20,
+        0,
+        0
+      ]
+    },
+    {
+      "grupo": "Presença",
+      "nome": "Lucas offline continua no Placar com 185 pontos",
+      "ok": true,
+      "obtido": [
+        false,
+        185
+      ],
+      "esperado": [
+        false,
+        185
+      ]
+    },
+    {
+      "grupo": "Presença",
+      "nome": "Lucas volta ao Placar com o mesmo token",
+      "ok": true,
+      "obtido": true,
+      "esperado": true
+    },
+    {
+      "grupo": "Rodada 5",
+      "nome": "Placar após a Rodada 5: ordem do Placar",
+      "ok": true,
+      "obtido": [
+        "1º Maria",
+        "2º Joao",
+        "3º Lucas",
+        "4º Pedro"
+      ],
+      "esperado": [
+        "1º Maria",
+        "2º Joao",
+        "3º Lucas",
+        "4º Pedro"
+      ]
+    },
+    {
+      "grupo": "Rodada 5",
+      "nome": "Placar após a Rodada 5: pontuação total de Maria",
+      "ok": true,
+      "obtido": 270,
+      "esperado": 270
+    },
+    {
+      "grupo": "Rodada 5",
+      "nome": "Placar após a Rodada 5: pontuação total de Joao",
+      "ok": true,
+      "obtido": 250,
+      "esperado": 250
+    },
+    {
+      "grupo": "Rodada 5",
+      "nome": "Placar após a Rodada 5: pontuação total de Lucas",
+      "ok": true,
+      "obtido": 185,
+      "esperado": 185
+    },
+    {
+      "grupo": "Rodada 5",
+      "nome": "Placar após a Rodada 5: pontuação total de Pedro",
+      "ok": true,
+      "obtido": 120,
+      "esperado": 120
+    },
+    {
+      "grupo": "Rodada 5",
+      "nome": "Placar após a Rodada 5: Conquistas de Joao",
+      "ok": true,
+      "obtido": [
+        "campeao-da-rodada",
+        "campeao-da-rodada",
+        "evolucao",
+        "na-mosca",
+        "primeiro-sangue"
+      ],
+      "esperado": [
+        "campeao-da-rodada",
+        "campeao-da-rodada",
+        "evolucao",
+        "na-mosca",
+        "primeiro-sangue"
+      ]
+    },
+    {
+      "grupo": "Rodada 5",
+      "nome": "Placar após a Rodada 5: Conquistas de Maria",
+      "ok": true,
+      "obtido": [
+        "campeao-da-rodada",
+        "campeao-da-rodada",
+        "evolucao",
+        "evolucao",
+        "na-mosca",
+        "na-mosca",
+        "primeiro-sangue"
+      ],
+      "esperado": [
+        "campeao-da-rodada",
+        "campeao-da-rodada",
+        "evolucao",
+        "evolucao",
+        "na-mosca",
+        "na-mosca",
+        "primeiro-sangue"
+      ]
+    },
+    {
+      "grupo": "Rodada 5",
+      "nome": "Placar após a Rodada 5: Conquistas de Lucas",
+      "ok": true,
+      "obtido": [
+        "evolucao",
+        "evolucao",
+        "primeiro-sangue"
+      ],
+      "esperado": [
+        "evolucao",
+        "evolucao",
+        "primeiro-sangue"
+      ]
+    },
+    {
+      "grupo": "Rodada 5",
+      "nome": "Placar após a Rodada 5: Conquistas de Pedro",
+      "ok": true,
+      "obtido": [
+        "campeao-da-rodada",
+        "evolucao",
+        "primeiro-sangue",
+        "primeiro-sangue"
+      ],
+      "esperado": [
+        "campeao-da-rodada",
+        "evolucao",
+        "primeiro-sangue",
+        "primeiro-sangue"
+      ]
+    },
+    {
+      "grupo": "Moderação",
+      "nome": "Facilitador remove Pedro",
+      "ok": true,
+      "obtido": true,
+      "esperado": true
+    },
+    {
+      "grupo": "Moderação",
+      "nome": "Pedro removido sai do Placar",
+      "ok": true,
+      "obtido": [
+        "Maria",
+        "Joao",
+        "Lucas"
+      ],
+      "esperado": [
+        "Maria",
+        "Joao",
+        "Lucas"
+      ]
+    },
+    {
+      "grupo": "Moderação",
+      "nome": "Token de Pedro removido não retoma mais (401)",
+      "ok": true,
+      "obtido": 401,
+      "esperado": 401
+    },
+    {
+      "grupo": "Moderação",
+      "nome": "Pedro removido é levado de volta ao login",
+      "ok": true,
+      "obtido": true,
+      "esperado": true
+    },
+    {
+      "grupo": "Moderação",
+      "nome": "Nickname liberado: novo Pedro entra (201)",
+      "ok": true,
+      "obtido": 201,
+      "esperado": 201
+    },
+    {
+      "grupo": "Moderação",
+      "nome": "Pedro novo começa com 0 pontos e sem Conquistas",
+      "ok": true,
+      "obtido": [
+        0,
+        []
+      ],
+      "esperado": [
+        0,
+        []
+      ]
+    },
+    {
+      "grupo": "Reset",
+      "nome": "Facilitador reseta a partida",
+      "ok": true,
+      "obtido": true,
+      "esperado": true
+    },
+    {
+      "grupo": "Reset",
+      "nome": "Placar vazio após reset",
+      "ok": true,
+      "obtido": [],
+      "esperado": []
+    },
+    {
+      "grupo": "Reset",
+      "nome": "Desafios voltam a ficar disponíveis",
+      "ok": true,
+      "obtido": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "esperado": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "grupo": "Reset",
+      "nome": "Jogadores antigos voltam ao login",
+      "ok": true,
+      "obtido": true,
+      "esperado": true
+    }
+  ]
+}
