@@ -4,7 +4,8 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/8bit/button";
 import type { EstadoJogadorAoVivo } from "@/lib/cliente/use-tempo-real";
 import { LIMITE_DE_CARACTERES, LIMITE_DE_TENTATIVAS } from "@/lib/limites";
-import type { ResultadoTentativa, TentativaPublica } from "@/lib/motor/motor";
+import type { ResultadoTentativa, Revelacao, TentativaPublica } from "@/lib/motor/motor";
+import { Avatar } from "./avatar";
 
 type Props = {
   estado: EstadoJogadorAoVivo | null;
@@ -31,6 +32,7 @@ export function PromptExe({ estado, onEnviar }: Props) {
 
   const rodada = estado?.rodada ?? null;
   if (!estado || !rodada) {
+    if (estado?.revelacao) return <RevelacaoDaRodada revelacao={estado.revelacao} />;
     return (
       <div className="flex min-h-40 flex-col gap-3">
         <p className="uppercase">
@@ -116,6 +118,44 @@ export function PromptExe({ estado, onEnviar }: Props) {
       {estado.tentativas.length > 0 && (
         <Historico tentativas={estado.tentativas} />
       )}
+    </div>
+  );
+}
+
+// Reveal: o Prompt de referência e o top 3 da última Rodada, até o Facilitador abrir a próxima.
+function RevelacaoDaRodada({ revelacao }: { revelacao: Revelacao }) {
+  return (
+    <div className="flex flex-col gap-4" aria-label="Revelação da Rodada">
+      <p className="font-pixel text-[12px] text-dos-amarelo">REVELAÇÃO</p>
+
+      <section className="flex flex-col gap-2">
+        <h3 className="uppercase text-dos-amarelo">Prompt de referência</h3>
+        <p className="whitespace-pre-line text-dos-verde">{revelacao.desafio.promptReferencia}</p>
+      </section>
+
+      <section className="flex flex-col gap-3 border-t-2 border-dos-cinza pt-3">
+        <h3 className="uppercase text-dos-amarelo">Top 3</h3>
+        {revelacao.top3.length === 0 ? (
+          <p className="uppercase">NINGUÉM PONTUOU NESTA RODADA.</p>
+        ) : (
+          <ol className="flex flex-col gap-4">
+            {revelacao.top3.map((item) => (
+              <li key={item.posicao} className="flex flex-col gap-2">
+                <div className="flex items-center gap-3">
+                  <Avatar iniciais={item.iniciais} />
+                  <span className="flex-1 truncate">
+                    {item.posicao}º {item.nickname}
+                  </span>
+                  <span className="text-dos-amarelo">NOTA {item.nota}</span>
+                </div>
+                <p className="whitespace-pre-line text-dos-cinza">{item.prompt}</p>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
+
+      <p className="uppercase">AGUARDANDO O PRÓXIMO DESAFIO...</p>
     </div>
   );
 }

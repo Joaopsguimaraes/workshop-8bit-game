@@ -1,8 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { criarMotor } from "./motor";
+import { criarMotor, type Evento, type Motor } from "./motor";
 import { criarBancoDeTeste } from "./banco-de-teste";
 import { criarPrisma } from "./prisma";
 import type { Desafio } from "../desafios/tipos";
+import { DESAFIOS_SEED } from "../desafios/seed";
 
 // Catálogo de teste com dois Desafios, para testar a regra de não reabrir um Desafio.
 const ALFA: Desafio = {
@@ -127,6 +128,7 @@ describe("estadoDoJogador", () => {
       rodada: null,
       tentativas: [],
       tentativasRestantes: 0,
+      revelacao: null,
       agora: agora.toISOString(),
     });
   });
@@ -489,5 +491,389 @@ describe("restart", () => {
     } finally {
       await prismaNovo.$disconnect();
     }
+  });
+});
+
+// Leitura do Placar pelo Jogador, como a tela faz; os testes não olham tabelas.
+async function entradaDe(m: Motor, nickname: string) {
+  const entrada = (await m.placar()).find((jogador) => jogador.nickname === nickname);
+  if (!entrada) throw new Error(`${nickname} não está no Placar`);
+  return entrada;
+}
+
+async function tiposDe(m: Motor, nickname: string) {
+  return (await entradaDe(m, nickname)).conquistas.map((conquista) => conquista.tipo).sort();
+}
+
+async function entrarNo(m: Motor, nickname: string) {
+  const r = await m.entrar(nickname);
+  if (!r.ok) throw new Error(`esperava sucesso ao entrar: ${r.erro}`);
+  return r;
+}
+
+describe("placar: desempate e status", () => {
+  it("empate de pontuação: quem usou menos Tentativas nas Rodadas em que pontuou fica na frente", async () => {
+    const bia = await entrarComo("Bia");
+    const ana = await entrarComo("Ana");
+    await motor.abrirRodada("alfa");
+    await motor.enviarTentativa(bia.token, "oi");
+    await motor.enviarTentativa(bia.token, PROMPT_ALFA);
+    avancar(5);
+    await motor.enviarTentativa(ana.token, PROMPT_ALFA);
+    await motor.encerrarRodada();
+
+    expect((await motor.placar()).map((j) => j.nickname)).toEqual(["Ana", "Bia"]);
+  });
+
+  it("Tentativas de Rodadas sem pontuação não contam no desempate", async () => {
+    const bia = await entrarComo("Bia");
+    const ana = await entrarComo("Ana");
+    await motor.abrirRodada("alfa");
+    await motor.enviarTentativa(bia.token, "oi");
+    await motor.enviarTentativa(bia.token, PROMPT_ALFA);
+    avancar(5);
+    await motor.enviarTentativa(ana.token, PROMPT_ALFA);
+    await motor.encerrarRodada();
+    await motor.abrirRodada("beta");
+    await motor.enviarTentativa(ana.token, "oi");
+    await motor.enviarTentativa(ana.token, "oi");
+    await motor.enviarTentativa(ana.token, "oi");
+    await motor.encerrarRodada();
+
+    // Ana: 35 com 1 Tentativa na Rodada que pontuou (as 3 da beta não contam).
+    // Bia: 35 com 2 Tentativas. Sem a regra, Bia ficaria na frente com 2 contra 4.
+    expect((await motor.placar()).map((j) => j.nickname)).toEqual(["Ana", "Bia"]);
+  });
+
+  it("com a mesma pontuação e o mesmo número de Tentativas, vence quem atingiu a pontuação primeiro", async () => {
+    // Bia entrou antes na Sala, então a ordem de criação não pode decidir o empate.
+    const bia = await entrarComo("Bia");
+    const ana = await entrarComo("Ana");
+    await motor.abrirRodada("alfa");
+    await motor.enviarTentativa(ana.token, PROMPT_ALFA);
+    avancar(5);
+    await motor.enviarTentativa(bia.token, PROMPT_ALFA);
+    await motor.encerrarRodada();
+
+    expect((await motor.placar()).map((j) => j.nickname)).toEqual(["Ana", "Bia"]);
+  });
+
+  it("mostra posição, se o Jogador enviou na Rodada atual e quantas Tentativas usou nela", async () => {
+    const ana = await entrarComo("Ana");
+    const bia = await entrarComo("Bia");
+    await motor.abrirRodada("alfa");
+    await motor.enviarTentativa(ana.token, PROMPT_ALFA);
+    await motor.enviarTentativa(bia.token, "oi");
+
+    expect(await entradaDe(motor, "Ana")).toMatchObject({
+      posicao: 1,
+      pontuacao: 35,
+      enviouNaRodada: true,
+      tentativasNaRodada: 1,
+    });
+    expect(await entradaDe(motor, "Bia")).toMatchObject({
+      posicao: 2,
+      pontuacao: 0,
+      enviouNaRodada: true,
+      tentativasNaRodada: 1,
+    });
+  });
+});
+
+describe("conquistas", () => {
+  // Motor com o seed real, para que os Prompts de referência valham 100 de verdade.
+  let seed: Motor;
+  const REMOTO = "trabalho-remoto";
+  const ALINHAMENTO = "reuniao-alinhamento";
+  const REF_REMOTO = DESAFIOS_SEED[0].promptReferencia;
+  const REF_ALINHAMENTO = DESAFIOS_SEED[1].promptReferencia;
+  // Mesmo Prompt de referência sem o último Critério (Exemplos): Nota 90.
+  const REF_REMOTO_NOTA_90 = REF_REMOTO.split("\n").slice(0, -1).join("\n");
+
+  beforeEach(() => {
+    seed = criarMotor(banco.prisma, { desafios: DESAFIOS_SEED, agora: () => agora });
+  });
+
+  it("Na mosca: concedida a quem tira 100", async () => {
+    const ana = await entrarNo(seed, "Ana");
+    await seed.abrirRodada(REMOTO);
+    await seed.enviarTentativa(ana.token, REF_REMOTO);
+
+    expect(await tiposDe(seed, "Ana")).toEqual(["de-primeira", "na-mosca", "primeiro-sangue"]);
+  });
+
+  it("Na mosca não é concedida com Nota 90", async () => {
+    const ana = await entrarNo(seed, "Ana");
+    await seed.abrirRodada(REMOTO);
+    await seed.enviarTentativa(ana.token, REF_REMOTO_NOTA_90);
+
+    expect(await tiposDe(seed, "Ana")).toEqual(["primeiro-sangue"]);
+  });
+
+  it("De primeira só vale quando o 100 vem na 1ª Tentativa", async () => {
+    const ana = await entrarNo(seed, "Ana");
+    await seed.abrirRodada(REMOTO);
+    await seed.enviarTentativa(ana.token, "oi");
+    await seed.enviarTentativa(ana.token, REF_REMOTO);
+
+    expect(await tiposDe(seed, "Ana")).toEqual(["evolucao", "na-mosca", "primeiro-sangue"]);
+  });
+
+  it("Primeiro sangue vai só para a primeira Tentativa aceita da Rodada", async () => {
+    const ana = await entrarNo(seed, "Ana");
+    const bia = await entrarNo(seed, "Bia");
+    await seed.abrirRodada(REMOTO);
+    await seed.enviarTentativa(ana.token, "oi");
+    await seed.enviarTentativa(bia.token, "oi");
+
+    expect(await tiposDe(seed, "Ana")).toContain("primeiro-sangue");
+    expect(await tiposDe(seed, "Bia")).not.toContain("primeiro-sangue");
+  });
+
+  it("Primeiro sangue não é dado a um envio recusado", async () => {
+    const ana = await entrarNo(seed, "Ana");
+    const bia = await entrarNo(seed, "Bia");
+    await seed.abrirRodada(REMOTO);
+    expect((await seed.enviarTentativa(ana.token, "   ")).ok).toBe(false);
+    await seed.enviarTentativa(bia.token, "oi");
+
+    expect(await tiposDe(seed, "Bia")).toContain("primeiro-sangue");
+    expect(await tiposDe(seed, "Ana")).not.toContain("primeiro-sangue");
+  });
+
+  it("Evolução: a Tentativa posterior precisa superar a primeira em 30 pontos", async () => {
+    const ana = await entrarNo(seed, "Ana");
+    await seed.abrirRodada(REMOTO);
+    await seed.enviarTentativa(ana.token, "oi");
+    await seed.enviarTentativa(ana.token, REF_REMOTO);
+
+    expect(await tiposDe(seed, "Ana")).toContain("evolucao");
+  });
+
+  it("Evolução não é concedida quando a melhora fica abaixo de 30 pontos", async () => {
+    const ana = await entrarNo(seed, "Ana");
+    await seed.abrirRodada(REMOTO);
+    await seed.enviarTentativa(ana.token, REF_REMOTO_NOTA_90);
+    await seed.enviarTentativa(ana.token, REF_REMOTO);
+
+    expect(await tiposDe(seed, "Ana")).not.toContain("evolucao");
+  });
+
+  it("cada Conquista vale no máximo uma vez por Jogador por Rodada", async () => {
+    const ana = await entrarNo(seed, "Ana");
+    await seed.abrirRodada(REMOTO);
+    await seed.enviarTentativa(ana.token, "oi");
+    await seed.enviarTentativa(ana.token, REF_REMOTO);
+    await seed.enviarTentativa(ana.token, REF_REMOTO);
+
+    const tipos = await tiposDe(seed, "Ana");
+    expect(tipos.filter((tipo) => tipo === "na-mosca")).toHaveLength(1);
+    expect(tipos.filter((tipo) => tipo === "evolucao")).toHaveLength(1);
+  });
+
+  it("a mesma Conquista pode ser ganha de novo em outra Rodada", async () => {
+    const ana = await entrarNo(seed, "Ana");
+    await seed.abrirRodada(REMOTO);
+    await seed.enviarTentativa(ana.token, REF_REMOTO);
+    await seed.encerrarRodada();
+    await seed.abrirRodada(ALINHAMENTO);
+    await seed.enviarTentativa(ana.token, REF_ALINHAMENTO);
+
+    expect((await tiposDe(seed, "Ana")).filter((tipo) => tipo === "na-mosca")).toHaveLength(2);
+  });
+
+  it("Campeão da Rodada vai para o 1º lugar ao encerrar", async () => {
+    const ana = await entrarNo(seed, "Ana");
+    const bia = await entrarNo(seed, "Bia");
+    await seed.abrirRodada(REMOTO);
+    await seed.enviarTentativa(ana.token, REF_REMOTO);
+    await seed.enviarTentativa(bia.token, REF_REMOTO_NOTA_90);
+    await seed.encerrarRodada();
+
+    expect(await tiposDe(seed, "Ana")).toContain("campeao-da-rodada");
+    expect(await tiposDe(seed, "Bia")).not.toContain("campeao-da-rodada");
+  });
+
+  it("Campeão da Rodada usa o mesmo desempate: Nota igual, menos Tentativas", async () => {
+    const ana = await entrarNo(seed, "Ana");
+    const bia = await entrarNo(seed, "Bia");
+    await seed.abrirRodada(REMOTO);
+    await seed.enviarTentativa(ana.token, REF_REMOTO_NOTA_90);
+    avancar(5);
+    await seed.enviarTentativa(bia.token, "oi");
+    await seed.enviarTentativa(bia.token, REF_REMOTO_NOTA_90);
+    await seed.encerrarRodada();
+
+    expect(await tiposDe(seed, "Ana")).toContain("campeao-da-rodada");
+    expect(await tiposDe(seed, "Bia")).not.toContain("campeao-da-rodada");
+  });
+
+  it("Campeão da Rodada não é concedido quando a melhor Nota da Rodada é zero", async () => {
+    const ana = await entrarNo(seed, "Ana");
+    const bia = await entrarNo(seed, "Bia");
+    await seed.abrirRodada(REMOTO);
+    await seed.enviarTentativa(ana.token, "oi");
+    await seed.enviarTentativa(bia.token, "oi");
+    await seed.encerrarRodada();
+
+    expect(await tiposDe(seed, "Ana")).not.toContain("campeao-da-rodada");
+    expect(await tiposDe(seed, "Bia")).not.toContain("campeao-da-rodada");
+  });
+
+  it("Campeão da Rodada também é concedido quando o prazo vence", async () => {
+    const ana = await entrarNo(seed, "Ana");
+    await seed.abrirRodada(REMOTO, 60);
+    await seed.enviarTentativa(ana.token, REF_REMOTO);
+    avancar(61);
+    await seed.verificarPrazo(agora);
+
+    expect(await tiposDe(seed, "Ana")).toContain("campeao-da-rodada");
+  });
+});
+
+describe("eventos", () => {
+  let seed: Motor;
+  let recebidos: Evento[];
+  const REMOTO = "trabalho-remoto";
+  const REF_REMOTO = DESAFIOS_SEED[0].promptReferencia;
+
+  beforeEach(() => {
+    seed = criarMotor(banco.prisma, { desafios: DESAFIOS_SEED, agora: () => agora });
+    recebidos = [];
+    seed.assinar((evento) => recebidos.push(evento));
+  });
+
+  it("avisa quando um Jogador entra", async () => {
+    await seed.entrar("Ana Maria");
+
+    expect(recebidos).toContainEqual({
+      tipo: "jogador-entrou",
+      jogador: { nickname: "Ana Maria", iniciais: "AN" },
+    });
+  });
+
+  it("avisa quando a Rodada abre e quando encerra, com o título do Desafio", async () => {
+    await seed.abrirRodada(REMOTO);
+    await seed.encerrarRodada();
+
+    expect(recebidos).toContainEqual({
+      tipo: "rodada-aberta",
+      titulo: DESAFIOS_SEED[0].titulo,
+    });
+    expect(recebidos).toContainEqual(
+      expect.objectContaining({ tipo: "rodada-encerrada", titulo: DESAFIOS_SEED[0].titulo }),
+    );
+  });
+
+  it("avisa o envio com o número da Tentativa, sem o texto do prompt", async () => {
+    const ana = await entrarNo(seed, "Ana");
+    await seed.abrirRodada(REMOTO);
+    await seed.enviarTentativa(ana.token, `oi SEGREDO-DA-ANA`);
+
+    expect(recebidos).toContainEqual({
+      tipo: "tentativa-enviada",
+      jogador: { nickname: "Ana", iniciais: "AN" },
+      numero: 1,
+    });
+    expect(JSON.stringify(recebidos)).not.toContain("SEGREDO-DA-ANA");
+  });
+
+  it("avisa quando uma Tentativa tira 100 e quando uma Conquista é ganha", async () => {
+    const ana = await entrarNo(seed, "Ana");
+    await seed.abrirRodada(REMOTO);
+    await seed.enviarTentativa(ana.token, REF_REMOTO);
+
+    expect(recebidos).toContainEqual(
+      expect.objectContaining({ tipo: "nota-maxima", numero: 1 }),
+    );
+    expect(recebidos).toContainEqual({
+      tipo: "conquista-ganha",
+      jogador: { nickname: "Ana", iniciais: "AN" },
+      conquista: "na-mosca",
+    });
+  });
+
+  it("antes do reveal, nenhum evento nem snapshot de um Jogador traz o prompt de outro", async () => {
+    const ana = await entrarNo(seed, "Ana");
+    const bia = await entrarNo(seed, "Bia");
+    await seed.abrirRodada(REMOTO);
+    await seed.enviarTentativa(bia.token, `${REF_REMOTO} SEGREDO-DA-BIA`);
+    await seed.enviarTentativa(ana.token, "oi");
+
+    expect(JSON.stringify(recebidos)).not.toContain("SEGREDO-DA-BIA");
+    expect(JSON.stringify(await seed.estadoDoJogador(ana.token))).not.toContain("SEGREDO-DA-BIA");
+    expect(JSON.stringify(await seed.placar())).not.toContain("SEGREDO-DA-BIA");
+  });
+
+  it("ao encerrar, o evento de reveal leva o Prompt de referência e o top 3", async () => {
+    const ana = await entrarNo(seed, "Ana");
+    await seed.abrirRodada(REMOTO);
+    await seed.enviarTentativa(ana.token, REF_REMOTO);
+    await seed.encerrarRodada();
+
+    expect(recebidos).toContainEqual(
+      expect.objectContaining({
+        tipo: "rodada-encerrada",
+        revelacao: expect.objectContaining({
+          desafio: expect.objectContaining({ promptReferencia: REF_REMOTO }),
+          top3: [expect.objectContaining({ nickname: "Ana", nota: 100, prompt: REF_REMOTO })],
+        }),
+      }),
+    );
+  });
+});
+
+describe("reveal", () => {
+  let seed: Motor;
+  const REMOTO = "trabalho-remoto";
+  const ALINHAMENTO = "reuniao-alinhamento";
+  const REF_REMOTO = DESAFIOS_SEED[0].promptReferencia;
+  const REF_REMOTO_NOTA_90 = REF_REMOTO.split("\n").slice(0, -1).join("\n");
+
+  beforeEach(() => {
+    seed = criarMotor(banco.prisma, { desafios: DESAFIOS_SEED, agora: () => agora });
+  });
+
+  it("sem Rodada encerrada, não há reveal", async () => {
+    const ana = await entrarNo(seed, "Ana");
+    await seed.abrirRodada(REMOTO);
+
+    expect((await seed.estadoDoJogador(ana.token))).toMatchObject({ ok: true, revelacao: null });
+  });
+
+  it("depois de encerrar, traz o Prompt de referência e o top 3 com Avatar, Nickname, Nota e prompt", async () => {
+    const ana = await entrarNo(seed, "Ana");
+    const bia = await entrarNo(seed, "Bia");
+    const cy = await entrarNo(seed, "Cy");
+    await seed.abrirRodada(REMOTO);
+    await seed.enviarTentativa(ana.token, REF_REMOTO);
+    await seed.enviarTentativa(bia.token, REF_REMOTO_NOTA_90);
+    await seed.enviarTentativa(cy.token, "oi");
+    await seed.encerrarRodada();
+
+    const estado = await seed.estadoDoJogador(ana.token);
+    expect(estado).toMatchObject({
+      ok: true,
+      revelacao: {
+        desafio: { titulo: DESAFIOS_SEED[0].titulo, promptReferencia: REF_REMOTO },
+        top3: [
+          { posicao: 1, nickname: "Ana", iniciais: "AN", nota: 100, prompt: REF_REMOTO },
+          { posicao: 2, nickname: "Bia", iniciais: "BI", nota: 90, prompt: REF_REMOTO_NOTA_90 },
+        ],
+      },
+    });
+  });
+
+  it("fica visível até o Facilitador abrir a próxima Rodada", async () => {
+    const ana = await entrarNo(seed, "Ana");
+    await seed.abrirRodada(REMOTO);
+    await seed.enviarTentativa(ana.token, REF_REMOTO);
+    await seed.encerrarRodada();
+    avancar(600);
+
+    expect((await seed.estadoDoJogador(ana.token))).toMatchObject({ revelacao: { top3: [expect.anything()] } });
+
+    await seed.abrirRodada(ALINHAMENTO);
+    expect((await seed.estadoDoJogador(ana.token))).toMatchObject({ revelacao: null });
   });
 });

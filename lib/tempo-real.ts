@@ -6,34 +6,39 @@ import {
   sessaoFacilitadorValida,
   valorDoCookie,
 } from "./facilitador/sessao";
-import type { Motor } from "./motor/motor";
+import type { EntradaPlacar, Evento, Motor } from "./motor/motor";
 import type { Presenca } from "./presenca";
 
-export type EntradaPlacarAoVivo = {
-  id: string;
-  nickname: string;
-  iniciais: string;
-  online: boolean;
-  pontuacao: number;
-};
+export type EntradaPlacarAoVivo = EntradaPlacar & { online: boolean };
+
+// Evento do feed com um número crescente, para o cliente ordenar e não repetir.
+export type ItemDoFeed = { id: number; evento: Evento };
 
 type Dependencias = { httpServer: ServidorHttp; motor: Motor; presenca: Presenca };
 
 const SALA_FACILITADORES = "facilitadores";
 const INTERVALO_DO_TICK_MS = 1000;
+const FEED_MAXIMO = 30;
 
 // Casca fina: traduz sockets em chamadas ao Motor e distribui o estado de cada papel.
 export function instalarTempoReal({ httpServer, motor, presenca }: Dependencias) {
   const io = new Server(httpServer);
 
+  // Feed da Sala: os eventos recentes ficam na memória, para quem entra depois ver o que aconteceu.
+  const feed: ItemDoFeed[] = [];
+  let proximoId = 1;
+  motor.assinar((evento) => {
+    const item: ItemDoFeed = { id: proximoId++, evento };
+    feed.push(item);
+    if (feed.length > FEED_MAXIMO) feed.shift();
+    io.emit("feed:evento", item);
+  });
+
   async function enviarPlacar() {
     try {
       const jogadores = await motor.placar();
       const placar: EntradaPlacarAoVivo[] = jogadores.map((jogador) => ({
-        id: jogador.id,
-        nickname: jogador.nickname,
-        iniciais: jogador.iniciais,
-        pontuacao: jogador.pontuacao,
+        ...jogador,
         online: presenca.estaOnline(jogador.id),
       }));
       io.emit("placar", { jogadores: placar });
@@ -65,6 +70,7 @@ export function instalarTempoReal({ httpServer, motor, presenca }: Dependencias)
     socket.data.papel = "jogador";
     socket.data.token = token;
     presenca.conectar(jogadorId, socket.id);
+    socket.emit("feed:historico", feed);
 
     socket.on("disconnect", () => {
       presenca.desconectar(socket.id);
@@ -85,6 +91,7 @@ export function instalarTempoReal({ httpServer, motor, presenca }: Dependencias)
   function conectarFacilitador(socket: Socket) {
     socket.data.papel = "facilitador";
     void socket.join(SALA_FACILITADORES);
+    socket.emit("feed:historico", feed);
 
     socket.on(
       "facilitador:abrirRodada",

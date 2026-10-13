@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Avatar } from "./avatar";
 import { DesafioTxt } from "./desafio-txt";
 import { Janela } from "./janela";
+import { LevelUp } from "./level-up";
 import { PlacarExe } from "./placar-exe";
 import { PromptExe } from "./prompt-exe";
 import {
@@ -13,7 +14,8 @@ import {
   type EstadoJanelas,
   type IdJanela,
 } from "@/lib/cliente/janelas";
-import { useTempoReal } from "@/lib/cliente/use-tempo-real";
+import { useSom } from "@/lib/cliente/use-som";
+import { useTempoReal, type Progresso } from "@/lib/cliente/use-tempo-real";
 
 type Props = {
   nickname: string;
@@ -40,11 +42,40 @@ const ORDEM_INICIAL: IdJanela[] = ["desafio", "placar", "prompt"];
 export function AreaDeTrabalho({ nickname, iniciais, token, onSessaoInvalida }: Props) {
   const [janelas, setJanelas] = useState<EstadoJanelas>(carregarJanelas);
   const [ordem, setOrdem] = useState<IdJanela[]>(ORDEM_INICIAL);
-  const { jogadores, estado, enviarTentativa } = useTempoReal({ token, onSessaoInvalida });
+  const [levelUp, setLevelUp] = useState<{ id: number; motivo: string } | null>(null);
+  const proximoLevelUp = useRef(0);
+  const { ligado, alternar: alternarSom, tocar } = useSom();
+
+  const aoProgresso = useCallback(
+    (progresso: Progresso) => {
+      if (progresso === "posicao") tocar("subir");
+      proximoLevelUp.current += 1;
+      setLevelUp({
+        id: proximoLevelUp.current,
+        motivo: progresso === "nota" ? "NOTA MELHOROU!" : "SUBIU NO PLACAR!",
+      });
+    },
+    [tocar],
+  );
+  const fimDoLevelUp = useCallback(() => setLevelUp(null), []);
+
+  const { jogadores, estado, feed, enviarTentativa } = useTempoReal({
+    token,
+    onSessaoInvalida,
+    onProgresso: aoProgresso,
+  });
 
   useEffect(() => {
     salvarJanelas(janelas);
   }, [janelas]);
+
+  // Efeitos de envio: um som ao enviar e outro quando a Nota chega.
+  async function enviarComSom(prompt: string) {
+    tocar("enviar");
+    const resultado = await enviarTentativa(prompt);
+    if (resultado.ok) tocar("nota");
+    return resultado;
+  }
 
   function alterarJanela(id: IdJanela, mudanca: Partial<EstadoJanela>) {
     setJanelas((atual) => ({ ...atual, [id]: { ...atual[id], ...mudanca } }));
@@ -67,6 +98,14 @@ export function AreaDeTrabalho({ nickname, iniciais, token, onSessaoInvalida }: 
       <header className="flex items-center justify-between bg-dos-cinza-escuro px-4 py-2 text-dos-branco">
         <span className="font-pixel text-[10px]">C:\WORKSHOP&gt; EXECUTAR</span>
         <span className="flex items-center gap-3">
+          <button
+            type="button"
+            aria-pressed={ligado}
+            onClick={alternarSom}
+            className="font-pixel border-2 border-dos-branco px-2 py-1 text-[10px] text-dos-branco hover:bg-dos-azul"
+          >
+            SOM: {ligado ? "LIGADO" : "DESLIGADO"}
+          </button>
           <Avatar iniciais={iniciais} />
           <span className="text-2xl">{nickname}</span>
         </span>
@@ -76,11 +115,11 @@ export function AreaDeTrabalho({ nickname, iniciais, token, onSessaoInvalida }: 
         {idsJanelas.map((id) => {
           const conteudo =
             id === "prompt" ? (
-              <PromptExe estado={estado} onEnviar={enviarTentativa} />
+              <PromptExe estado={estado} onEnviar={enviarComSom} />
             ) : id === "desafio" ? (
               <DesafioTxt desafio={estado?.rodada?.desafio ?? null} />
             ) : (
-              <PlacarExe jogadores={jogadores} />
+              <PlacarExe jogadores={jogadores} feed={feed} meuId={estado?.jogador.id ?? null} />
             );
           return (
             <Janela
@@ -98,6 +137,8 @@ export function AreaDeTrabalho({ nickname, iniciais, token, onSessaoInvalida }: 
           );
         })}
       </main>
+
+      {levelUp && <LevelUp key={levelUp.id} motivo={levelUp.motivo} onFim={fimDoLevelUp} />}
 
       <nav
         aria-label="Barra de tarefas"

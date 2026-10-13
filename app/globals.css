@@ -130,3 +130,36 @@
 .cursor-piscante {
   animation: cursor-piscar 1s steps(1) infinite;
 }
+
+/* LEVEL UP: surge, pisca e some em passos, no estilo 8-bit. */
+@keyframes level-up {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  15% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  30% {
+    transform: scale(1);
+  }
+  80% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+.animacao-level-up {
+  animation: level-up 1.8s steps(9) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animacao-level-up {
+    animation: none;
+  }
+}

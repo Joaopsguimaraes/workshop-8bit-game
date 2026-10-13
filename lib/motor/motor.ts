@@ -5,9 +5,45 @@ import type { Desafio } from "../desafios/tipos";
 import { LIMITE_DE_CARACTERES, LIMITE_DE_TENTATIVAS } from "../limites";
 import { validarNickname } from "../nickname";
 import type { PrismaClient } from "../../generated/prisma/client";
+import { conquistasDoEnvio, type TipoConquista } from "./conquistas";
+import {
+  agruparPorJogador,
+  compararMarcas,
+  marcaDoPlacar,
+  rankingDaRodada,
+  type ColocacaoNaRodada,
+  type TentativaRegistrada,
+} from "./ranking";
 
 // Única porta para mudar o estado da Sala. Recebe comandos e devolve resultados.
 export type Jogador = { id: string; nickname: string; iniciais: string };
+
+// Pessoa como aparece no feed: sem id e sem token, só o que todos podem ver.
+export type Pessoa = { nickname: string; iniciais: string };
+
+export type ConquistaPublica = { tipo: TipoConquista; rodadaId: string };
+
+export type RevelacaoTop = {
+  posicao: number;
+  nickname: string;
+  iniciais: string;
+  nota: number;
+  prompt: string;
+};
+
+export type Revelacao = {
+  desafio: { titulo: string; promptReferencia: string };
+  top3: RevelacaoTop[];
+};
+
+// Fatos da partida para o feed ao vivo. Nenhum evento carrega texto de prompt.
+export type Evento =
+  | { tipo: "jogador-entrou"; jogador: Pessoa }
+  | { tipo: "rodada-aberta"; titulo: string }
+  | { tipo: "tentativa-enviada"; jogador: Pessoa; numero: number }
+  | { tipo: "nota-maxima"; jogador: Pessoa; numero: number }
+  | { tipo: "conquista-ganha"; jogador: Pessoa; conquista: TipoConquista }
+  | { tipo: "rodada-encerrada"; titulo: string; revelacao: Revelacao };
 
 export type ResultadoEntrada =
   | { ok: true; token: string; jogador: Jogador }
@@ -40,16 +76,23 @@ export type EstadoDoJogador =
       rodada: RodadaPublica | null;
       tentativas: TentativaPublica[];
       tentativasRestantes: number;
+      // Reveal da última Rodada encerrada; some quando o Facilitador abre a próxima.
+      revelacao: Revelacao | null;
       agora: string;
     }
   | { ok: false; erro: string };
 
-export type EntradaPlacar = Jogador & { pontuacao: number };
+export type EntradaPlacar = Jogador & {
+  posicao: number;
+  pontuacao: number;
+  enviouNaRodada: boolean;
+  tentativasNaRodada: number;
+  conquistas: ConquistaPublica[];
+};
 
 export type ResultadoTentativa =
   | { ok: true; tentativa: TentativaPublica; tentativasRestantes: number }
   | { ok: false; erro: string };
-
 
 const SESSAO_INVALIDA = "Sessão inválida. Entre novamente.";
 const NICKNAME_EM_USO = "Nickname já em uso";
@@ -72,13 +115,28 @@ type RegistroTentativa = {
   criadaEm: Date;
 };
 
+// Tentativa com o nome de quem enviou, para montar o ranking e o reveal da Rodada.
+type TentativaDaRodada = TentativaRegistrada & {
+  prompt: string;
+  jogador: { nickname: string; iniciais: string };
+};
+
 function paraJogador(registro: { id: string; nickname: string; iniciais: string }): Jogador {
   return { id: registro.id, nickname: registro.nickname, iniciais: registro.iniciais };
+}
+
+function paraPessoa(registro: { nickname: string; iniciais: string }): Pessoa {
+  return { nickname: registro.nickname, iniciais: registro.iniciais };
 }
 
 export function criarMotor(prisma: PrismaClient, opcoes: Opcoes = {}) {
   const desafios = opcoes.desafios ?? DESAFIOS;
   const relogio = opcoes.agora ?? (() => new Date());
+  const ouvintes = new Set<(evento: Evento) => void>();
+
+  function emitir(evento: Evento) {
+    for (const ouvinte of ouvintes) ouvinte(evento);
+  }
 
   // Comandos que mudam estado rodam um de cada vez, para que os invariantes valham
   // mesmo com envios simultâneos (ex.: 5 cliques seguidos numa Tentativa só).
@@ -130,19 +188,107 @@ export function criarMotor(prisma: PrismaClient, opcoes: Opcoes = {}) {
     };
   }
 
+  async function tentativasDaRodada(rodadaId: string): Promise<TentativaDaRodada[]> {
+    return prisma.tentativa.findMany({
+      where: { rodadaId },
+      select: {
+        id: true,
+        jogadorId: true,
+        rodadaId: true,
+        numero: true,
+        nota: true,
+        criadaEm: true,
+        prompt: true,
+        jogador: { select: { nickname: true, iniciais: true } },
+      },
+    });
+  }
+
+  // Reveal: Prompt de referência do Desafio e as três melhores Tentativas com Nota acima de zero.
+  function montarRevelacao(
+    rodada: RegistroRodada,
+    ranking: ColocacaoNaRodada<TentativaDaRodada>[],
+  ): Revelacao {
+    const desafio = desafioDaRodada(rodada);
+    return {
+      desafio: { titulo: desafio.titulo, promptReferencia: desafio.promptReferencia },
+      top3: ranking.slice(0, 3).map((colocacao, indice) => ({
+        posicao: indice + 1,
+        nickname: colocacao.melhor.jogador.nickname,
+        iniciais: colocacao.melhor.jogador.iniciais,
+        nota: colocacao.melhor.nota,
+        prompt: colocacao.melhor.prompt,
+      })),
+    };
+  }
+
+  // Concede só as Conquistas que o Jogador ainda não tem nesta Rodada, e avisa cada uma.
+  async function conceder(
+    jogador: Pessoa & { id: string },
+    rodadaId: string,
+    tipos: TipoConquista[],
+    instante: Date,
+  ) {
+    const ja = await prisma.conquista.findMany({
+      where: { jogadorId: jogador.id, rodadaId },
+      select: { tipo: true },
+    });
+    const existentes = new Set(ja.map((conquista) => conquista.tipo));
+
+    for (const tipo of tipos) {
+      if (existentes.has(tipo)) continue;
+      await prisma.conquista.create({
+        data: { jogadorId: jogador.id, rodadaId, tipo, criadaEm: instante },
+      });
+      existentes.add(tipo);
+      emitir({ tipo: "conquista-ganha", jogador: paraPessoa(jogador), conquista: tipo });
+    }
+  }
+
+  // Encerra a Rodada, avisa o reveal e concede o Campeão da Rodada ao 1º lugar do ranking.
+  async function encerrar(rodada: RegistroRodada, instante: Date): Promise<RegistroRodada> {
+    const encerrada = await prisma.rodada.update({
+      where: { id: rodada.id },
+      data: { encerradaEm: instante },
+    });
+
+    const ranking = rankingDaRodada(await tentativasDaRodada(rodada.id));
+    emitir({
+      tipo: "rodada-encerrada",
+      titulo: desafioDaRodada(rodada).titulo,
+      revelacao: montarRevelacao(rodada, ranking),
+    });
+
+    const campeao = ranking[0];
+    if (campeao) {
+      await conceder(
+        { id: campeao.jogadorId, ...paraPessoa(campeao.melhor.jogador) },
+        rodada.id,
+        ["campeao-da-rodada"],
+        instante,
+      );
+    }
+    return encerrada;
+  }
+
   // Encerra a Rodada aberta se o prazo já passou. Sem prazo, nunca encerra.
   async function encerrarSePrazoVencido(agora: Date): Promise<boolean> {
     const aberta = await rodadaAberta();
     if (!aberta?.prazo || aberta.prazo > agora) return false;
 
-    await prisma.rodada.update({
-      where: { id: aberta.id },
-      data: { encerradaEm: aberta.prazo },
-    });
+    await encerrar(aberta, aberta.prazo);
     return true;
   }
 
   return {
+    // Inscreve um ouvinte no feed. Devolve a função que cancela a inscrição.
+    assinar(ouvinte: (evento: Evento) => void): () => void {
+      ouvintes.add(ouvinte);
+      return () => {
+        ouvintes.delete(ouvinte);
+      };
+    },
+
     async entrar(nickname: string): Promise<ResultadoEntrada> {
       const validacao = validarNickname(nickname);
       if (!validacao.ok) return validacao;
@@ -158,6 +304,7 @@ export function criarMotor(prisma: PrismaClient, opcoes: Opcoes = {}) {
             token,
           },
         });
+        emitir({ tipo: "jogador-entrou", jogador: paraPessoa(registro) });
         return { ok: true, token, jogador: paraJogador(registro) };
       } catch (erro) {
         if (ehViolacaoDeUnicidade(erro)) return { ok: false, erro: NICKNAME_EM_USO };
@@ -183,12 +330,19 @@ export function criarMotor(prisma: PrismaClient, opcoes: Opcoes = {}) {
           })
         : [];
 
+      // Sem Rodada aberta, a última (já encerrada) fica no reveal até a próxima abrir.
+      const ultima = rodada ? null : await ultimaRodada();
+      const revelacao = ultima
+        ? montarRevelacao(ultima, rankingDaRodada(await tentativasDaRodada(ultima.id)))
+        : null;
+
       return {
         ok: true,
         jogador: paraJogador(registro),
         rodada: rodada ? paraRodada(rodada) : null,
         tentativas: tentativas.map(paraTentativa),
         tentativasRestantes: rodada ? LIMITE_DE_TENTATIVAS - tentativas.length : 0,
+        revelacao,
         agora: relogio().toISOString(),
       };
     },
@@ -230,6 +384,7 @@ export function criarMotor(prisma: PrismaClient, opcoes: Opcoes = {}) {
                 : new Date(agora.getTime() + duracaoSegundos * 1000),
           },
         });
+        emitir({ tipo: "rodada-aberta", titulo: desafio.titulo });
         return { ok: true as const, rodada: paraRodada(criada) };
       });
     },
@@ -239,10 +394,7 @@ export function criarMotor(prisma: PrismaClient, opcoes: Opcoes = {}) {
         const aberta = await rodadaAberta();
         if (!aberta) return { ok: false as const, erro: "Não há Rodada aberta." };
 
-        const encerrada = await prisma.rodada.update({
-          where: { id: aberta.id },
-          data: { encerradaEm: relogio() },
-        });
+        const encerrada = await encerrar(aberta, relogio());
         return { ok: true as const, rodada: paraRodada(encerrada) };
       });
     },
@@ -279,59 +431,103 @@ export function criarMotor(prisma: PrismaClient, opcoes: Opcoes = {}) {
           };
         }
 
-        const usadas = await prisma.tentativa.count({
+        const doJogador = await prisma.tentativa.findMany({
           where: { jogadorId: jogador.id, rodadaId: rodada.id },
+          select: { numero: true, nota: true },
         });
-        if (usadas >= LIMITE_DE_TENTATIVAS) {
+        if (doJogador.length >= LIMITE_DE_TENTATIVAS) {
           return {
             ok: false as const,
             erro: `Você já usou as ${LIMITE_DE_TENTATIVAS} Tentativas desta Rodada.`,
           };
         }
 
+        const primeiroDaRodada = (await prisma.tentativa.count({ where: { rodadaId: rodada.id } })) === 0;
+        const numero = doJogador.length + 1;
         const avaliacao = avaliar(prompt, desafioDaRodada(rodada));
         const criada = await prisma.tentativa.create({
           data: {
             jogadorId: jogador.id,
             rodadaId: rodada.id,
-            numero: usadas + 1,
+            numero,
             prompt,
             nota: avaliacao.nota,
             avaliacao: JSON.stringify(avaliacao),
             criadaEm: agora,
           },
         });
+
+        const pessoa = paraPessoa(jogador);
+        emitir({ tipo: "tentativa-enviada", jogador: pessoa, numero });
+        if (avaliacao.nota === 100) emitir({ tipo: "nota-maxima", jogador: pessoa, numero });
+
+        await conceder(
+          { id: jogador.id, ...pessoa },
+          rodada.id,
+          conquistasDoEnvio({
+            numero,
+            nota: avaliacao.nota,
+            notaDaPrimeira: doJogador.find((t) => t.numero === 1)?.nota,
+            primeiroDaRodada,
+          }),
+          agora,
+        );
+
         return {
           ok: true as const,
           tentativa: paraTentativa(criada),
-          tentativasRestantes: LIMITE_DE_TENTATIVAS - (usadas + 1),
+          tentativasRestantes: LIMITE_DE_TENTATIVAS - numero,
         };
       });
     },
 
-    // Placar: soma, por Rodada, a Nota da melhor Tentativa. Nunca inclui texto de prompt.
+    // Placar: pontuação pela melhor Tentativa de cada Rodada, desempate justo e Conquistas.
+    // Nunca inclui texto de prompt.
     async placar(): Promise<EntradaPlacar[]> {
-      const registros = await prisma.jogador.findMany({
-        select: {
-          id: true,
-          nickname: true,
-          iniciais: true,
-          tentativas: { select: { rodadaId: true, nota: true } },
-        },
+      const jogadores = await prisma.jogador.findMany({
+        select: { id: true, nickname: true, iniciais: true },
         orderBy: { criadoEm: "asc" },
       });
+      const tentativas = await prisma.tentativa.findMany({
+        select: { id: true, jogadorId: true, rodadaId: true, numero: true, nota: true, criadaEm: true },
+      });
+      const conquistas = await prisma.conquista.findMany({
+        select: { jogadorId: true, rodadaId: true, tipo: true },
+        orderBy: { criadaEm: "asc" },
+      });
+      const aberta = await rodadaAberta();
 
-      const entradas = registros.map((registro) => {
-        const melhorPorRodada = new Map<string, number>();
-        for (const tentativa of registro.tentativas) {
-          const atual = melhorPorRodada.get(tentativa.rodadaId) ?? 0;
-          melhorPorRodada.set(tentativa.rodadaId, Math.max(atual, tentativa.nota));
-        }
-        const pontuacao = [...melhorPorRodada.values()].reduce((soma, nota) => soma + nota, 0);
-        return { ...paraJogador(registro), pontuacao };
+      const porJogador = agruparPorJogador(tentativas);
+      const conquistasPorJogador = new Map<string, ConquistaPublica[]>();
+      for (const conquista of conquistas) {
+        const lista = conquistasPorJogador.get(conquista.jogadorId) ?? [];
+        // O banco só grava tipos conhecidos, então o texto volta como TipoConquista.
+        lista.push({ tipo: conquista.tipo as TipoConquista, rodadaId: conquista.rodadaId });
+        conquistasPorJogador.set(conquista.jogadorId, lista);
+      }
+
+      const linhas = jogadores.map((jogador) => {
+        const doJogador = porJogador.get(jogador.id) ?? [];
+        const naRodada = aberta ? doJogador.filter((t) => t.rodadaId === aberta.id).length : 0;
+        return {
+          marca: marcaDoPlacar(doJogador),
+          entrada: {
+            ...paraJogador(jogador),
+            pontuacao: 0,
+            enviouNaRodada: naRodada > 0,
+            tentativasNaRodada: naRodada,
+            conquistas: conquistasPorJogador.get(jogador.id) ?? [],
+          },
+        };
       });
 
-      return entradas.sort((a, b) => b.pontuacao - a.pontuacao);
+      // Array.prototype.sort é estável: empate total mantém a ordem de entrada na Sala.
+      linhas.sort((a, b) => compararMarcas(a.marca, b.marca));
+      return linhas.map(({ marca, entrada }, indice) => ({
+        ...entrada,
+        posicao: indice + 1,
+        pontuacao: marca.pontuacao,
+      }));
     },
 
     async estadoDoFacilitador() {
