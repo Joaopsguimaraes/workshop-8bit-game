@@ -8,10 +8,35 @@ datasource db {
 }
 
 model Jogador {
-  id                  String   @id @default(cuid())
+  id                  String      @id @default(cuid())
   nickname            String
-  nicknameNormalizado String   @unique
+  nicknameNormalizado String      @unique
   iniciais            String
-  token               String   @unique
-  criadoEm            DateTime @default(now())
+  token               String      @unique
+  criadoEm            DateTime    @default(now())
+  tentativas          Tentativa[]
+}
+
+model Rodada {
+  id          String      @id @default(cuid())
+  desafioId   String
+  abertaEm    DateTime
+  prazo       DateTime?
+  encerradaEm DateTime?
+  tentativas  Tentativa[]
+}
+
+model Tentativa {
+  id        String   @id @default(cuid())
+  jogadorId String
+  rodadaId  String
+  numero    Int
+  prompt    String
+  nota      Int
+  avaliacao String
+  criadaEm  DateTime @default(now())
+  jogador   Jogador  @relation(fields: [jogadorId], references: [id], onDelete: Cascade)
+  rodada    Rodada   @relation(fields: [rodadaId], references: [id], onDelete: Cascade)
+
+  @@unique([jogadorId, rodadaId, numero])
 }

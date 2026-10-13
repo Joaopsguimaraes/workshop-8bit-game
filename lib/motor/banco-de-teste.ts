@@ -28,6 +28,7 @@ export function criarBancoDeTeste() {
 
   return {
     prisma,
+    url: `file:${arquivo}`,
     async fechar() {
       await prisma.$disconnect();
       rmSync(pasta, { recursive: true, force: true });

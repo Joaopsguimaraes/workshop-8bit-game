@@ -3,7 +3,7 @@ import type { EntradaPlacarAoVivo } from "@/lib/tempo-real";
 
 type Props = { jogadores: EntradaPlacarAoVivo[] | null };
 
-// Janela PLACAR.EXE: todos os Jogadores com Avatar, Nickname e status.
+// Janela PLACAR.EXE: todos os Jogadores com Avatar, Nickname, pontuação e status.
 export function PlacarExe({ jogadores }: Props) {
   if (jogadores === null) {
     return <p className="uppercase">CARREGANDO JOGADORES...</p>;
@@ -19,6 +19,9 @@ export function PlacarExe({ jogadores }: Props) {
         <li key={jogador.id} className="flex items-center gap-3">
           <Avatar iniciais={jogador.iniciais} />
           <span className="flex-1 truncate">{jogador.nickname}</span>
+          <span className="text-dos-amarelo" aria-label="Pontuação">
+            {jogador.pontuacao}
+          </span>
           <span
             className={
               jogador.online ? "text-dos-verde" : "text-dos-cinza-escuro"

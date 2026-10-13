@@ -40,7 +40,7 @@ const ORDEM_INICIAL: IdJanela[] = ["desafio", "placar", "prompt"];
 export function AreaDeTrabalho({ nickname, iniciais, token, onSessaoInvalida }: Props) {
   const [janelas, setJanelas] = useState<EstadoJanelas>(carregarJanelas);
   const [ordem, setOrdem] = useState<IdJanela[]>(ORDEM_INICIAL);
-  const { jogadores } = useTempoReal({ token, onSessaoInvalida });
+  const { jogadores, estado, enviarTentativa } = useTempoReal({ token, onSessaoInvalida });
 
   useEffect(() => {
     salvarJanelas(janelas);
@@ -75,7 +75,11 @@ export function AreaDeTrabalho({ nickname, iniciais, token, onSessaoInvalida }: 
       <main className="relative min-h-[620px] flex-1 overflow-hidden">
         {idsJanelas.map((id) => {
           const conteudo =
-            id === "prompt" ? <PromptExe /> : id === "desafio" ? <DesafioTxt /> : (
+            id === "prompt" ? (
+              <PromptExe estado={estado} onEnviar={enviarTentativa} />
+            ) : id === "desafio" ? (
+              <DesafioTxt desafio={estado?.rodada?.desafio ?? null} />
+            ) : (
               <PlacarExe jogadores={jogadores} />
             );
           return (
