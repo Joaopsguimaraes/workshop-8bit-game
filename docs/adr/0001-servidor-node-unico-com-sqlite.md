@@ -1,0 +1,3 @@
+# Servidor Node único com Socket.IO e SQLite em arquivo, sem serverless
+
+O jogo precisa de tempo real (Placar ao vivo, Rodadas abertas e encerradas pelo Facilitador), e WebSocket não funciona em serverless como a Vercel. Por isso a app roda como um único processo Node (Next.js com servidor customizado e Socket.IO), em uma máquina ou container próprio, com Prisma sobre SQLite em arquivo. Usamos arquivo, e não `:memory:`, para que a partida sobreviva a um restart no meio do workshop. A alternativa seria a Vercel com um serviço de tempo real externo (Liveblocks, Pusher, Ably). Ela foi descartada para evitar dependência paga e porque o jogo roda em uma única Sala, com um workshop por vez.
