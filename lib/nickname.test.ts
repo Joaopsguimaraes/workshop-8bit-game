@@ -43,13 +43,6 @@ describe("validarNickname", () => {
     });
   });
 
-  it("recusa Nickname com menos de 2 caracteres alfanuméricos", () => {
-    expect(validarNickname("øø")).toEqual({
-      ok: false,
-      erro: "Use pelo menos 2 letras ou números.",
-    });
-  });
-
   it("não conta espaços como alfanuméricos", () => {
     expect(validarNickname("a   b")).toMatchObject({ ok: true, nickname: "a b" });
     expect(validarNickname("a      ")).toEqual({
@@ -73,6 +66,15 @@ describe("iniciaisDoAvatar", () => {
 
   it("pula espaços e pontuação ao procurar as iniciais", () => {
     expect(iniciaisDoAvatar(" 9 - luz")).toBe("9L");
+  });
+
+  it("trata letras sem decomposição como suas equivalentes latinas", () => {
+    expect(iniciaisDoAvatar("Łukasz")).toBe("LU");
+    expect(iniciaisDoAvatar("Øystein")).toBe("OY");
+  });
+
+  it("aceita Nickname cujas letras não se decompõem, como 'Øy'", () => {
+    expect(validarNickname("Øy")).toMatchObject({ ok: true, iniciais: "OY" });
   });
 
   it("devolve string vazia quando não há caracteres alfanuméricos", () => {

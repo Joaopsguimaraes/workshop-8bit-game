@@ -17,12 +17,17 @@ export function instalarTempoReal({ httpServer, motor, presenca }: Dependencias)
   const io = new Server(httpServer);
 
   async function enviarPlacar() {
-    const jogadores = await motor.placar();
-    const placar: EntradaPlacarAoVivo[] = jogadores.map((jogador) => ({
-      ...jogador,
-      online: presenca.estaOnline(jogador.id),
-    }));
-    io.emit("placar", { jogadores: placar });
+    try {
+      const jogadores = await motor.placar();
+      const placar: EntradaPlacarAoVivo[] = jogadores.map((jogador) => ({
+        ...jogador,
+        online: presenca.estaOnline(jogador.id),
+      }));
+      io.emit("placar", { jogadores: placar });
+    } catch (erro) {
+      // Uma falha ao ler o Placar não pode derrubar o servidor inteiro.
+      console.error("Falha ao enviar o Placar", erro);
+    }
   }
 
   io.on("connection", async (socket) => {

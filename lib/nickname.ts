@@ -8,8 +8,33 @@ const MAXIMO = 16;
 // Letras latinas (com acento), números e espaço. Tudo o mais é inválido.
 const CARACTERES_PERMITIDOS = /^[\p{Script=Latin}\p{N} ]+$/u;
 
+// Letras latinas que não se decompõem em NFD ganham a equivalente mais próxima.
+const EQUIVALENTES: Record<string, string> = {
+  ø: "o",
+  Ø: "O",
+  ł: "l",
+  Ł: "L",
+  æ: "ae",
+  Æ: "AE",
+  œ: "oe",
+  Œ: "OE",
+  ß: "ss",
+  đ: "d",
+  Đ: "D",
+  ħ: "h",
+  Ħ: "H",
+  ı: "i",
+  ð: "d",
+  Ð: "D",
+  þ: "th",
+  Þ: "TH",
+};
+
 function semAcento(texto: string): string {
-  return texto.normalize("NFD").replace(/\p{M}/gu, "");
+  return texto
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .replace(/[øØłŁæÆœŒßđĐħĦıðÐþÞ]/gu, (letra) => EQUIVALENTES[letra] ?? letra);
 }
 
 function alfanumericos(texto: string): string {
