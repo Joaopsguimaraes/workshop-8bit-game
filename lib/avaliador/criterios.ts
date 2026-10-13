@@ -14,6 +14,24 @@ export type Criterio = {
 // Um marcador natural só conta com pelo menos 4 palavras além dele na mesma frase.
 const MINIMO_PALAVRAS = 4;
 
+// Frase natural: o marcador precisa vir numa frase com pelo menos 4 palavras além dele.
+function reconhecerFrase(prompt: string, padrao: RegExp): Reconhecimento {
+  for (const { indice, marcador } of buscarMarcador(prompt, padrao)) {
+    const { inicio, fim } = fraseDoIndice(prompt, indice);
+    const frase = prompt.slice(inicio, fim);
+    if (contarPalavras(chaveDeBusca(frase).replace(marcador, " ")) >= MINIMO_PALAVRAS) {
+      return { trecho: frase.trim() };
+    }
+  }
+  return null;
+}
+
+// Rótulo com pelo menos 4 palavras de conteúdo.
+function reconhecerRotulo(prompt: string, rotulos: string[]): Reconhecimento {
+  const rotulo = conteudoDoRotulo(prompt, rotulos);
+  return rotulo && rotulo.palavras >= MINIMO_PALAVRAS ? { trecho: rotulo.trecho } : null;
+}
+
 const PAPEL_NATURAL = /(?<![a-z])(voce e|atue como|aja como|seu papel e|you are|act as)(?![a-z])/g;
 
 export const PAPEL: Criterio = {
@@ -22,18 +40,7 @@ export const PAPEL: Criterio = {
   maximo: 15,
   dica: "Diga quem o modelo deve ser. Ex.: \"Você é um consultor de RH experiente.\"",
   verificar(prompt) {
-    const rotulo = conteudoDoRotulo(prompt, ["papel", "persona", "role"]);
-    if (rotulo && rotulo.palavras >= MINIMO_PALAVRAS) return { trecho: rotulo.trecho };
-
-    for (const { indice, marcador } of buscarMarcador(prompt, PAPEL_NATURAL)) {
-      const { inicio, fim } = fraseDoIndice(prompt, indice);
-      const frase = prompt.slice(inicio, fim);
-      const alémDoMarcador = contarPalavras(
-        chaveDeBusca(frase).replace(marcador, " "),
-      );
-      if (alémDoMarcador >= MINIMO_PALAVRAS) return { trecho: frase.trim() };
-    }
-    return null;
+    return reconhecerRotulo(prompt, ["papel", "persona", "role"]) ?? reconhecerFrase(prompt, PAPEL_NATURAL);
   },
 };
 
@@ -66,5 +73,72 @@ export const TAREFA: Criterio = {
 
     const { inicio, fim } = fraseDoIndice(prompt, verbo.indice);
     return { trecho: prompt.slice(inicio, fim).trim() };
+  },
+};
+
+const CONTEXTO_NATURAL =
+  /(?<![a-z])(o publico e|a audiencia e|o objetivo e|the audience is|the goal is|the objective is|estamos|estou|we are|i am|para a diretoria|para o time|para a equipe|for the board|for the team)(?![a-z])/g;
+
+export const CONTEXTO: Criterio = {
+  id: "contexto",
+  nome: "Contexto",
+  maximo: 20,
+  dica: "Diga para quem é e em que situação está. Ex.: \"Estamos decidindo o modelo de trabalho. O público é a diretoria.\"",
+  verificar(prompt) {
+    return reconhecerRotulo(prompt, ["contexto", "context"]) ?? reconhecerFrase(prompt, CONTEXTO_NATURAL);
+  },
+};
+
+const FORMATO_NATURAL =
+  /(?<![a-z])(formato|format|topicos|em lista|numerad[oa]|numbered|bullet|bulleted|tabela|table|json|markdown|titulos|\d+ (itens|items|palavras|words))(?![a-z])/g;
+
+export const FORMATO: Criterio = {
+  id: "formato",
+  nome: "Formato",
+  maximo: 20,
+  dica: "Diga como a resposta deve ser organizada. Ex.: \"Responda em 3 itens, em tópicos curtos.\"",
+  verificar(prompt) {
+    return reconhecerRotulo(prompt, ["formato", "format"]) ?? reconhecerFrase(prompt, FORMATO_NATURAL);
+  },
+};
+
+const RESTRICOES_NATURAL =
+  /(?<![a-z])(nao (inclua|use|escreva|invente|adicione|mencione|faca|traga|cite|repita|fale)|evite|sem|apenas|somente|no maximo|nunca|don't|do not|avoid|only|never)(?![a-z])/g;
+
+export const RESTRICOES: Criterio = {
+  id: "restricoes",
+  nome: "Restrições",
+  maximo: 15,
+  dica: "Diga o que não deve aparecer ou quais limites seguir. Ex.: \"Não inclua opiniões pessoais.\"",
+  verificar(prompt) {
+    return (
+      reconhecerRotulo(prompt, ["restricoes", "restriction", "restrictions", "constraints"]) ??
+      reconhecerFrase(prompt, RESTRICOES_NATURAL)
+    );
+  },
+};
+
+// Trecho entre aspas com pelo menos 4 palavras.
+function reconhecerAspas(prompt: string): Reconhecimento {
+  for (const [trecho, conteudo] of prompt.matchAll(/["“]([^"”]+)["”]/g)) {
+    if (contarPalavras(conteudo) >= MINIMO_PALAVRAS) return { trecho };
+  }
+  return null;
+}
+
+const EXEMPLOS_NATURAL =
+  /(?<![a-z])(por exemplo|exemplo:|ex\.:|for example|example:|such as)(?![a-z])/g;
+
+export const EXEMPLOS: Criterio = {
+  id: "exemplos",
+  nome: "Exemplos",
+  maximo: 10,
+  dica: "Mostre um exemplo do que espera na resposta. Ex.: \"Exemplo: Vantagem: economia com aluguel.\"",
+  verificar(prompt) {
+    return (
+      reconhecerRotulo(prompt, ["exemplo", "exemplos", "example", "examples"]) ??
+      reconhecerFrase(prompt, EXEMPLOS_NATURAL) ??
+      reconhecerAspas(prompt)
+    );
   },
 };

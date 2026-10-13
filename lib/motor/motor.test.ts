@@ -282,7 +282,14 @@ describe("enviarTentativa", () => {
       tentativasRestantes: 2,
     });
     if (!r.ok) throw new Error("esperava sucesso");
-    expect(r.tentativa.avaliacao.criterios.map((c) => c.id)).toEqual(["papel", "tarefa"]);
+    expect(r.tentativa.avaliacao.criterios.map((c) => c.id)).toEqual([
+      "papel",
+      "contexto",
+      "tarefa",
+      "formato",
+      "restricoes",
+      "exemplos",
+    ]);
   });
 
   it("recusa sem Rodada aberta", async () => {

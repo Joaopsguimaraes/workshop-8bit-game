@@ -1,5 +1,5 @@
 import type { Desafio } from "../desafios/tipos";
-import { PAPEL, TAREFA, type Criterio } from "./criterios";
+import { CONTEXTO, EXEMPLOS, FORMATO, PAPEL, RESTRICOES, TAREFA, type Criterio } from "./criterios";
 
 export type Avaliacao = {
   nota: number;
@@ -17,7 +17,7 @@ export type CriterioAvaliado = {
   trecho?: string;
 };
 
-const CRITERIOS: Criterio[] = [PAPEL, TAREFA];
+const CRITERIOS: Criterio[] = [PAPEL, CONTEXTO, TAREFA, FORMATO, RESTRICOES, EXEMPLOS];
 
 export function veredictoDaNota(nota: number): Avaliacao["veredito"] {
   if (nota >= 100) return { titulo: "Na mosca!", texto: "Prompt perfeito. Estrutura completa." };

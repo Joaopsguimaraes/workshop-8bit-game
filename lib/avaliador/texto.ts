@@ -17,14 +17,22 @@ export function contarPalavras(trecho: string): number {
 }
 
 // Frase em que o marcador aparece, delimitada por . ! ? ou quebra de linha.
+// O ponto da abreviação "ex." (de "Ex.:") não encerra a frase.
 export function fraseDoIndice(texto: string, indice: number): { inicio: number; fim: number } {
   const antes = texto.slice(0, indice);
   const inicio = Math.max(antes.search(/[^.!?\n]*$/), 0);
   const restante = texto.slice(indice);
-  const corte = restante.search(/[.!?\n]/);
+  const corte = restante.search(/(?<!\b[Ee][Xx])[.!?\n]/);
   const fim = corte === -1 ? texto.length : indice + corte;
   return { inicio, fim };
 }
+
+// Todos os rótulos dos Critérios: só eles encerram o conteúdo de um rótulo, então
+// dois pontos dentro do conteúdo ("Papel: Consultor: experiente") não cortam nada.
+const ROTULOS_CONHECIDOS = [
+  "papel", "persona", "role", "contexto", "context", "tarefa", "task", "formato", "format",
+  "restricoes", "restriction", "restrictions", "constraints", "exemplo", "exemplos", "example", "examples",
+].join("|");
 
 // Rótulo: no início de linha (`Papel:`, `## Papel`, `**Papel**`, `<papel>`) ou
 // no meio do texto depois de uma frase (`... x. Contexto: ...`, sempre com dois pontos).
@@ -53,7 +61,7 @@ export function conteudoDoRotulo(
   // O conteúdo termina no próximo rótulo, em cabeçalho ou marcação de linha, ou no fim do texto.
   const proximo = busca
     .slice(fimRotulo)
-    .search(/\n[ \t]*(?:#|\*\*|<)|(?<=[\s.!?])[\p{L}][\p{L} ]{0,28}:/u);
+    .search(new RegExp(`\\n[ \\t]*(?:#|\\*\\*|<)|(?<=[\\s.!?])(?:${ROTULOS_CONHECIDOS})[ \\t]*:`));
   const fim = proximo === -1 ? texto.length : fimRotulo + proximo;
 
   const trecho = texto.slice(inicio, fim).trim();
