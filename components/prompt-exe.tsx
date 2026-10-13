@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/8bit/button";
+import { formatarTempo } from "@/lib/cliente/tempo";
 import type { EstadoJogadorAoVivo } from "@/lib/cliente/use-tempo-real";
 import { LIMITE_DE_CARACTERES, LIMITE_DE_TENTATIVAS } from "@/lib/limites";
 import type { ResultadoTentativa, Revelacao, TentativaPublica } from "@/lib/motor/motor";
@@ -11,12 +12,6 @@ type Props = {
   estado: EstadoJogadorAoVivo | null;
   onEnviar: (prompt: string) => Promise<ResultadoTentativa>;
 };
-
-function formatarTempo(ms: number): string {
-  const segundos = Math.max(0, Math.ceil(ms / 1000));
-  const minutos = Math.floor(segundos / 60);
-  return `${String(minutos).padStart(2, "0")}:${String(segundos % 60).padStart(2, "0")}`;
-}
 
 // Janela PROMPT.EXE. Sem Rodada aberta, mostra a espera; com Rodada, o campo de prompt.
 export function PromptExe({ estado, onEnviar }: Props) {

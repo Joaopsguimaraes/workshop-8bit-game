@@ -29,6 +29,13 @@ export function instalarTempoReal({ httpServer, motor, presenca }: Dependencias)
   let proximoId = 1;
   motor.assinar((evento) => {
     const item: ItemDoFeed = { id: proximoId++, evento };
+    if (evento.tipo === "partida-resetada") {
+      // Partida nova: o feed antigo sai da tela de todos, inclusive do Telão.
+      feed.length = 0;
+      feed.push(item);
+      io.emit("feed:historico", feed);
+      return;
+    }
     feed.push(item);
     if (feed.length > FEED_MAXIMO) feed.shift();
     io.emit("feed:evento", item);
@@ -54,7 +61,12 @@ export function instalarTempoReal({ httpServer, motor, presenca }: Dependencias)
   }
 
   async function enviarEstadoDoFacilitador() {
-    io.to(SALA_FACILITADORES).emit("facilitador:estado", await motor.estadoDoFacilitador());
+    try {
+      io.to(SALA_FACILITADORES).emit("facilitador:estado", await motor.estadoDoFacilitador());
+    } catch (erro) {
+      // Uma falha ao ler o estado do Facilitador não pode impedir o envio aos Jogadores.
+      console.error("Falha ao enviar o estado do Facilitador", erro);
+    }
   }
 
   // Depois de qualquer mudança de estado: cada Jogador recebe só o próprio estado.
@@ -66,9 +78,16 @@ export function instalarTempoReal({ httpServer, motor, presenca }: Dependencias)
     }
   }
 
+  // Leva o socket de volta ao login: o Motor já não aceita o token dele.
+  function expulsar(socket: Socket) {
+    socket.emit("sessao:invalida");
+    socket.disconnect(true);
+  }
+
   function conectarJogador(socket: Socket, token: string, jogadorId: string) {
     socket.data.papel = "jogador";
     socket.data.token = token;
+    socket.data.jogadorId = jogadorId;
     presenca.conectar(jogadorId, socket.id);
     socket.emit("feed:historico", feed);
 
@@ -111,7 +130,36 @@ export function instalarTempoReal({ httpServer, motor, presenca }: Dependencias)
       if (resultado.ok) await atualizarTudo();
     });
 
+    socket.on(
+      "facilitador:removerJogador",
+      async (dados: { jogadorId?: unknown }, responder?: unknown) => {
+        const jogadorId = String(dados?.jogadorId ?? "");
+        const resultado = await motor.removerJogador(jogadorId);
+        if (typeof responder === "function") responder(resultado);
+        if (!resultado.ok) return;
+
+        for (const alvo of io.sockets.sockets.values()) {
+          if (alvo.data.jogadorId === jogadorId) expulsar(alvo);
+        }
+        await atualizarTudo();
+      },
+    );
+
+    socket.on("facilitador:resetarPartida", async (responder?: unknown) => {
+      const resultado = await motor.resetarPartida();
+      if (typeof responder === "function") responder(resultado);
+      if (!resultado.ok) return;
+
+      // Todos os Jogadores voltam ao login; o Facilitador continua na própria tela.
+      for (const alvo of io.sockets.sockets.values()) {
+        if (alvo.data.papel === "jogador") expulsar(alvo);
+      }
+      await atualizarTudo();
+    });
+
     void enviarEstadoDoFacilitador();
+    // O Telão precisa do Placar já na abertura; o Placar só é enviado depois de uma mudança.
+    void enviarPlacar();
   }
 
   io.on("connection", async (socket) => {
@@ -128,6 +176,13 @@ export function instalarTempoReal({ httpServer, motor, presenca }: Dependencias)
       if (!socket.connected) return;
 
       conectarJogador(socket, token, resultado.jogador.id);
+      // Se o Facilitador removeu o Jogador enquanto o socket conectava, a checagem acima já passou.
+      // Conferir de novo, agora que o socket já está na lista de expulsão, fecha essa janela.
+      const confirmacao = await motor.retomar(token);
+      if (!confirmacao.ok) {
+        expulsar(socket);
+        return;
+      }
       await enviarPlacar();
       await enviarEstadoDoJogador(socket);
       return;

@@ -43,7 +43,9 @@ export type Evento =
   | { tipo: "tentativa-enviada"; jogador: JogadorPublico; numero: number }
   | { tipo: "nota-maxima"; jogador: JogadorPublico; numero: number }
   | { tipo: "conquista-ganha"; jogador: JogadorPublico; conquista: TipoConquista }
-  | { tipo: "rodada-encerrada"; titulo: string; revelacao: Revelacao };
+  | { tipo: "rodada-encerrada"; titulo: string; revelacao: Revelacao }
+  | { tipo: "jogador-removido"; jogador: JogadorPublico }
+  | { tipo: "partida-resetada" };
 
 export type ResultadoEntrada =
   | { ok: true; token: string; jogador: Jogador }
@@ -271,6 +273,13 @@ export function criarMotor(prisma: PrismaClient, opcoes: Opcoes = {}) {
     return encerrada;
   }
 
+  // Reveal da última Rodada encerrada; só existe enquanto nenhuma Rodada está aberta.
+  async function revelacaoDaUltimaRodada(): Promise<Revelacao | null> {
+    const ultima = await ultimaRodada();
+    if (!ultima) return null;
+    return montarRevelacao(ultima, colocacoesDaRodada(await tentativasDaRodada(ultima.id)));
+  }
+
   // Encerra a Rodada aberta se o prazo já passou. Sem prazo, nunca encerra.
   async function encerrarSePrazoVencido(agora: Date): Promise<boolean> {
     const aberta = await rodadaAberta();
@@ -330,19 +339,14 @@ export function criarMotor(prisma: PrismaClient, opcoes: Opcoes = {}) {
           })
         : [];
 
-      // Sem Rodada aberta, a última (já encerrada) fica no reveal até a próxima abrir.
-      const ultima = rodada ? null : await ultimaRodada();
-      const revelacao = ultima
-        ? montarRevelacao(ultima, colocacoesDaRodada(await tentativasDaRodada(ultima.id)))
-        : null;
-
       return {
         ok: true,
         jogador: paraJogador(registro),
         rodada: rodada ? paraRodada(rodada) : null,
         tentativas: tentativas.map(paraTentativa),
         tentativasRestantes: rodada ? LIMITE_DE_TENTATIVAS - tentativas.length : 0,
-        revelacao,
+        // Sem Rodada aberta, a última (já encerrada) fica no reveal até a próxima abrir.
+        revelacao: rodada ? null : await revelacaoDaUltimaRodada(),
         agora: relogio().toISOString(),
       };
     },
@@ -530,6 +534,36 @@ export function criarMotor(prisma: PrismaClient, opcoes: Opcoes = {}) {
       }));
     },
 
+    // Remove o Jogador: apaga as Tentativas e Conquistas dele e libera o Nickname e o token.
+    async removerJogador(jogadorId: string) {
+      return exclusivo(async () => {
+        const jogador = await prisma.jogador.findUnique({ where: { id: jogadorId } });
+        if (!jogador) return { ok: false as const, erro: "Jogador não encontrado." };
+
+        await prisma.$transaction([
+          prisma.conquista.deleteMany({ where: { jogadorId } }),
+          prisma.tentativa.deleteMany({ where: { jogadorId } }),
+          prisma.jogador.delete({ where: { id: jogadorId } }),
+        ]);
+        emitir({ tipo: "jogador-removido", jogador: paraJogadorPublico(jogador) });
+        return { ok: true as const };
+      });
+    },
+
+    // Reinicia a Sala para um novo workshop. Encerra a Rodada aberta junto, pois ela some.
+    async resetarPartida() {
+      return exclusivo(async () => {
+        await prisma.$transaction([
+          prisma.conquista.deleteMany(),
+          prisma.tentativa.deleteMany(),
+          prisma.rodada.deleteMany(),
+          prisma.jogador.deleteMany(),
+        ]);
+        emitir({ tipo: "partida-resetada" });
+        return { ok: true as const };
+      });
+    },
+
     async estadoDoFacilitador() {
       const rodada = await rodadaAberta();
       const jogadosIds = new Set(
@@ -546,12 +580,20 @@ export function criarMotor(prisma: PrismaClient, opcoes: Opcoes = {}) {
           ).size
         : 0;
 
+      const jogadores = await prisma.jogador.findMany({
+        select: { id: true, nickname: true, iniciais: true },
+        orderBy: { criadoEm: "asc" },
+      });
+
       return {
         desafios: [...desafios]
           .sort((a, b) => a.ordem - b.ordem)
           .map((desafio) => ({ ...resumir(desafio), jogado: jogadosIds.has(desafio.id) })),
         rodada: rodada ? paraRodada(rodada) : null,
         enviaram,
+        jogadores: jogadores.map(paraJogador),
+        revelacao: rodada ? null : await revelacaoDaUltimaRodada(),
+        agora: relogio().toISOString(),
       };
     },
   };

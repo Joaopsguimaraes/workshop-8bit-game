@@ -20,5 +20,9 @@ export function textoDoEvento(evento: Evento): string {
       return `${evento.jogador.iniciais} ganhou ${NOME_DA_CONQUISTA[evento.conquista]}`;
     case "rodada-encerrada":
       return `Rodada encerrada: ${evento.titulo}`;
+    case "jogador-removido":
+      return `${evento.jogador.iniciais} saiu da Sala`;
+    case "partida-resetada":
+      return "Sala reiniciada para um novo workshop";
   }
 }

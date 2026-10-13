@@ -494,6 +494,164 @@ describe("restart", () => {
   });
 });
 
+describe("removerJogador", () => {
+  it("libera o Nickname para outro Jogador entrar", async () => {
+    const ana = await entrarComo("Ana");
+    expect(await motor.removerJogador(ana.jogador.id)).toEqual({ ok: true });
+
+    expect(await motor.entrar("ANA")).toMatchObject({ ok: true, jogador: { nickname: "ANA" } });
+  });
+
+  it("tira o Jogador do Placar e das contas da Rodada, sem mexer nos outros", async () => {
+    const ana = await entrarComo("Ana");
+    const bia = await entrarComo("Bia");
+    await motor.abrirRodada("alfa");
+    await motor.enviarTentativa(ana.token, PROMPT_ALFA);
+    await motor.enviarTentativa(bia.token, PROMPT_ALFA);
+
+    await motor.removerJogador(ana.jogador.id);
+
+    expect((await motor.placar()).map((jogador) => jogador.nickname)).toEqual(["Bia"]);
+    expect(await motor.estadoDoFacilitador()).toMatchObject({ enviaram: 1 });
+    expect(await entradaDe(motor, "Bia")).toMatchObject({ pontuacao: 35, tentativasNaRodada: 1 });
+  });
+
+  it("o token do Jogador removido deixa de funcionar", async () => {
+    const ana = await entrarComo("Ana");
+    await motor.abrirRodada("alfa");
+    await motor.removerJogador(ana.jogador.id);
+
+    expect(await motor.retomar(ana.token)).toEqual({
+      ok: false,
+      erro: "Sessão inválida. Entre novamente.",
+    });
+    expect(await motor.enviarTentativa(ana.token, PROMPT_ALFA)).toEqual({
+      ok: false,
+      erro: "Sessão inválida. Entre novamente.",
+    });
+  });
+
+  it("recusa remover um Jogador que não existe", async () => {
+    expect(await motor.removerJogador("nao-existe")).toEqual({
+      ok: false,
+      erro: "Jogador não encontrado.",
+    });
+  });
+
+  it("avisa o feed com o Avatar e o Nickname de quem saiu, sem dados internos", async () => {
+    const recebidos: Evento[] = [];
+    motor.assinar((evento) => recebidos.push(evento));
+    const ana = await entrarComo("Ana");
+
+    await motor.removerJogador(ana.jogador.id);
+
+    expect(recebidos).toContainEqual({
+      tipo: "jogador-removido",
+      jogador: { nickname: "Ana", iniciais: "AN" },
+    });
+    expect(JSON.stringify(recebidos)).not.toContain(ana.token);
+  });
+});
+
+describe("resetarPartida", () => {
+  it("apaga Jogadores, Rodadas, Tentativas e Conquistas: o estado volta ao inicial", async () => {
+    const ana = await entrarComo("Ana");
+    await motor.abrirRodada("alfa", 600);
+    await motor.enviarTentativa(ana.token, PROMPT_ALFA);
+    await motor.encerrarRodada();
+
+    expect(await motor.resetarPartida()).toEqual({ ok: true });
+
+    expect(await motor.placar()).toEqual([]);
+    expect(await motor.estadoDoFacilitador()).toMatchObject({
+      desafios: [
+        { id: "alfa", jogado: false },
+        { id: "beta", jogado: false },
+      ],
+      rodada: null,
+      enviaram: 0,
+      jogadores: [],
+      revelacao: null,
+    });
+  });
+
+  it("o token antigo deixa de valer e o Nickname pode ser usado de novo", async () => {
+    const ana = await entrarComo("Ana");
+    await motor.resetarPartida();
+
+    expect(await motor.retomar(ana.token)).toEqual({
+      ok: false,
+      erro: "Sessão inválida. Entre novamente.",
+    });
+    expect(await motor.entrar("Ana")).toMatchObject({ ok: true, jogador: { nickname: "Ana" } });
+  });
+
+  it("todos os Desafios voltam a ser jogáveis", async () => {
+    await motor.abrirRodada("alfa");
+    await motor.encerrarRodada();
+    await motor.abrirRodada("beta");
+    await motor.encerrarRodada();
+
+    await motor.resetarPartida();
+
+    expect(await motor.abrirRodada("alfa")).toMatchObject({ ok: true });
+    expect(await motor.encerrarRodada()).toMatchObject({ ok: true });
+    expect(await motor.abrirRodada("beta")).toMatchObject({ ok: true });
+  });
+
+  it("encerra a Rodada aberta junto com o resto", async () => {
+    await motor.abrirRodada("alfa");
+
+    await motor.resetarPartida();
+
+    expect(await motor.encerrarRodada()).toEqual({ ok: false, erro: "Não há Rodada aberta." });
+  });
+
+  it("avisa o feed que a partida foi resetada", async () => {
+    const recebidos: Evento[] = [];
+    motor.assinar((evento) => recebidos.push(evento));
+
+    await motor.resetarPartida();
+
+    expect(recebidos).toContainEqual({ tipo: "partida-resetada" });
+  });
+});
+
+describe("estadoDoFacilitador: Jogadores e reveal", () => {
+  it("lista os Jogadores com id, para o botão de remover", async () => {
+    const ana = await entrarComo("Ana");
+    const bia = await entrarComo("Bia");
+
+    expect((await motor.estadoDoFacilitador()).jogadores).toEqual([
+      { id: ana.jogador.id, nickname: "Ana", iniciais: "AN" },
+      { id: bia.jogador.id, nickname: "Bia", iniciais: "BI" },
+    ]);
+  });
+
+  it("mostra o reveal da última Rodada encerrada, e nada enquanto outra está aberta", async () => {
+    const ana = await entrarComo("Ana");
+    await motor.abrirRodada("alfa");
+    await motor.enviarTentativa(ana.token, PROMPT_ALFA);
+    await motor.encerrarRodada();
+
+    expect(await motor.estadoDoFacilitador()).toMatchObject({
+      revelacao: {
+        desafio: { titulo: ALFA.titulo, promptReferencia: ALFA.promptReferencia },
+        top3: [{ nickname: "Ana", nota: 35, prompt: PROMPT_ALFA }],
+      },
+    });
+
+    await motor.abrirRodada("beta");
+    expect((await motor.estadoDoFacilitador()).revelacao).toBeNull();
+  });
+
+  it("informa a hora do servidor, para o cronômetro do Telão", async () => {
+    expect(await motor.estadoDoFacilitador()).toMatchObject({
+      agora: agora.toISOString(),
+    });
+  });
+});
+
 // Leitura do Placar pelo Jogador, como a tela faz; os testes não olham tabelas.
 async function entradaDe(m: Motor, nickname: string) {
   const entrada = (await m.placar()).find((jogador) => jogador.nickname === nickname);
