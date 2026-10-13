@@ -12,7 +12,7 @@ type Props = {
 
 const FEED_NA_TELA = 12;
 
-// Janela PLACAR.EXE: ranking com status e Conquistas, e o feed de eventos ao vivo.
+// Janela PLACAR.EXE: Jogadores com status e Conquistas, e o feed de eventos ao vivo.
 export function PlacarExe({ jogadores, feed, meuId }: Props) {
   return (
     <div className="flex flex-col gap-4">
@@ -21,7 +21,7 @@ export function PlacarExe({ jogadores, feed, meuId }: Props) {
       ) : jogadores.length === 0 ? (
         <p className="uppercase">NENHUM JOGADOR AINDA.</p>
       ) : (
-        <ol className="flex flex-col gap-2" aria-label="Ranking">
+        <ol className="flex flex-col gap-2" aria-label="Jogadores no Placar">
           {jogadores.map((jogador) => (
             <LinhaDoPlacar key={jogador.id} jogador={jogador} meu={jogador.id === meuId} />
           ))}

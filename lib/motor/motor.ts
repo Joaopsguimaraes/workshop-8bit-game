@@ -10,16 +10,16 @@ import {
   agruparPorJogador,
   compararMarcas,
   marcaDoPlacar,
-  rankingDaRodada,
+  colocacoesDaRodada,
   type ColocacaoNaRodada,
   type TentativaRegistrada,
-} from "./ranking";
+} from "./pontuacao";
 
 // Única porta para mudar o estado da Sala. Recebe comandos e devolve resultados.
 export type Jogador = { id: string; nickname: string; iniciais: string };
 
-// Pessoa como aparece no feed: sem id e sem token, só o que todos podem ver.
-export type Pessoa = { nickname: string; iniciais: string };
+// Dados do Jogador que todos podem ver no feed: sem id e sem token.
+export type JogadorPublico = { nickname: string; iniciais: string };
 
 export type ConquistaPublica = { tipo: TipoConquista; rodadaId: string };
 
@@ -38,11 +38,11 @@ export type Revelacao = {
 
 // Fatos da partida para o feed ao vivo. Nenhum evento carrega texto de prompt.
 export type Evento =
-  | { tipo: "jogador-entrou"; jogador: Pessoa }
+  | { tipo: "jogador-entrou"; jogador: JogadorPublico }
   | { tipo: "rodada-aberta"; titulo: string }
-  | { tipo: "tentativa-enviada"; jogador: Pessoa; numero: number }
-  | { tipo: "nota-maxima"; jogador: Pessoa; numero: number }
-  | { tipo: "conquista-ganha"; jogador: Pessoa; conquista: TipoConquista }
+  | { tipo: "tentativa-enviada"; jogador: JogadorPublico; numero: number }
+  | { tipo: "nota-maxima"; jogador: JogadorPublico; numero: number }
+  | { tipo: "conquista-ganha"; jogador: JogadorPublico; conquista: TipoConquista }
   | { tipo: "rodada-encerrada"; titulo: string; revelacao: Revelacao };
 
 export type ResultadoEntrada =
@@ -115,7 +115,7 @@ type RegistroTentativa = {
   criadaEm: Date;
 };
 
-// Tentativa com o nome de quem enviou, para montar o ranking e o reveal da Rodada.
+// Tentativa com o nome de quem enviou, para montar o colocacoes e o reveal da Rodada.
 type TentativaDaRodada = TentativaRegistrada & {
   prompt: string;
   jogador: { nickname: string; iniciais: string };
@@ -125,7 +125,7 @@ function paraJogador(registro: { id: string; nickname: string; iniciais: string 
   return { id: registro.id, nickname: registro.nickname, iniciais: registro.iniciais };
 }
 
-function paraPessoa(registro: { nickname: string; iniciais: string }): Pessoa {
+function paraJogadorPublico(registro: { nickname: string; iniciais: string }): JogadorPublico {
   return { nickname: registro.nickname, iniciais: registro.iniciais };
 }
 
@@ -207,12 +207,12 @@ export function criarMotor(prisma: PrismaClient, opcoes: Opcoes = {}) {
   // Reveal: Prompt de referência do Desafio e as três melhores Tentativas com Nota acima de zero.
   function montarRevelacao(
     rodada: RegistroRodada,
-    ranking: ColocacaoNaRodada<TentativaDaRodada>[],
+    colocacoes: ColocacaoNaRodada<TentativaDaRodada>[],
   ): Revelacao {
     const desafio = desafioDaRodada(rodada);
     return {
       desafio: { titulo: desafio.titulo, promptReferencia: desafio.promptReferencia },
-      top3: ranking.slice(0, 3).map((colocacao, indice) => ({
+      top3: colocacoes.slice(0, 3).map((colocacao, indice) => ({
         posicao: indice + 1,
         nickname: colocacao.melhor.jogador.nickname,
         iniciais: colocacao.melhor.jogador.iniciais,
@@ -224,7 +224,7 @@ export function criarMotor(prisma: PrismaClient, opcoes: Opcoes = {}) {
 
   // Concede só as Conquistas que o Jogador ainda não tem nesta Rodada, e avisa cada uma.
   async function conceder(
-    jogador: Pessoa & { id: string },
+    jogador: JogadorPublico & { id: string },
     rodadaId: string,
     tipos: TipoConquista[],
     instante: Date,
@@ -241,28 +241,28 @@ export function criarMotor(prisma: PrismaClient, opcoes: Opcoes = {}) {
         data: { jogadorId: jogador.id, rodadaId, tipo, criadaEm: instante },
       });
       existentes.add(tipo);
-      emitir({ tipo: "conquista-ganha", jogador: paraPessoa(jogador), conquista: tipo });
+      emitir({ tipo: "conquista-ganha", jogador: paraJogadorPublico(jogador), conquista: tipo });
     }
   }
 
-  // Encerra a Rodada, avisa o reveal e concede o Campeão da Rodada ao 1º lugar do ranking.
+  // Encerra a Rodada, avisa o reveal e concede o Campeão da Rodada ao 1º lugar do colocacoes.
   async function encerrar(rodada: RegistroRodada, instante: Date): Promise<RegistroRodada> {
     const encerrada = await prisma.rodada.update({
       where: { id: rodada.id },
       data: { encerradaEm: instante },
     });
 
-    const ranking = rankingDaRodada(await tentativasDaRodada(rodada.id));
+    const colocacoes = colocacoesDaRodada(await tentativasDaRodada(rodada.id));
     emitir({
       tipo: "rodada-encerrada",
       titulo: desafioDaRodada(rodada).titulo,
-      revelacao: montarRevelacao(rodada, ranking),
+      revelacao: montarRevelacao(rodada, colocacoes),
     });
 
-    const campeao = ranking[0];
+    const campeao = colocacoes[0];
     if (campeao) {
       await conceder(
-        { id: campeao.jogadorId, ...paraPessoa(campeao.melhor.jogador) },
+        { id: campeao.jogadorId, ...paraJogadorPublico(campeao.melhor.jogador) },
         rodada.id,
         ["campeao-da-rodada"],
         instante,
@@ -304,7 +304,7 @@ export function criarMotor(prisma: PrismaClient, opcoes: Opcoes = {}) {
             token,
           },
         });
-        emitir({ tipo: "jogador-entrou", jogador: paraPessoa(registro) });
+        emitir({ tipo: "jogador-entrou", jogador: paraJogadorPublico(registro) });
         return { ok: true, token, jogador: paraJogador(registro) };
       } catch (erro) {
         if (ehViolacaoDeUnicidade(erro)) return { ok: false, erro: NICKNAME_EM_USO };
@@ -333,7 +333,7 @@ export function criarMotor(prisma: PrismaClient, opcoes: Opcoes = {}) {
       // Sem Rodada aberta, a última (já encerrada) fica no reveal até a próxima abrir.
       const ultima = rodada ? null : await ultimaRodada();
       const revelacao = ultima
-        ? montarRevelacao(ultima, rankingDaRodada(await tentativasDaRodada(ultima.id)))
+        ? montarRevelacao(ultima, colocacoesDaRodada(await tentativasDaRodada(ultima.id)))
         : null;
 
       return {
@@ -457,12 +457,12 @@ export function criarMotor(prisma: PrismaClient, opcoes: Opcoes = {}) {
           },
         });
 
-        const pessoa = paraPessoa(jogador);
-        emitir({ tipo: "tentativa-enviada", jogador: pessoa, numero });
-        if (avaliacao.nota === 100) emitir({ tipo: "nota-maxima", jogador: pessoa, numero });
+        const publico = paraJogadorPublico(jogador);
+        emitir({ tipo: "tentativa-enviada", jogador: publico, numero });
+        if (avaliacao.nota === 100) emitir({ tipo: "nota-maxima", jogador: publico, numero });
 
         await conceder(
-          { id: jogador.id, ...pessoa },
+          { id: jogador.id, ...publico },
           rodada.id,
           conquistasDoEnvio({
             numero,

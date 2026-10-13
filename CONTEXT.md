@@ -65,7 +65,7 @@ A janela flutuante pessoal do Jogador onde ele escreve prompts e vê os resultad
 _Avoid_: Painel, card, modal
 
 **Placar**:
-Ranking de Jogadores pela soma da melhor Nota de cada Rodada, visível para todos e atualizado em tempo real.
+Lista de Jogadores ordenada pela soma da melhor Nota de cada Rodada, visível para todos e atualizada em tempo real. Empates são decididos por menos Tentativas usadas nas Rodadas em que o Jogador pontuou e, depois, por quem atingiu a pontuação primeiro.
 _Avoid_: Leaderboard, ranking, listagem
 
 **Conquista**:

@@ -59,8 +59,8 @@ function agrupar<T>(itens: T[], chave: (item: T) => string): Map<string, T[]> {
   return grupos;
 }
 
-// Ranking de uma Rodada: só quem tem Nota acima de zero, na ordem do desempate.
-export function rankingDaRodada<T extends TentativaRegistrada>(
+// Colocações de uma Rodada: só quem tem Nota acima de zero, na ordem do desempate.
+export function colocacoesDaRodada<T extends TentativaRegistrada>(
   tentativasDaRodada: T[],
 ): ColocacaoNaRodada<T>[] {
   const colocacoes: ColocacaoNaRodada<T>[] = [];
