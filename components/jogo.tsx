@@ -1,0 +1,91 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import { AreaDeTrabalho } from "./area-de-trabalho";
+import { TelaDeLogin } from "./tela-de-login";
+import { limparToken, lerToken, salvarToken } from "@/lib/cliente/sessao";
+
+type Sessao = { token: string; nickname: string; iniciais: string };
+
+type Estado =
+  | { tipo: "carregando" }
+  | { tipo: "login" }
+  | { tipo: "area"; sessao: Sessao };
+
+// Decide a tela: retoma o Jogador salvo no navegador ou mostra o login.
+export function Jogo() {
+  const [estado, setEstado] = useState<Estado>({ tipo: "carregando" });
+
+  const voltarParaLogin = useCallback(() => {
+    limparToken();
+    setEstado({ tipo: "login" });
+  }, []);
+
+  useEffect(() => {
+    const token = lerToken();
+    if (!token) {
+      // O localStorage só existe no cliente, então a decisão só pode sair depois do mount.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setEstado({ tipo: "login" });
+      return;
+    }
+
+    let cancelado = false;
+    fetch("/api/sessao", { headers: { authorization: `Bearer ${token}` } })
+      .then(async (resposta) => {
+        if (cancelado) return;
+        const dados = await resposta.json();
+        if (!resposta.ok || !dados.ok) {
+          voltarParaLogin();
+          return;
+        }
+        setEstado({
+          tipo: "area",
+          sessao: {
+            token,
+            nickname: dados.jogador.nickname,
+            iniciais: dados.jogador.iniciais,
+          },
+        });
+      })
+      .catch(() => {
+        if (!cancelado) setEstado({ tipo: "login" });
+      });
+
+    return () => {
+      cancelado = true;
+    };
+  }, [voltarParaLogin]);
+
+  if (estado.tipo === "carregando") {
+    return (
+      <main className="font-pixel flex min-h-dvh items-center justify-center text-[12px] text-dos-amarelo">
+        CARREGANDO...
+      </main>
+    );
+  }
+
+  if (estado.tipo === "login") {
+    return (
+      <TelaDeLogin
+        onEntrou={({ token, jogador }) => {
+          salvarToken(token);
+          setEstado({
+            tipo: "area",
+            sessao: { token, nickname: jogador.nickname, iniciais: jogador.iniciais },
+          });
+        }}
+      />
+    );
+  }
+
+  return (
+    <AreaDeTrabalho
+      key={estado.sessao.token}
+      token={estado.sessao.token}
+      nickname={estado.sessao.nickname}
+      iniciais={estado.sessao.iniciais}
+      onSessaoInvalida={voltarParaLogin}
+    />
+  );
+}
