@@ -46,7 +46,7 @@ export type EstadoDoJogador =
 
 export type EntradaPlacar = Jogador & { pontuacao: number };
 
-export type ResultadoEnvio =
+export type ResultadoTentativa =
   | { ok: true; tentativa: TentativaPublica; tentativasRestantes: number }
   | { ok: false; erro: string };
 
@@ -217,7 +217,7 @@ export function criarMotor(prisma: PrismaClient, opcoes: Opcoes = {}) {
 
         const jaJogado = await prisma.rodada.findFirst({ where: { desafioId } });
         if (jaJogado) {
-          return { ok: false as const, erro: "Este Desafio já foi jogado nesta partida." };
+          return { ok: false as const, erro: "Este Desafio já foi jogado nesta Sala." };
         }
 
         const criada = await prisma.rodada.create({
@@ -251,7 +251,7 @@ export function criarMotor(prisma: PrismaClient, opcoes: Opcoes = {}) {
       return exclusivo(async () => ({ encerrou: await encerrarSePrazoVencido(agora) }));
     },
 
-    async enviarTentativa(token: string, promptBruto: string): Promise<ResultadoEnvio> {
+    async enviarTentativa(token: string, promptBruto: string): Promise<ResultadoTentativa> {
       return exclusivo(async () => {
         const jogador = await buscarPorToken(token);
         if (!jogador) return { ok: false as const, erro: SESSAO_INVALIDA };

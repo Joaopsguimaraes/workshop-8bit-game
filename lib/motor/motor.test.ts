@@ -201,13 +201,13 @@ describe("abrirRodada", () => {
     });
   });
 
-  it("não reabre um Desafio já jogado nesta partida", async () => {
+  it("não reabre um Desafio já jogado nesta Sala", async () => {
     await motor.abrirRodada("alfa");
     await motor.encerrarRodada();
 
     expect(await motor.abrirRodada("alfa")).toEqual({
       ok: false,
-      erro: "Este Desafio já foi jogado nesta partida.",
+      erro: "Este Desafio já foi jogado nesta Sala.",
     });
   });
 

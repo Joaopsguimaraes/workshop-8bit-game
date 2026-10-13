@@ -77,7 +77,8 @@ export function instalarTempoReal({ httpServer, motor, presenca }: Dependencias)
           ? await motor.enviarTentativa(token, prompt)
           : { ok: false as const, erro: "Escreva um prompt antes de enviar." };
       if (typeof responder === "function") responder(resultado);
-      if (resultado.ok) await atualizarTudo();
+      // Mesmo um envio recusado pode ter encerrado a Rodada, porque o prazo já tinha vencido.
+      await atualizarTudo();
     });
   }
 

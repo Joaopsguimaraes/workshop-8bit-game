@@ -4,11 +4,11 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/8bit/button";
 import type { EstadoJogadorAoVivo } from "@/lib/cliente/use-tempo-real";
 import { LIMITE_DE_CARACTERES, LIMITE_DE_TENTATIVAS } from "@/lib/limites";
-import type { ResultadoEnvio, TentativaPublica } from "@/lib/motor/motor";
+import type { ResultadoTentativa, TentativaPublica } from "@/lib/motor/motor";
 
 type Props = {
   estado: EstadoJogadorAoVivo | null;
-  onEnviar: (prompt: string) => Promise<ResultadoEnvio>;
+  onEnviar: (prompt: string) => Promise<ResultadoTentativa>;
 };
 
 function formatarTempo(ms: number): string {
@@ -112,7 +112,7 @@ export function PromptExe({ estado, onEnviar }: Props) {
         )}
       </form>
 
-      {ultima && <Resultado tentativa={ultima} />}
+      {ultima && <AvaliacaoDaTentativa tentativa={ultima} />}
       {estado.tentativas.length > 0 && (
         <Historico tentativas={estado.tentativas} />
       )}
@@ -120,10 +120,10 @@ export function PromptExe({ estado, onEnviar }: Props) {
   );
 }
 
-function Resultado({ tentativa }: { tentativa: TentativaPublica }) {
+function AvaliacaoDaTentativa({ tentativa }: { tentativa: TentativaPublica }) {
   const { avaliacao } = tentativa;
   return (
-    <section aria-label="Resultado da Tentativa" className="flex flex-col gap-2 border-t-2 border-dos-cinza pt-3">
+    <section aria-label="Avaliação da Tentativa" className="flex flex-col gap-2 border-t-2 border-dos-cinza pt-3">
       <p className="font-pixel text-[12px] text-dos-amarelo">
         TENTATIVA {tentativa.numero} · NOTA {tentativa.nota}
       </p>

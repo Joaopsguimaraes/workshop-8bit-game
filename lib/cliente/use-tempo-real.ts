@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { io, type Socket } from "socket.io-client";
-import type { EstadoDoJogador, ResultadoEnvio } from "@/lib/motor/motor";
+import type { EstadoDoJogador, ResultadoTentativa } from "@/lib/motor/motor";
 import type { EntradaPlacarAoVivo } from "@/lib/tempo-real";
 
 type EstadoOk = Extract<EstadoDoJogador, { ok: true }>;
@@ -46,7 +46,7 @@ export function useTempoReal({ token, onSessaoInvalida }: Opcoes) {
 
   const enviarTentativa = useCallback(
     (prompt: string) =>
-      new Promise<ResultadoEnvio>((resolver) => {
+      new Promise<ResultadoTentativa>((resolver) => {
         const socket = socketRef.current;
         if (!socket) {
           resolver({ ok: false, erro: "Sem conexão com o servidor. Tente de novo." });
