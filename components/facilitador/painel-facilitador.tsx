@@ -51,7 +51,11 @@ export function PainelFacilitador() {
     socketRef.current?.emit(
       "facilitador:abrirRodada",
       { desafioId, duracaoSegundos },
-      (resposta: Resposta) => setErro(resposta.ok ? null : (resposta.erro ?? null)),
+      (resposta: Resposta) => {
+        setErro(resposta.ok ? null : (resposta.erro ?? null));
+        // O cronômetro vale só para a Rodada que acabou de abrir; a próxima começa sem prazo.
+        if (resposta.ok) setMinutos("");
+      },
     );
   }
 

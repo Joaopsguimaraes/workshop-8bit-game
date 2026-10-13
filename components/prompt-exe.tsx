@@ -64,7 +64,9 @@ export function PromptExe({ estado, onEnviar }: Props) {
     setEnviando(true);
     const resultado = await onEnviar(texto);
     setEnviando(false);
-    if (!resultado.ok) setErro(resultado.erro);
+    // Só limpa quando a Tentativa foi aceita; uma recusa mantém o texto para o Jogador corrigir.
+    if (resultado.ok) setTexto("");
+    else setErro(resultado.erro);
   }
 
   const ultima = estado.tentativas.at(-1);
