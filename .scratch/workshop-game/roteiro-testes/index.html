@@ -74,7 +74,6 @@
 <nav class="indice" aria-label="Sumário">
   <strong>Sumário</strong>
   <ol>
-    <li><a href="#novidades">O que mudou nesta revisão</a></li>
     <li><a href="#visao">Visão geral e papéis</a></li>
     <li><a href="#preparo">Preparação: como rodar e como simular vários Jogadores</a></li>
     <li><a href="#facilitador">Manual do Facilitador</a></li>
@@ -85,30 +84,6 @@
     <li><a href="#achados">Achados e observações</a></li>
   </ol>
 </nav>
-
-<!-- ============================================================ -->
-<h2 id="novidades">O que mudou nesta revisão</h2>
-<div class="aviso">
-  <p>Esta revisão atualiza o roteiro para o commit <code>393700e</code>. As Notas esperadas foram recalculadas com o Avaliador desse commit. As mudanças que afetam o teste:</p>
-  <ul>
-    <li><strong>Oito Critérios</strong> (eram seis). Entram <strong>Delimitadores</strong> (10 pontos) e <strong>Incerteza</strong> (5 pontos). Os pesos mudaram: Papel 15, Contexto 15, Tarefa 20, Formato 15, Restrições 10, Exemplos 10.</li>
-    <li><strong>Pontuação por força do sinal.</strong> Cada Critério vale tudo (✓), 70% (frase natural clara, mostrada como <em>parcial</em>) ou 30% (menção fraca, também <em>parcial</em>). Antes era tudo ou nada.</li>
-    <li><strong>Tarefa</strong> precisa de <em>um</em> grupo de Palavras-chave (antes eram dois). Verbo de ação sem Palavra-chave vale só 30%.</li>
-    <li><strong>Rótulo com uma letra ou número</strong> já é conteúdo: <code>Papel: x.</code> vale o Critério inteiro. Rótulo vazio continua sem pontos.</li>
-    <li><strong>Janela <code>DICAS.TXT</code></strong>: "Dicas deste envio" (uma dica por Critério parcial ou ✕ do último envio, da que mais custou para a que menos custou) e "Guia de um bom prompt" com os oito Critérios.</li>
-    <li><strong>Telão:</strong> ganhou o botão <strong>ENCERRAR RODADA</strong>. Ao encerrar por ele, a janela vai para o painel do Facilitador, pronta para abrir a próxima Rodada. Quando a Rodada encerra com o Telão aberto (pelo painel ou pelo cronômetro), o <strong>TOP 3</strong> aparece no meio da tela, com efeito sonoro. Veja 3.4 e 3.5.</li>
-    <li><strong>Roteiro em <code>/help</code>:</strong> esta página é servida pelo app enquanto ele está no ar.</li>
-  </ul>
-  <p><strong>Mudanças no código depois do commit <code>393700e</code></strong> (não mudam as Notas, mas mudam o que o testador vê e como sobe o app):</p>
-  <ul>
-    <li><strong>Envio pendente:</strong> depois de 3 s sem resposta, aparece <em>"Ainda processando, aguarde..."</em>; depois de 10 s, <em>"Está demorando mais que o normal. Verifique sua conexão."</em>. Sem resposta em 30 s, o envio é liberado com <em>"Sem resposta do servidor. Verifique sua conexão e tente de novo."</em>. Texto digitado durante a espera fica no campo. Veja 4.3 e a seção 6.</li>
-    <li><strong>Facilitador:</strong> a lista de Jogadores atualiza ao entrar e ao sair de um Jogador, sem recarregar a página.</li>
-    <li><strong>Janelas redimensionáveis:</strong> cada janela tem uma alça no canto inferior direito, e o conteúdo rola quando a janela fica pequena. Veja 4.2.</li>
-    <li><strong>PIN fixo:</strong> o PIN do Facilitador é <code>4321</code>, definido no código (<code>docs/adr/0003-fixed-facilitator-pin.md</code>). A variável <code>FACILITADOR_PIN</code> não é mais lida. A sessão sobrevive a reinícios do servidor.</li>
-    <li><strong>Sem Socket.IO:</strong> as telas consultam o servidor a cada 2 s (<em>polling</em>). Os dados ficam em SQLite local ou em um libSQL hospedado (<code>DATABASE_URL</code>). <code>pnpm dev</code> agora roda só o Next.</li>
-  </ul>
-  <p class="nota">As capturas de tela são da execução de 13/10 (commit <code>4430dbe</code>). Elas mostram Notas e Placar daquela versão e ainda não foram refeitas, com exceção das capturas 12 a 14, feitas em 14/10 para o Telão com o botão de encerrar e o TOP 3. Veja a seção de resultados.</p>
-</div>
 
 <!-- ============================================================ -->
 <h2 id="visao">1. Visão geral e papéis</h2>
