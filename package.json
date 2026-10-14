@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "pnpm db:deploy && next build",
+    "build": "pnpm db:generate && pnpm db:deploy && next build",
     "start": "NODE_ENV=production tsx server.ts",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
