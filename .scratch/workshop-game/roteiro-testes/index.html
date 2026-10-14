@@ -79,7 +79,7 @@
     <li><a href="#preparo">Preparação: como rodar e como simular vários Jogadores</a></li>
     <li><a href="#facilitador">Manual do Facilitador</a></li>
     <li><a href="#jogador">Manual do Jogador</a></li>
-    <li><a href="#roteiro">Roteiro de execução: cinco Rodadas, quatro Jogadores</a></li>
+    <li><a href="#roteiro">Roteiro de execução: seis Rodadas, quatro Jogadores</a></li>
     <li><a href="#checklist">Checklist para o testador humano</a></li>
     <li><a href="#resultados">Resultados e estado da verificação</a></li>
     <li><a href="#achados">Achados e observações</a></li>
@@ -176,7 +176,7 @@ pnpm dev                      # Next em http://localhost:3000</pre>
   <p>O painel tem, de cima para baixo: o estado da Rodada (aberta ou não, quantos já enviaram e o botão <strong>ENCERRAR RODADA</strong>); o campo de cronômetro opcional; a lista de <strong>DESAFIOS</strong>, cada um marcado como <code>DISPONÍVEL</code> ou <code>JOGADO</code>; a lista de <strong>JOGADORES</strong> com <strong>REMOVER</strong>; e a área <strong>REINICIAR A SALA</strong>.</p>
   <figure>
     <img src="screenshots/14-facilitador-painel.png" alt="Painel do Facilitador em repouso">
-    <figcaption>Captura 14: painel sem Rodada aberta, com os cinco Desafios disponíveis e sem Jogadores.</figcaption>
+    <figcaption>Captura 14: painel sem Rodada aberta, com os seis Desafios disponíveis e sem Jogadores.</figcaption>
   </figure>
 </div>
 
@@ -385,7 +385,7 @@ pnpm dev                      # Next em http://localhost:3000</pre>
 </div>
 
 <!-- ============================================================ -->
-<h2 id="roteiro">5. Roteiro de execução: cinco Rodadas, quatro Jogadores</h2>
+<h2 id="roteiro">5. Roteiro de execução: seis Rodadas, quatro Jogadores</h2>
 <p>Este é o roteiro a executar. Um testador repete a sequência com Joao, Lucas, Pedro e Maria e compara as Notas com a tabela. <strong>A ordem importa</strong>: o Primeiro sangue, o desempate e a Evolução dependem dela.</p>
 <p class="aviso"><strong>Como as Notas foram calculadas.</strong> Cada prompt desta seção foi passado pelo Avaliador do commit <code>393700e</code>, com as mesmas funções que o motor usa, e o Placar foi somado com as regras de desempate do motor. Isso confere os números, mas não substitui o teste no navegador (seção 7). Os textos abaixo são os que devem ser digitados. Os textos com quebra de linha usam Enter na <code>PROMPT.EXE</code>.</p>
 
@@ -438,13 +438,18 @@ pnpm dev                      # Next em http://localhost:3000</pre>
 <p><strong>Cronômetro:</strong> o campo mostra <em>TEMPO: 00:55</em> logo depois da abertura. Sem envio depois do zero, a Rodada deve encerrar <strong>sozinha</strong>. Um envio do Joao depois disso deve ser recusado com <em>"A Rodada foi encerrada."</em></p>
 <p><strong>Ao encerrar a Rodada 3:</strong> Campeão da Rodada: Maria (54). Top 3 do reveal: Maria 54, Pedro 14, Lucas 14. Pedro e Lucas empatam em 14, e Pedro chegou antes. Joao também tem 14 e fica em 4º.</p>
 
-<h3>Rodada 4 · Desafio 4 · Extrair dados de um contrato em JSON (sem cronômetro)</h3>
+<h3>Rodada 4 · Desafio 4 · Pontos-chave da First Friday, por tema (sem cronômetro)</h3>
 <table>
   <tr><th>#</th><th>Jogador</th><th>Prompt (texto para copiar)</th><th class="num">Nota esperada</th><th class="num">Pa/Co/Ta/Fo/Re/Ex/De/In</th><th>Observação</th></tr>
-  <tr><td>1</td><td>Lucas</td><td>Extraia dados do contrato em JSON.</td><td class="num">25</td><td class="num">0 0 14 11 0 0 0 0</td><td>Tarefa parcial; Formato parcial ("JSON" numa frase). Primeiro sangue</td></tr>
-  <tr><td>2</td><td>Joao</td><td>Papel: Você é um analista de dados. Contexto: O documento é um contrato em .docx da empresa. Tarefa: Extraia os campos contratante, contratado, valor, vigência e multa do contrato. Formato: JSON com as chaves contratante, contratado, valor, vigência e multa. Restrições: Não invente dados nem valores.</td><td class="num">75</td><td class="num">15 15 20 15 10 0 0 0</td><td>"No caminho certo". Faltam Exemplos, Delimitadores e Incerteza</td></tr>
+  <tr><td>1</td><td>Lucas</td><td>Liste os pontos-chave da First Friday, por tema.</td><td class="num">14</td><td class="num">0 0 14 0 0 0 0 0</td><td>Tarefa parcial: verbo e Palavra-chave, sem rótulo. Primeiro sangue</td></tr>
+  <tr><td>2</td><td>Pedro</td><td>Resuma o encontro.</td><td class="num">6</td><td class="num">0 0 6 0 0 0 0 0</td><td>Tarefa fraca: verbo sem Palavra-chave ("encontro" sozinho não é Palavra-chave; "encontro mensal" é)</td></tr>
+  <tr><td>3</td><td>Joao</td><td>Papel: Você é um analista de comunicação interna. Contexto: Os colaboradores não estiveram no encontro. Tarefa: Liste os pontos-chave da First Friday por tema. Formato: um título por tema e até 3 tópicos curtos. Restrições: Não invente números. Exemplo: Suporte: 197 tickets em setembro, por exemplo.</td><td class="num">85</td><td class="num">15 15 20 15 10 10 0 0</td><td>"Quase lá". Faltam Delimitadores (10) e Incerteza (5)</td></tr>
+  <tr><td>4</td><td>Maria</td><td>Papel: . Contexto: . Tarefa: . Formato: . Restrições: . Exemplo: .</td><td class="num">0</td><td class="num">0 0 0 0 0 0 0 0</td><td>rótulos sem conteúdo não pontuam</td></tr>
+  <tr><td>5</td><td>Lucas</td><td>Papel: Você é um analista de comunicação interna. Contexto: Os colaboradores não estiveram no encontro mensal. Tarefa: Liste os pontos-chave da First Friday por tema, com datas e números. Formato: um título por tema e até 3 tópicos curtos. Restrições: Não invente números nem nomes. Exemplo: Suporte: 197 tickets em setembro, por exemplo. Incerteza: Se uma informação não estiver nas anotações, escreva 'não informado'.</td><td class="num">90</td><td class="num">15 15 20 15 10 10 0 5</td><td>"Quase lá". Faltam Delimitadores (10). Incerteza cheia. Evolução (90 ≥ 14 + 30)</td></tr>
+  <tr><td>6</td><td>Maria</td><td>Papel: Você é um analista de comunicação interna, experiente em resumir encontros.<br>&lt;dados&gt;<br>Contexto: As anotações abaixo são de um encontro mensal da empresa. O público são colaboradores que não estiveram na reunião.<br>&lt;/dados&gt;<br>Tarefa: Liste os pontos-chave do encontro, organizados por tema, com as datas e os números citados nas anotações.<br>Formato: Um título por tema e, em cada um, até 3 tópicos curtos.<br>Restrições: Não invente números, datas nem nomes; não inclua opiniões sobre os temas.<br>&lt;modelo&gt;<br>Exemplo: Suporte: 197 tickets recebidos em setembro, por exemplo, com tempo médio de 11,1 dias.<br>&lt;/modelo&gt;<br>Incerteza: Se uma informação não estiver nas anotações, escreva "não informado" no lugar dela.</td><td class="num">100</td><td class="num">15 15 20 15 10 10 10 5</td><td>"Na mosca!". Dois blocos (dados e modelo) dão Delimitadores cheios. Evolução (100 ≥ 0 + 30)</td></tr>
 </table>
-<p><strong>Ao encerrar a Rodada 4:</strong> Campeão da Rodada: Joao (75). Top 2 do reveal: Joao 75, Lucas 25.</p>
+<p class="nota">No envio 6, use Enter entre as linhas e digite as tags <code>&lt;dados&gt;</code> e <code>&lt;modelo&gt;</code> como estão.</p>
+<p><strong>Ao encerrar a Rodada 4:</strong> Campeão da Rodada: Maria (100). Top 3 do reveal: Maria 100, Lucas 90, Joao 85. Primeiro sangue: Lucas (envio 1). Conquistas: Evolução (Lucas, 90 sobre 14; Maria, 100 sobre 0) e Na mosca (Maria).</p>
 
 <h3>Rodada 5 · Desafio 5 · Pontos-chave de um e-mail de cliente (sem cronômetro)</h3>
 <table>
@@ -452,13 +457,25 @@ pnpm dev                      # Next em http://localhost:3000</pre>
   <tr><td>1</td><td>Pedro</td><td>(enviar em branco, depois um texto de mais de 4.000 caracteres)</td><td class="num">recusado</td><td class="num">—</td><td>não consome Tentativa</td></tr>
   <tr><td>2</td><td>Pedro</td><td>Extraia os pontos-chave, as perguntas e o prazo do e-mail do cliente, em tópicos.</td><td class="num">25</td><td class="num">0 0 14 11 0 0 0 0</td><td>Tarefa parcial; Formato parcial. Primeiro sangue e Campeão da Rodada</td></tr>
 </table>
-<p><strong>Presença:</strong> feche a aba do Lucas e espere cerca de 10 s (o Jogador conta como <code>ONLINE</code> enquanto o último poll de 2 s tiver chegado nesse intervalo). Ele deve aparecer como <code>OFFLINE</code> no Placar, com os 149 pontos. Ao voltar, deve aparecer <code>ONLINE</code> de novo. A regra mudou com o polling, então esse passo precisa ser repetido.</p>
+<p><strong>Presença:</strong> feche a aba do Lucas e espere cerca de 10 s (o Jogador conta como <code>ONLINE</code> enquanto o último poll de 2 s tiver chegado nesse intervalo). Ele deve aparecer como <code>OFFLINE</code> no Placar, com os 214 pontos. Ao voltar, deve aparecer <code>ONLINE</code> de novo. A regra mudou com o polling, então esse passo precisa ser repetido.</p>
+
+<h3>Rodada 6 · Desafio 6 · Documentação de take-off de um cliente (sem cronômetro)</h3>
+<table>
+  <tr><th>#</th><th>Jogador</th><th>Prompt (texto para copiar)</th><th class="num">Nota esperada</th><th class="num">Pa/Co/Ta/Fo/Re/Ex/De/In</th><th>Observação</th></tr>
+  <tr><td>1</td><td>Pedro</td><td>Escreva um texto sobre o take-off.</td><td class="num">14</td><td class="num">0 0 14 0 0 0 0 0</td><td>Tarefa parcial: verbo e Palavra-chave, sem rótulo. Primeiro sangue</td></tr>
+  <tr><td>2</td><td>Lucas</td><td>Papel: Você é um gerente de operações. Contexto: Documento o take-off para a equipe de Operações. Tarefa: Escreva a documentação do take-off do Cliente A. Formato: título, resumo e tópicos curtos.</td><td class="num">65</td><td class="num">15 15 20 15 0 0 0 0</td><td>Papel, Contexto, Tarefa e Formato cheios. Sem Restrições, Exemplos, Delimitadores e Incerteza</td></tr>
+  <tr><td>3</td><td>Joao</td><td>Papel: Você é um gerente de operações. Contexto: Documento o take-off para a equipe de Operações. Tarefa: Escreva a documentação do take-off do Cliente A, com resumo e uma seção por etapa. Formato: título, resumo e tópicos curtos. Restrições: Não invente datas nem responsáveis. Exemplo: Etapa kick-off: alinhamento de escopo, por exemplo, na primeira interação.</td><td class="num">85</td><td class="num">15 15 20 15 10 10 0 0</td><td>"Quase lá". Faltam Delimitadores (10) e Incerteza (5)</td></tr>
+  <tr><td>4</td><td>Maria</td><td>Escreva a documentação do take-off.</td><td class="num">14</td><td class="num">0 0 14 0 0 0 0 0</td><td>Tarefa parcial. Primeiro envio da Maria na Rodada. O envio 5 vem a seguir e dá Evolução</td></tr>
+  <tr><td>5</td><td>Maria</td><td>Papel: Você é um gerente de operações de implantação, responsável por documentar take-offs.<br>&lt;dados&gt;<br>Contexto: As anotações abaixo são do take-off de um cliente. O público é a equipe de Operações e a área comercial.<br>&lt;/dados&gt;<br>Tarefa: Documente o take-off do Cliente A, com um resumo, uma seção para cada etapa e uma seção de próximos passos e cronograma.<br>Formato: Título, resumo em até 3 frases e, em cada seção, tópicos curtos.<br>Restrições: Não invente datas, responsáveis nem valores; use somente o que está nas anotações.<br>&lt;modelo&gt;<br>Exemplo: Etapa kick-off: alinhamento de escopo e expectativas com o cliente, por exemplo, na primeira interação.<br>&lt;/modelo&gt;<br>Incerteza: Se o cronograma ou os próximos passos não estiverem nas anotações, escreva "não informado" no lugar deles.</td><td class="num">100</td><td class="num">15 15 20 15 10 10 10 5</td><td>"Na mosca!". Delimitadores e Incerteza cheios. Evolução (100 ≥ 14 + 30)</td></tr>
+</table>
+<p class="nota">No envio 5, use Enter entre as linhas, como no Desafio 4.</p>
+<p><strong>Ao encerrar a Rodada 6:</strong> Campeão da Rodada: Maria (100). Top 3 do reveal: Maria 100, Joao 85, Lucas 65. Primeiro sangue: Pedro (envio 1). Conquistas: Evolução e Na mosca (Maria).</p>
 
 <h3>Moderação e reset</h3>
 <ol>
   <li>Remova o Pedro pelo painel. Ele deve sair do Placar e voltar ao login (captura 12).</li>
   <li>Entre de novo com <code>Pedro</code>: o Nickname está livre. O novo Pedro começa com 0 pontos e sem Conquistas.</li>
-  <li>Resete a Sala (captura 13). Os cinco Desafios voltam a <code>DISPONÍVEL</code>, e todos os Jogadores voltam ao login.</li>
+  <li>Resete a Sala (captura 13). Os seis Desafios voltam a <code>DISPONÍVEL</code>, e todos os Jogadores voltam ao login.</li>
 </ol>
 
 <h3>Placar esperado ao longo do workshop</h3>
@@ -467,8 +484,9 @@ pnpm dev                      # Next em http://localhost:3000</pre>
   <tr><td>Rodada 1</td><td>Joao 85</td><td>Lucas 75</td><td>Maria 75</td><td>Pedro 25</td></tr>
   <tr><td>Rodada 2</td><td>Maria 175</td><td>Joao 110</td><td>Lucas 110</td><td>Pedro 39</td></tr>
   <tr><td>Rodada 3</td><td>Maria 229</td><td>Joao 124</td><td>Lucas 124</td><td>Pedro 53</td></tr>
-  <tr><td>Rodada 4</td><td>Maria 229</td><td>Joao 199</td><td>Lucas 149</td><td>Pedro 53</td></tr>
-  <tr><td>Rodada 5</td><td>Maria 229</td><td>Joao 199</td><td>Lucas 149</td><td>Pedro 78</td></tr>
+  <tr><td>Rodada 4</td><td>Maria 329</td><td>Lucas 214</td><td>Joao 209</td><td>Pedro 59</td></tr>
+  <tr><td>Rodada 5</td><td>Maria 329</td><td>Lucas 214</td><td>Joao 209</td><td>Pedro 84</td></tr>
+  <tr><td>Rodada 6</td><td>Maria 429</td><td>Joao 294</td><td>Lucas 279</td><td>Pedro 98</td></tr>
 </table>
 <p><strong>Empates que o roteiro testa:</strong></p>
 <ul>
@@ -482,8 +500,9 @@ pnpm dev                      # Next em http://localhost:3000</pre>
   <tr><td>1</td><td>Primeiro sangue (Joao) · Evolução (Joao, 85 sobre 14; Maria, 75 sobre 0) · Campeão da Rodada (Joao)</td></tr>
   <tr><td>2</td><td>Primeiro sangue (Maria) · Na mosca (Maria, 100) · Evolução (Maria) · Campeão da Rodada (Maria)</td></tr>
   <tr><td>3</td><td>Primeiro sangue (Pedro) · Campeão da Rodada (Maria, 54)</td></tr>
-  <tr><td>4</td><td>Primeiro sangue (Lucas) · Campeão da Rodada (Joao, 75)</td></tr>
+  <tr><td>4</td><td>Primeiro sangue (Lucas) · Evolução (Lucas, 90 sobre 14; Maria, 100 sobre 0) · Na mosca (Maria, 100) · Campeão da Rodada (Maria)</td></tr>
   <tr><td>5</td><td>Primeiro sangue (Pedro) · Campeão da Rodada (Pedro)</td></tr>
+  <tr><td>6</td><td>Primeiro sangue (Pedro) · Evolução (Maria, 100 sobre 14) · Na mosca (Maria, 100) · Campeão da Rodada (Maria)</td></tr>
 </table>
 <p class="nota">Ninguém tira 100 na 1ª Tentativa, então <em>De primeira</em> não aparece. Essa ausência é esperada.</p>
 
@@ -603,7 +622,7 @@ pnpm dev                      # Next em http://localhost:3000</pre>
 
 <h3>Desafios (histórias 65 e 66)</h3>
 <ul class="checklist">
-  <li><span class="caixa"></span>Os cinco Desafios aparecem, em ordem de dificuldade (65).</li>
+  <li><span class="caixa"></span>Os seis Desafios aparecem, em ordem de dificuldade (65).</li>
   <li><span class="caixa"></span>Os textos podem ser revisados no arquivo do seed <code>lib/challenges/seed.ts</code> (66). <em>Não testado aqui: é uma edição de arquivo, não uma tela.</em></li>
 </ul>
 
