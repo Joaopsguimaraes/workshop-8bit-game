@@ -1,0 +1,73 @@
+{
+  "jogadoresSolicitados": 150,
+  "entradaFalhas": 0,
+  "conectados": 150,
+  "tempoEntradaEConexaoMs": 2543,
+  "tempoAbrirRodadaMs": 148,
+  "tentativasEnviadas": 450,
+  "respostas": {
+    "ok": 450,
+    "recusado": 0,
+    "semResposta": 0
+  },
+  "motivos": {},
+  "latenciaAckMs": {
+    "p50": 11724,
+    "p95": 14022,
+    "p99": 14046,
+    "max": 14053
+  },
+  "tempoTotalEnviosMs": 37770,
+  "tempoFecharRodadaMs": 406,
+  "rodadaFechou": true,
+  "broadcastsRecebidosNoTotal": {
+    "scoreboard": 84675,
+    "playerState": 73500,
+    "feed": 75600,
+    "sessaoInvalida": 0
+  },
+  "broadcastsPorSocket": {
+    "scoreboard": 564.5,
+    "playerState": 490
+  },
+  "sondaRttMs": [
+    9576,
+    8576,
+    7575,
+    6576,
+    5576,
+    4576,
+    3573,
+    2573,
+    1573,
+    573,
+    12809,
+    11802,
+    10802,
+    9802,
+    8802,
+    7802,
+    6802,
+    5802,
+    4802,
+    3802,
+    2802,
+    1802,
+    802,
+    13745,
+    12744,
+    11737,
+    10730,
+    9731,
+    8730,
+    7731,
+    6730,
+    5730,
+    4716,
+    3716,
+    2716,
+    1716,
+    702
+  ],
+  "duracaoTotalS": 43
+}

@@ -1,0 +1,154 @@
+diff --git a/lib/engine/engine.ts b/lib/engine/engine.ts
+index ae1a5e7..4be244d 100644
+--- a/lib/engine/engine.ts
++++ b/lib/engine/engine.ts
+@@ -6,6 +6,7 @@ import { ATTEMPT_LIMIT, CHARACTER_LIMIT } from "../limits";
+ import { validateNickname } from "../nickname";
+ import type { PrismaClient } from "../../generated/prisma/client";
+ import { achievementsForAttempt, type AchievementType } from "./achievements";
++import { queueWaitMs } from "../instrumentation";
+ import {
+   groupByPlayer,
+   compareMarks,
+@@ -151,7 +152,11 @@ export function createEngine(prisma: PrismaClient, options: Options = {}) {
+   // simultaneous submissions (e.g. 5 quick clicks on a single attempt).
+   let queue: Promise<unknown> = Promise.resolve();
+   function exclusive<T>(task: () => Promise<T>): Promise<T> {
+-    const run = queue.then(task);
++    const enqueuedAt = performance.now();
++    const run = queue.then(() => {
++      queueWaitMs.push(performance.now() - enqueuedAt);
++      return task();
++    });
+     queue = run.catch(() => undefined);
+     return run;
+   }
+diff --git a/lib/engine/prisma.ts b/lib/engine/prisma.ts
+index 8c3d1db..bce9c4a 100644
+--- a/lib/engine/prisma.ts
++++ b/lib/engine/prisma.ts
+@@ -1,6 +1,20 @@
+ import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+ import { PrismaClient } from "../../generated/prisma/client";
++import { caller, queries, queryMs } from "../instrumentation";
+ 
+ export function createPrismaClient(url: string) {
+-  return new PrismaClient({ adapter: new PrismaBetterSqlite3({ url }) });
++  const base = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url }) });
++  return base.$extends({
++    query: {
++      async $allOperations({ model, operation, args, query }) {
++        const label = caller.getStore() ?? "sem-rotulo";
++        const key = `${label} ${model}.${operation}`;
++        queries[key] = (queries[key] ?? 0) + 1;
++        const startedAt = performance.now();
++        const result = await query(args);
++        (queryMs[label] ??= []).push(performance.now() - startedAt);
++        return result;
++      },
++    },
++  });
+ }
+diff --git a/lib/instrumentation.ts b/lib/instrumentation.ts
+new file mode 100644
+index 0000000..8355498
+--- /dev/null
++++ b/lib/instrumentation.ts
+@@ -0,0 +1,37 @@
++// MEASUREMENT ONLY (throwaway worktree, never committed): counts Prisma queries by caller, queue wait,
++// updateAll() duration and event-loop delay.
++import { AsyncLocalStorage } from "node:async_hooks";
++import { writeFileSync } from "node:fs";
++import { monitorEventLoopDelay } from "node:perf_hooks";
++
++export const caller = new AsyncLocalStorage<string>();
++export const queries: Record<string, number> = {};
++export const queueWaitMs: number[] = [];
++export const refreshMs: number[] = [];
++export const queryMs: Record<string, number[]> = {};
++export const submitMs: number[] = [];
++export const loopDelay = monitorEventLoopDelay({ resolution: 5 });
++loopDelay.enable();
++
++const pctl = (arr: number[], p: number) => { const a = [...arr].sort((x, y) => x - y); return a.length ? a[Math.min(a.length - 1, Math.floor(p * a.length))] : null; };
++
++process.on("exit", () => {
++  if (process.env.SAIDA_INSTRUMENTACAO) {
++    const ms = (ns: number) => ns / 1e6;
++    writeFileSync(
++      process.env.SAIDA_INSTRUMENTACAO,
++      JSON.stringify(
++        {
++          queries,
++          queueWaitMs,
++          refreshMs,
++          submitMs,
++          queryMs: Object.fromEntries(Object.entries(queryMs).map(([k, v]) => [k, { n: v.length, p50: pctl(v, 0.5), p95: pctl(v, 0.95) }])),
++          loopDelayMs: { p50: ms(loopDelay.percentile(50)), p95: ms(loopDelay.percentile(95)), max: ms(loopDelay.max) },
++        },
++        null,
++        1,
++      ),
++    );
++  }
++});
+diff --git a/lib/realtime.ts b/lib/realtime.ts
+index f4037bd..a08407e 100644
+--- a/lib/realtime.ts
++++ b/lib/realtime.ts
+@@ -8,6 +8,7 @@ import {
+   processSecret,
+ } from "./facilitator/session";
+ import type { Presence } from "./presence";
++import { caller, refreshMs, submitMs } from "./instrumentation";
+ 
+ export type LiveScoreboardEntry = ScoreboardEntry & { online: boolean };
+ 
+@@ -71,11 +72,13 @@ export function installRealtime({ httpServer, engine, presence }: Deps) {
+ 
+   // After any state change: each Player receives only their own state.
+   async function updateAll() {
+-    await sendScoreboard();
+-    await sendFacilitatorState();
++    const startedAt = performance.now();
++    await caller.run("refresh:scoreboard", sendScoreboard);
++    await caller.run("refresh:facilitator", sendFacilitatorState);
+     for (const socket of io.sockets.sockets.values()) {
+-      if (socket.data.role === "player") await sendPlayerState(socket);
++      if (socket.data.role === "player") await caller.run("refresh:player-state", () => sendPlayerState(socket));
+     }
++    refreshMs.push(performance.now() - startedAt);
+   }
+ 
+   // Sends the socket back to login: the Engine no longer accepts its token.
+@@ -97,10 +100,12 @@ export function installRealtime({ httpServer, engine, presence }: Deps) {
+     });
+ 
+     socket.on("attempt:submit", async (prompt: unknown, respond?: unknown) => {
++      const submitStartedAt = performance.now();
+       const result =
+         typeof prompt === "string"
+-          ? await engine.submitAttempt(token, prompt)
++          ? await caller.run("submit", () => engine.submitAttempt(token, prompt))
+           : { ok: false as const, error: "Escreva um prompt antes de enviar." };
++      submitMs.push(performance.now() - submitStartedAt);
+       if (typeof respond === "function") respond(result);
+       // Even a refused submission may have closed the Round, because the deadline had already passed.
+       await updateAll();
+@@ -200,14 +205,14 @@ export function installRealtime({ httpServer, engine, presence }: Deps) {
+ 
+   // Server tick: closes the Round when the deadline passes, without anyone clicking.
+   setInterval(() => {
+-    void (async () => {
++    void caller.run("tick", async () => {
+       try {
+         const { closed } = await engine.checkDeadline(new Date());
+         if (closed) await updateAll();
+       } catch (error) {
+         console.error("Falha ao verificar o prazo da Rodada", error);
+       }
+-    })();
++    });
+   }, TICK_INTERVAL_MS);
+ 
+   return io;
