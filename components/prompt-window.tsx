@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/8bit/button";
+import { feedbackForWait } from "@/lib/client/pending-feedback";
 import { formatTime } from "@/lib/client/time";
 import type { LivePlayerState } from "@/lib/client/use-realtime";
 import { CHARACTER_LIMIT, ATTEMPT_LIMIT } from "@/lib/limits";
@@ -18,8 +19,11 @@ type Props = {
 export function PromptWindow({ state, onSubmit }: Props) {
   const [text, setText] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [sending, setSending] = useState(false);
+  // When the Attempt was submitted and still waits for its answer; null when nothing is pending.
+  const [pendingSince, setPendingSince] = useState<number | null>(null);
+  const sendingRef = useRef(false);
   const [now, setNow] = useState(() => Date.now());
+  const sending = pendingSince !== null;
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
@@ -56,17 +60,25 @@ export function PromptWindow({ state, onSubmit }: Props) {
           ? `O prompt passou de ${CHARACTER_LIMIT.toLocaleString("pt-BR")} caracteres.`
           : null;
   const canSend = blockReason === null && text.trim().length > 0 && !sending;
+  const pending = pendingSince === null ? null : feedbackForWait(now - pendingSince);
 
   async function send(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!canSend) return;
+    // The ref closes the gap before React re-renders the disabled button, so a second Attempt cannot slip in.
+    if (!canSend || sendingRef.current) return;
 
+    sendingRef.current = true;
+    const start = Date.now();
+    setNow(start);
+    setPendingSince(start);
     setError(null);
-    setSending(true);
-    const result = await onSubmit(text);
-    setSending(false);
+    const submitted = text;
+    const result = await onSubmit(submitted);
+    sendingRef.current = false;
+    setPendingSince(null);
     // Only clears when the Attempt was accepted; a refusal keeps the text for the Player to fix.
-    if (result.ok) setText("");
+    // Text typed while the Attempt was pending is kept, since the Player may already be writing the next one.
+    if (result.ok) setText((current) => (current === submitted ? "" : current));
     else setError(result.error);
   }
 
@@ -105,6 +117,11 @@ export function PromptWindow({ state, onSubmit }: Props) {
         <Button type="submit" disabled={!canSend} className="font-pixel text-[12px]">
           {sending ? "ENVIANDO..." : "ENVIAR"}
         </Button>
+        {pending && (
+          <p role="status" aria-live="polite" className="text-primary">
+            {pending}
+          </p>
+        )}
         {error && (
           <p role="alert" className="text-destructive">
             {error}
