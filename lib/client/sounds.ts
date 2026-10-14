@@ -11,7 +11,7 @@ export function saveSoundPreference(on: boolean): void {
   writeItem(KEY, on ? "ligado" : "desligado");
 }
 
-export type Effect = "send" | "score" | "rise";
+export type Effect = "send" | "score" | "rise" | "podium";
 
 // 8-bit notes: [frequency in Hz, duration in seconds], played in sequence.
 const NOTES: Record<Effect, [number, number][]> = {
@@ -29,6 +29,13 @@ const NOTES: Record<Effect, [number, number][]> = {
     [659, 0.07],
     [784, 0.07],
     [1047, 0.22],
+  ],
+  podium: [
+    [659, 0.1],
+    [784, 0.1],
+    [1047, 0.1],
+    [784, 0.08],
+    [1047, 0.4],
   ],
 };
 

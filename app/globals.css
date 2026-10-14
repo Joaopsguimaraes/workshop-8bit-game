@@ -152,3 +152,36 @@
     animation: none;
   }
 }
+
+/* TOP 3: the podium surges in the middle of the Big screen and holds long enough to be read. */
+@keyframes top-three {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  12% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  20% {
+    transform: scale(1);
+  }
+  90% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+.top-three-animation {
+  animation: top-three 6s steps(12) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .top-three-animation {
+    animation: none;
+  }
+}
