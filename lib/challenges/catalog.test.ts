@@ -26,13 +26,14 @@ describe("challenge catalog", () => {
     expect(findChallenge("nao-existe")).toBeUndefined();
   });
 
-  it("brings the five seed challenges, in order of difficulty", () => {
+  it("brings the six seed challenges, in order of difficulty", () => {
     expect(CHALLENGES.map((c) => c.id)).toEqual([
       "trabalho-remoto",
       "reuniao-alinhamento",
       "resumo-reuniao",
-      "contrato-json",
+      "pontos-chave-first-friday",
       "pontos-do-email",
+      "take-off-cliente",
     ]);
   });
 
