@@ -48,7 +48,8 @@ pnpm dev                 # Next + Socket.IO in the same process, at http://local
 `.env` must set:
 
 - `DATABASE_URL` — SQLite file, for example `file:./data/workshop.db` (never `:memory:`)
-- `FACILITADOR_PIN` — PIN for `/facilitador`
+
+The Facilitator PIN for `/facilitador` is fixed at `4321` in `lib/facilitator/session.ts` (see [ADR 0003](docs/adr/0003-fixed-facilitator-pin.md)).
 
 Open more than one browser tab to play locally: one Facilitator, one or more Players, and optionally the Big screen.
 

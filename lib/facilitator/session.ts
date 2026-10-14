@@ -1,18 +1,15 @@
-import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 
 // Facilitator session: a signed cookie with an expiry, with no state on the server.
-// The secret is random for each process; a restart requires the PIN again.
+// The PIN is fixed (see docs/adr/0003-fixed-facilitator-pin.md), so the secret is derived from it
+// and is the same in every serverless instance; a cookie issued by one instance validates on another.
 const DURATION_MS = 12 * 60 * 60 * 1000;
 
-const GLOBAL_KEY = "__workshopFacilitatorSecret";
-type GlobalWithSecret = typeof globalThis & { [GLOBAL_KEY]?: Buffer };
-
+export const FACILITATOR_PIN = "4321";
 export const FACILITATOR_COOKIE_NAME = "facilitator_session";
 
 export function processSecret(): Buffer {
-  const globalScope = globalThis as GlobalWithSecret;
-  globalScope[GLOBAL_KEY] ??= randomBytes(32);
-  return globalScope[GLOBAL_KEY];
+  return createHash("sha256").update(`workshop-facilitador-session:${FACILITATOR_PIN}`).digest();
 }
 
 // Compares in constant time; an empty or unconfigured PIN never matches.

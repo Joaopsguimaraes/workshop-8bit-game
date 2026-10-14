@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import {
   createFacilitatorSession,
   FACILITATOR_COOKIE_NAME,
+  FACILITATOR_PIN,
   pinMatches,
   processSecret,
 } from "@/lib/facilitator/session";
@@ -14,14 +15,7 @@ export async function POST(request: Request) {
   const pin =
     typeof body === "object" && body !== null && "pin" in body ? String(body.pin) : "";
 
-  const expected = process.env.FACILITADOR_PIN;
-  if (!expected) {
-    return NextResponse.json(
-      { ok: false, error: "O PIN do Facilitador não está configurado no servidor." },
-      { status: 503 },
-    );
-  }
-  if (!pinMatches(pin, expected)) {
+  if (!pinMatches(pin, FACILITATOR_PIN)) {
     return NextResponse.json({ ok: false, error: "PIN incorreto." }, { status: 401 });
   }
 

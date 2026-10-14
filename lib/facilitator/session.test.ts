@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
   createFacilitatorSession,
   cookieValue,
+  FACILITATOR_PIN,
   isFacilitatorSessionValid,
   pinMatches,
+  processSecret,
 } from "./session";
 
 const SECRET = Buffer.from("segredo-de-teste-com-32-bytes-ok!");
@@ -26,6 +28,24 @@ describe("pinMatches", () => {
     expect(pinMatches("", "")).toBe(false);
     expect(pinMatches("4821", "")).toBe(false);
     expect(pinMatches("", undefined)).toBe(false);
+  });
+
+  it("uses the fixed Facilitator PIN 4321", () => {
+    expect(FACILITATOR_PIN).toBe("4321");
+    expect(pinMatches("4321", FACILITATOR_PIN)).toBe(true);
+    expect(pinMatches("st0102", FACILITATOR_PIN)).toBe(false);
+  });
+});
+
+describe("processSecret", () => {
+  it("returns the same secret on every call, so every instance validates the same cookie", () => {
+    expect(processSecret().equals(processSecret())).toBe(true);
+  });
+
+  it("validates a session issued with it", () => {
+    const token = createFacilitatorSession(processSecret(), NOW);
+
+    expect(isFacilitatorSessionValid(token, processSecret(), NOW)).toBe(true);
   });
 });
 
