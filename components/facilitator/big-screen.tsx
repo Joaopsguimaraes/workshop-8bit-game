@@ -1,10 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Avatar } from "@/components/avatar";
+import { TopThreeOverlay } from "@/components/facilitator/top-three-overlay";
 import { Button } from "@/components/ui/8bit/button";
 import { eventText } from "@/lib/client/feed";
+import { playEffect } from "@/lib/client/sounds";
 import { useFacilitator } from "@/lib/client/use-facilitator";
 import { formatTime } from "@/lib/client/time";
 import { ACHIEVEMENT_NAMES } from "@/lib/engine/achievements";
@@ -17,16 +19,59 @@ const FEED_ON_BIG_SCREEN = 8;
 // Uses the Facilitator session, so the page only works with the PIN session.
 export function BigScreen() {
   const router = useRouter();
-  const { state, players, feed } = useFacilitator({ onInvalid: () => router.refresh() });
+  const { state, players, feed, act } = useFacilitator({ onInvalid: () => router.refresh() });
   const [now, setNow] = useState(() => Date.now());
+  const [podium, setPodium] = useState<{ id: number; reveal: Reveal } | null>(null);
+  const [closeError, setCloseError] = useState<string | null>(null);
+  const [closing, setClosing] = useState(false);
+  const lastFeedId = useRef<number | null>(null);
 
   useEffect(() => {
     const clock = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(clock);
   }, []);
 
+  // A Round that closes while the screen is open (by the button, or by the timer) shows the TOP 3 with a sound.
+  // The feed already holds past closings, so the first reading only marks where the feed ends.
+  useEffect(() => {
+    if (!state) return;
+    const latest = feed.length > 0 ? feed[feed.length - 1].id : 0;
+    if (lastFeedId.current === null) {
+      lastFeedId.current = latest;
+      return;
+    }
+    const previous = lastFeedId.current;
+    lastFeedId.current = latest;
+
+    let closed: { id: number; reveal: Reveal } | null = null;
+    for (const item of feed) {
+      if (item.id > previous && item.event.type === "round-closed") {
+        closed = { id: item.id, reveal: item.event.reveal };
+      }
+    }
+    if (closed) {
+      setPodium(closed);
+      playEffect("podium");
+    }
+  }, [state, feed]);
+
+  const endPodium = useCallback(() => setPodium(null), []);
+
   function goFullscreen() {
     document.documentElement.requestFullscreen().catch(() => undefined);
+  }
+
+  // Closes the open Round from the big screen; on success, goes to the Facilitator panel to open the next one.
+  async function closeRound() {
+    setClosing(true);
+    setCloseError(null);
+    const reply = await act("/api/facilitator/rounds/close");
+    if (reply.ok) {
+      router.push("/facilitador");
+      return;
+    }
+    setCloseError(reply.error ?? "Não foi possível encerrar a rodada.");
+    setClosing(false);
   }
 
   if (!state) {
@@ -53,15 +98,32 @@ export function BigScreen() {
       <div className="grid flex-1 gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <section aria-label="Palco" className="flex min-w-0 flex-col gap-6">
           {round ? (
-            <LiveChallenge
-              title={round.challenge.title}
-              scenario={round.challenge.scenario}
-              remainingMs={
-                round.deadline ? Date.parse(round.deadline) - (now + state.clockOffsetMs) : null
-              }
-              sent={state.sent}
-              total={state.players.length}
-            />
+            <div className="flex flex-col gap-6">
+              <LiveChallenge
+                title={round.challenge.title}
+                scenario={round.challenge.scenario}
+                remainingMs={
+                  round.deadline ? Date.parse(round.deadline) - (now + state.clockOffsetMs) : null
+                }
+                sent={state.sent}
+                total={state.players.length}
+              />
+              <div className="flex flex-col gap-3">
+                <Button
+                  type="button"
+                  onClick={closeRound}
+                  disabled={closing}
+                  className="font-pixel w-fit text-[12px]"
+                >
+                  ENCERRAR RODADA
+                </Button>
+                {closeError && (
+                  <p role="alert" className="text-2xl text-destructive">
+                    {closeError}
+                  </p>
+                )}
+              </div>
+            </div>
           ) : reveal ? (
             <RevealOnScreen reveal={reveal} />
           ) : (
@@ -79,6 +141,8 @@ export function BigScreen() {
           <FeedOnScreen feed={feed} />
         </aside>
       </div>
+
+      {podium && <TopThreeOverlay key={podium.id} reveal={podium.reveal} onDone={endPodium} />}
     </main>
   );
 }

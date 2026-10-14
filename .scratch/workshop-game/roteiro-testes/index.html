@@ -96,6 +96,7 @@
     <li><strong>Tarefa</strong> precisa de <em>um</em> grupo de Palavras-chave (antes eram dois). Verbo de ação sem Palavra-chave vale só 30%.</li>
     <li><strong>Rótulo com uma letra ou número</strong> já é conteúdo: <code>Papel: x.</code> vale o Critério inteiro. Rótulo vazio continua sem pontos.</li>
     <li><strong>Janela <code>DICAS.TXT</code></strong>: "Dicas deste envio" (uma dica por Critério parcial ou ✕ do último envio, da que mais custou para a que menos custou) e "Guia de um bom prompt" com os oito Critérios.</li>
+    <li><strong>Telão:</strong> ganhou o botão <strong>ENCERRAR RODADA</strong>. Ao encerrar por ele, a janela vai para o painel do Facilitador, pronta para abrir a próxima Rodada. Quando a Rodada encerra com o Telão aberto (pelo painel ou pelo cronômetro), o <strong>TOP 3</strong> aparece no meio da tela, com efeito sonoro. Veja 3.4 e 3.5.</li>
     <li><strong>Roteiro em <code>/help</code>:</strong> esta página é servida pelo app enquanto ele está no ar.</li>
   </ul>
   <p><strong>Mudanças no código depois do commit <code>393700e</code></strong> (não mudam as Notas, mas mudam o que o testador vê e como sobe o app):</p>
@@ -106,7 +107,7 @@
     <li><strong>PIN fixo:</strong> o PIN do Facilitador é <code>4321</code>, definido no código (<code>docs/adr/0003-fixed-facilitator-pin.md</code>). A variável <code>FACILITADOR_PIN</code> não é mais lida. A sessão sobrevive a reinícios do servidor.</li>
     <li><strong>Sem Socket.IO:</strong> as telas consultam o servidor a cada 2 s (<em>polling</em>). Os dados ficam em SQLite local ou em um libSQL hospedado (<code>DATABASE_URL</code>). <code>pnpm dev</code> agora roda só o Next.</li>
   </ul>
-  <p class="nota">As capturas de tela são da execução de 13/10 (commit <code>4430dbe</code>). Elas mostram Notas e Placar daquela versão e ainda não foram refeitas. Veja a seção de resultados.</p>
+  <p class="nota">As capturas de tela são da execução de 13/10 (commit <code>4430dbe</code>). Elas mostram Notas e Placar daquela versão e ainda não foram refeitas, com exceção das capturas 12 a 14, feitas em 14/10 para o Telão com o botão de encerrar e o TOP 3. Veja a seção de resultados.</p>
 </div>
 
 <!-- ============================================================ -->
@@ -196,10 +197,15 @@ pnpm dev                      # Next em http://localhost:3000</pre>
   <h3>3.4 Acompanhar e encerrar <span class="quem">Facilitador</span></h3>
   <ol>
     <li>O contador <em>"N jogadores já enviaram"</em> atualiza a cada envio aceito. Use isso para decidir quando encerrar.</li>
-    <li>Clique em <strong>ENCERRAR RODADA</strong> a qualquer momento. Ela também encerra sozinha quando o cronômetro zera. Nesse caso não é preciso fazer nada.</li>
+    <li>Clique em <strong>ENCERRAR RODADA</strong> a qualquer momento, no painel ou no Telão (veja 3.5). Ela também encerra sozinha quando o cronômetro zera. Nesse caso não é preciso fazer nada.</li>
     <li>Ao encerrar, todos os Jogadores veem o <strong>reveal</strong>: o Prompt de referência e o top 3 com Avatar, Nickname, Nota e prompt. Os envios ficam bloqueados.</li>
     <li>O reveal continua até o Facilitador abrir a próxima Rodada.</li>
+    <li>Com o Telão aberto, quando a Rodada encerra pelo painel ou pelo cronômetro, aparece o <strong>TOP 3</strong> no meio da tela, com efeito sonoro, por cerca de 6 segundos. Depois ele some, e o reveal continua no lado esquerdo. O som é conferido de ouvido, a captura não mostra. Se a Rodada for encerrada pelo botão do próprio Telão, a janela vai para o painel e o TOP 3 não aparece.</li>
   </ol>
+  <figure>
+    <img src="screenshots/13-telao-top3-overlay.png" alt="Telão com o TOP 3 no meio da tela sobre o reveal da Rodada 1">
+    <figcaption>Captura 13 (execução de 14/10, Chrome DevTools): a Rodada 1 foi encerrada pelo painel com o Telão aberto. O TOP 3 aparece no meio da tela, sobre o reveal. Dados semeados pela API: o top 3 é Joao 85, Maria 75 e Lucas 75. Maria fica em 2º porque usou só uma Tentativa de 75, e no empate o motor dá a frente a quem usou menos Tentativas. O roteiro da seção 5 manda Maria enviar também uma Tentativa de 0 antes, o que a deixaria empatada com Lucas em duas Tentativas, com Lucas à frente por ter chegado antes.</figcaption>
+  </figure>
   <figure>
     <img src="screenshots/08-telao-reveal.png" alt="Telão mostrando o reveal da Rodada 1">
     <figcaption>Captura 08 (execução de 13/10): Telão com o Prompt de referência e o top 3 da Rodada 1. Com a pontuação nova, o top 3 esperado está na seção 5.</figcaption>
@@ -212,7 +218,16 @@ pnpm dev                      # Next em http://localhost:3000</pre>
     <li>Clique em <strong>ABRIR TELÃO</strong> no painel (abre <code>/facilitador/telao</code> em outra aba). Depois clique em <strong>TELA CHEIA</strong>.</li>
     <li>O Telão mostra: o Desafio da Rodada aberta com o cenário, o cronômetro (<em>TEMPO</em>) e a contagem de envios (<em>ENVIARAM</em>); no lado direito, o Placar e o feed de eventos.</li>
     <li>Depois de encerrar, o Telão mostra o reveal com o Prompt de referência e o top 3, para discutir com a turma.</li>
+    <li>Com a Rodada aberta, o Telão mostra o botão <strong>ENCERRAR RODADA</strong>. Clique nele para encerrar a Rodada direto do Telão. Se der certo, a janela vai para <code>/facilitador</code>, pronta para o Facilitador abrir a próxima Rodada. Se der erro, a mensagem aparece em vermelho embaixo do botão e a Rodada continua aberta.</li>
   </ol>
+  <figure>
+    <img src="screenshots/12-telao-rodada-aberta-encerrar.png" alt="Telão com a Rodada 1 aberta e o botão ENCERRAR RODADA">
+    <figcaption>Captura 12 (execução de 14/10, Chrome DevTools): Telão com a Rodada 1 aberta, 4/4 envios e o botão ENCERRAR RODADA. Dados semeados pela API: quatro Jogadores e Tentativas enviadas por requisição, não digitadas na tela.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/14-facilitador-apos-encerrar-pelo-telao.png" alt="Painel do Facilitador depois de encerrar a Rodada 2 pelo Telão">
+    <figcaption>Captura 14 (execução de 14/10, Chrome DevTools): depois de clicar em ENCERRAR RODADA no Telão, a janela foi para <code>/facilitador</code>. O Desafio 2 aparece como JOGADO e nenhuma Rodada está aberta.</figcaption>
+  </figure>
   <figure>
     <img src="screenshots/09-telao-placar-rodada2.png" alt="Telão com o Placar depois da Rodada 2">
     <figcaption>Captura 09 (execução de 13/10): Telão com o Placar depois da Rodada 2, com as Conquistas de cada um. Os valores são da versão anterior.</figcaption>
@@ -377,7 +392,7 @@ pnpm dev                      # Next em http://localhost:3000</pre>
 
 <div class="passo">
   <h3>4.7 Revelação no fim da Rodada <span class="quem">Jogador</span></h3>
-  <p>Quando a Rodada encerra, sua <code>PROMPT.EXE</code> mostra o <strong>REVELAÇÃO</strong>: o Prompt de referência do Desafio e o top 3, com Avatar, Nickname, Nota e prompt de cada um. Esse reveal fica até o Facilitador abrir a próxima Rodada.</p>
+  <p>Quando a Rodada encerra, sua <code>PROMPT.EXE</code> mostra o <strong>REVELAÇÃO</strong>: o Prompt de referência do Desafio e o top 3, com Avatar, Nickname, Nota e prompt de cada um. Esse reveal fica até o Facilitador abrir a próxima Rodada. O TOP 3 do overlay central e o efeito sonoro (seção 3.4) aparecem só no Telão, não na janela do Jogador.</p>
   <figure>
     <img src="screenshots/07-reveal-jogador.png" alt="Reveal da Rodada 1 na janela do Jogador">
     <figcaption>Captura 07 (execução de 13/10): reveal da Rodada 1 na janela do Joao.</figcaption>
@@ -601,6 +616,8 @@ pnpm dev                      # Next em http://localhost:3000</pre>
   <li><span class="caixa"></span>Reveal mostra o Prompt de referência (49).</li>
   <li><span class="caixa"></span>Reveal mostra o top 3 com Avatar, Nickname, Nota e prompt (50).</li>
   <li><span class="caixa"></span>O reveal continua até o Facilitador abrir a próxima Rodada (51).</li>
+  <li><span class="caixa"></span>Com o Telão aberto, encerrar a Rodada pelo painel mostra o TOP 3 no meio da tela, com efeito sonoro, por cerca de 6 segundos (novo nesta revisão; o som é conferido de ouvido).</li>
+  <li><span class="caixa"></span>O TOP 3 do overlay não aparece na janela do Jogador (novo nesta revisão).</li>
 </ul>
 
 <h3>Facilitador (histórias 52 a 64)</h3>
@@ -617,6 +634,7 @@ pnpm dev                      # Next em http://localhost:3000</pre>
   <li><span class="caixa"></span>RESETAR pede confirmação e apaga tudo (61).</li>
   <li><span class="caixa"></span>O Telão mostra Placar grande, cronômetro, envios e feed (62).</li>
   <li><span class="caixa"></span>O Telão mostra o reveal ao encerrar (63).</li>
+  <li><span class="caixa"></span>ENCERRAR RODADA no Telão encerra a Rodada e leva a janela para <code>/facilitador</code>, pronta para abrir a próxima. Com erro, a mensagem aparece e a Rodada continua aberta (novo nesta revisão).</li>
   <li><span class="caixa"></span>Reiniciar o servidor no meio da Rodada mantém os Jogadores, as Tentativas e o Placar (64). <em>Não coberto por este roteiro: teste reiniciando o processo de propósito.</em></li>
 </ul>
 
@@ -635,6 +653,7 @@ pnpm dev                      # Next em http://localhost:3000</pre>
   <tr><td>Notas e Placar esperados desta revisão</td><td>Script temporário que chama <code>evaluate()</code> e as funções de pontuação e Conquistas do motor sobre os textos da seção 5</td><td class="ok">Calculados. Os números da seção 5 vêm dessa conta. Não é uma execução de tela.</td></tr>
   <tr><td>Cenário automatizado (<code>verificacao/cenario-verificacao.cjs</code>)</td><td>Não repetido nesta revisão</td><td class="falha">Pendente. O script tem os valores da versão 4430dbe e vai falhar nas Notas. Veja o apêndice.</td></tr>
   <tr><td>Roteiro pelo navegador (quatro Jogadores + Facilitador + Telão)</td><td>Não repetido nesta revisão</td><td class="falha">Pendente. Os resultados abaixo são da execução de 13/10, no commit 4430dbe.</td></tr>
+  <tr><td>Telão: ENCERRAR RODADA e TOP 3 no meio da tela</td><td>Chrome DevTools em 14/10, com dados semeados pela API (Rodadas 1 e 2)</td><td class="ok">Funcionou: o botão encerra a Rodada e leva ao painel, e o encerramento pelo painel mostra o TOP 3 no Telão (capturas 12 a 14). Som não verificado.</td></tr>
 </table>
 
 <h3>Execução de 13/10 (commit 4430dbe): resultados históricos</h3>
@@ -696,6 +715,13 @@ pnpm dev                      # Next em http://localhost:3000</pre>
   <p><strong>O que acontece:</strong> pela regra de 14/10, "Papel: x" vale os 15 pontos de Papel. Antes da revisão, o mesmo texto valia 0. Teste com o Avaliador: "Papel: x. Contexto: x. Tarefa: x. Formato: x. Restrições: x. Exemplo: x." dá 71 pontos.</p>
   <p><strong>Impacto:</strong> um Jogador pode ganhar pontos com rótulos sem sentido. O roteiro usa rótulos vazios (<code>Papel: .</code>) para o caso "sem conteúdo".</p>
   <p><strong>Sugestão:</strong> decidir se o workshop quer exigir uma palavra com sentido, e não só uma letra. Se sim, é mudança da regra de Rótulo na spec, não do código.</p>
+</div>
+
+<div class="passo">
+  <h3>Achado 6 · Banco local criado antes de uma migração não recebe a tabela nova</h3>
+  <p><strong>O que acontece:</strong> <code>applyMigrationsIfNeeded</code> (<code>lib/engine/migrations.ts</code>) só aplica as migrações quando a tabela <code>Jogador</code> não existe. Um <code>data/workshop.db</code> criado antes da migração <code>20261014120000_polling_feed</code> não ganha a tabela <code>EventoFeed</code>. Então <code>/api/facilitator/poll</code> responde 500, e o painel e o Telão ficam sem dados. O log do servidor mostra <em>"SQLITE_ERROR: no such table: main.EventoFeed"</em>.</p>
+  <p><strong>Impacto:</strong> em um banco antigo, a tela não mostra o motivo. Além disso, um processo <code>pnpm dev</code> iniciado antes de uma troca de script continua rodando o código antigo, e o mesmo erro aparece.</p>
+  <p><strong>Como foi resolvido na execução de 14/10:</strong> <code>npx prisma migrate deploy</code> no banco local, depois de uma cópia de segurança do arquivo. <strong>Sugestão:</strong> rodar <code>pnpm db:deploy</code> antes de cada workshop, e reiniciar o <code>pnpm dev</code> depois de mudar o script de inicialização.</p>
 </div>
 
 <h3>Limitações desta revisão</h3>
