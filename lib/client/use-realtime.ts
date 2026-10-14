@@ -4,6 +4,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 import type { AttemptResult, PlayerState } from "@/lib/engine/engine";
 import type { FeedItem, LiveScoreboardEntry } from "@/lib/realtime";
+import { withTimeout } from "./with-timeout";
+
+// How long an Attempt may wait for its answer before the Player is told it did not go through.
+export const ATTEMPT_ANSWER_TIMEOUT_MS = 30_000;
 
 type OkState = Extract<PlayerState, { ok: true }>;
 
@@ -96,14 +100,18 @@ export function useRealtime({ token, onSessionInvalid, onProgress }: Options) {
 
   const submitAttempt = useCallback(
     (prompt: string) =>
-      new Promise<AttemptResult>((resolve) => {
-        const socket = socketRef.current;
-        if (!socket) {
-          resolve({ ok: false, error: "Sem conexão com o servidor. Tente de novo." });
-          return;
-        }
-        socket.emit("attempt:submit", prompt, resolve);
-      }),
+      withTimeout(
+        new Promise<AttemptResult>((resolve) => {
+          const socket = socketRef.current;
+          if (!socket) {
+            resolve({ ok: false, error: "Sem conexão com o servidor. Tente de novo." });
+            return;
+          }
+          socket.emit("attempt:submit", prompt, resolve);
+        }),
+        ATTEMPT_ANSWER_TIMEOUT_MS,
+        { ok: false, error: "Sem resposta do servidor. Verifique sua conexão e tente de novo." },
+      ),
     [],
   );
 
