@@ -30,13 +30,6 @@ const TITLES: Record<WindowId, string> = {
   tips: "DICAS.TXT",
 };
 
-const WIDTHS: Record<WindowId, number> = {
-  prompt: 560,
-  challenge: 340,
-  scoreboard: 360,
-  tips: 360,
-};
-
 const INITIAL_ORDER: WindowId[] = ["challenge", "scoreboard", "tips", "prompt"];
 
 // MS-DOS style desktop: four draggable, minimizable windows saved in the browser.
@@ -129,9 +122,9 @@ export function Desktop({ nickname, initials, token, onSessionInvalid }: Props) 
               key={id}
               title={TITLES[id]}
               state={windows[id]}
-              width={WIDTHS[id]}
               inFront={order[order.length - 1] === id}
               onMove={(x, y) => changeWindow(id, { x, y })}
+              onResize={(width, height) => changeWindow(id, { width, height })}
               onFocus={() => focus(id)}
               onMinimize={() => toggleMinimized(id)}
             >
