@@ -24,7 +24,7 @@ index ae1a5e7..4be244d 100644
      return run;
    }
 diff --git a/lib/engine/prisma.ts b/lib/engine/prisma.ts
-index 8c3d1db..bce9c4a 100644
+index 8c3d1db..3a8e00b 100644
 --- a/lib/engine/prisma.ts
 +++ b/lib/engine/prisma.ts
 @@ -1,6 +1,20 @@
@@ -38,7 +38,7 @@ index 8c3d1db..bce9c4a 100644
 +  return base.$extends({
 +    query: {
 +      async $allOperations({ model, operation, args, query }) {
-+        const label = caller.getStore() ?? "sem-rotulo";
++        const label = caller.getStore() ?? "untagged";
 +        const key = `${label} ${model}.${operation}`;
 +        queries[key] = (queries[key] ?? 0) + 1;
 +        const startedAt = performance.now();
@@ -51,7 +51,7 @@ index 8c3d1db..bce9c4a 100644
  }
 diff --git a/lib/instrumentation.ts b/lib/instrumentation.ts
 new file mode 100644
-index 0000000..8355498
+index 0000000..99e80b2
 --- /dev/null
 +++ b/lib/instrumentation.ts
 @@ -0,0 +1,37 @@
@@ -73,10 +73,10 @@ index 0000000..8355498
 +const pctl = (arr: number[], p: number) => { const a = [...arr].sort((x, y) => x - y); return a.length ? a[Math.min(a.length - 1, Math.floor(p * a.length))] : null; };
 +
 +process.on("exit", () => {
-+  if (process.env.SAIDA_INSTRUMENTACAO) {
++  if (process.env.INSTRUMENTATION_FILE) {
 +    const ms = (ns: number) => ns / 1e6;
 +    writeFileSync(
-+      process.env.SAIDA_INSTRUMENTACAO,
++      process.env.INSTRUMENTATION_FILE,
 +      JSON.stringify(
 +        {
 +          queries,

@@ -12,10 +12,10 @@
 
 ## Comments
 
-Done in `.scratch/workshop-game/relatorio-testes/perfil-cpu.md`. Summary:
+Done in `.scratch/workshop-game/relatorio-testes/cpu-profile-findings.md`. Summary:
 
-- Baseline, 150 Players, 450 of 450 accepted: ack p50 10.0 s, p95 10.7 s, CPU peak 109% of one core.
-- The per-Player state reads after each submission make up 95.8% of database queries. The submission itself takes a median of 9.4 ms on the server, and the engine queue adds 0 ms of wait.
+- Baseline, 150 Players, 450 of 450 accepted: ack p50 11 to 12 s, p95 12 to 14 s, CPU peak 113% of one core. Two identical runs differ by 1.3 s at p50, so the spread is part of the reference.
+- The per-Player state reads after each submission make up 95.8% of database queries. The submission itself takes a median of 10.4 ms on the server, and the engine queue adds 0 ms of wait at p50 and p95.
 - The second box is not fully met as written. The sampled CPU profile loses its caller after each `await`, so only 3.5% of database time has an application frame and the profile cannot split it by caller. The per-caller split comes from a labeled copy of the build instead, so the box stays open. Either the profile needs a different attribution method, or the box should be reworded to accept the labeled-query split.
 
 ## Context

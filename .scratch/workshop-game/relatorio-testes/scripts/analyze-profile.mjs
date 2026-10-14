@@ -1,7 +1,7 @@
 // Summarizes a .cpuprofile (from node --cpu-prof) into time shares for the submission path.
 // Inclusive shares count a sample under every matching caller, so the rows overlap; the
 // "self time" list gives the exclusive view. Time per sample = gap to the next sample.
-// Usage: node analisar-perfil.mjs <profile.cpuprofile>
+// Usage: node analyze-profile.mjs <profile.cpuprofile>
 import { readFileSync } from "node:fs";
 
 const profile = JSON.parse(readFileSync(process.argv[2], "utf8"));

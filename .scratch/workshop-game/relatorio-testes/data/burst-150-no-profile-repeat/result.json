@@ -1,0 +1,40 @@
+{
+  "playersRequested": 150,
+  "entryFailures": 0,
+  "connected": 150,
+  "entryAndConnectMs": 2638,
+  "openRoundMs": 229,
+  "attemptsSent": 450,
+  "responses": {
+    "ok": 450,
+    "refused": 0,
+    "noResponse": 0
+  },
+  "refusalReasons": {},
+  "ackLatencyMs": {
+    "p50": 12279,
+    "p95": 14023,
+    "p99": 14053,
+    "max": 14078
+  },
+  "sendPhaseMs": 38339,
+  "closeRoundMs": 94,
+  "roundClosed": true,
+  "broadcastsReceived": {
+    "scoreboard": 79125,
+    "playerState": 67950,
+    "feed": 75600,
+    "sessionInvalid": 0
+  },
+  "broadcastsPerSocket": {
+    "scoreboard": 527.5,
+    "playerState": 453
+  },
+  "clientLoopLagMs": {
+    "p50": 5.070847,
+    "p95": 14.139391,
+    "max": 445.382655
+  },
+  "probeRttMs": [],
+  "durationS": 43
+}

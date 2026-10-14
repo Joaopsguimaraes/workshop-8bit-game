@@ -1,15 +1,18 @@
 #!/bin/bash
 # One burst run against the production build, with or without the CPU profile.
-# Uses a fresh SQLite file so every run starts from an empty Room.
-# Usage: run-burst.sh <rajada|espalhado> <players> <profile|no-profile> <work-dir> <out-dir>
-# Needs `pnpm exec next build` at the repo root first.
+# Starts from a fresh SQLite file, so every run begins with an empty Room.
+# Usage: run-burst.sh <burst|spread> <players> <profile|no-profile> <work-dir> <out-dir>
+# Environment:
+#   PROBE=1              adds the transport probe (see burst-load-probe.mjs)
+#   REPO_UNDER_TEST      checkout to run instead of this repo (used for the instrumented copy)
+#   INSTRUMENTATION_FILE where the instrumented copy writes its counters at exit (instrumented copy only)
+# Needs `pnpm exec next build` in the repo under test first.
 set -euo pipefail
 
 MODE=$1; PLAYERS=$2; PROFILE=$3
-REPO=${REPO_ALVO:-/home/joao-victor-guimaraes/studies-projects/workshop-prompt-engineering}
-REPORT=/home/joao-victor-guimaraes/studies-projects/workshop-prompt-engineering/.scratch/workshop-game/relatorio-testes
+REPORT_DIR=$(cd "$(dirname "$0")/.." && pwd)
+REPO=${REPO_UNDER_TEST:-$(cd "$REPORT_DIR/../../.." && pwd)}
 PORT=3100
-# Resolved before the script changes directory.
 WORK=$(realpath -m "$4"); OUT=$(realpath -m "$5")
 
 rm -rf "$WORK" && mkdir -p "$WORK/profile" "$OUT"
@@ -22,7 +25,8 @@ fi
 
 cd "$REPO"
 env PORT=$PORT NODE_ENV=production FACILITADOR_PIN=4321 DATABASE_URL="file:$DB" \
-  node "${PROFILE_FLAGS[@]}" --import tsx --import "$REPORT/scripts/stop-on-sigint.mjs" server.ts \
+  INSTRUMENTATION_FILE="${INSTRUMENTATION_FILE:-}" \
+  node "${PROFILE_FLAGS[@]}" --import tsx --import "$REPORT_DIR/scripts/stop-on-sigint.mjs" server.ts \
   > "$WORK/server.log" 2>&1 &
 SERVER=$!
 
@@ -32,18 +36,21 @@ for _ in $(seq 1 120); do
 done
 grep -q "Pronto" "$WORK/server.log" || { echo "server did not start"; cat "$WORK/server.log"; kill "$SERVER"; exit 1; }
 
-# CPU % of one core and RSS, sampled once a second from /proc (see amostrar.sh).
-bash "$REPORT/scripts/amostrar.sh" "$SERVER" "$WORK/cpu.txt" 60 &
+# CPU % of one core, RSS and bytes written, sampled once a second from /proc.
+bash "$REPORT_DIR/scripts/sample-server.sh" "$SERVER" "$WORK/cpu.txt" 60 &
 SAMPLER=$!
 
-node "${CARGA:-$REPORT/scripts/carga.mjs}" "$PLAYERS" 3 "$MODE" trabalho-remoto > "$WORK/resultado.json"
+node "$REPORT_DIR/scripts/burst-load-probe.mjs" "$PLAYERS" 3 "$MODE" trabalho-remoto > "$WORK/result.json"
 
 wait "$SAMPLER"
 kill -INT "$SERVER"
 wait "$SERVER" || true
 
-cp "$WORK/resultado.json" "$WORK/cpu.txt" "$WORK/server.log" "$OUT/"
+cp "$WORK/result.json" "$WORK/cpu.txt" "$WORK/server.log" "$OUT/"
 if [ "$PROFILE" = "profile" ]; then
   cp "$WORK"/profile/*.cpuprofile "$OUT/profile.cpuprofile"
+fi
+if [ -n "${INSTRUMENTATION_FILE:-}" ] && [ -f "$INSTRUMENTATION_FILE" ]; then
+  cp "$INSTRUMENTATION_FILE" "$OUT/"
 fi
 echo "done: $OUT"
