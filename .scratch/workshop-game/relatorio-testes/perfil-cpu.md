@@ -4,7 +4,7 @@ Confirms or refines finding F1 in `index.html` (answer time grows with connected
 
 ## Result in one paragraph
 
-The cause of the slow acks is the refresh that runs after every submission, and it is confirmed as the dominant cost. 95.8% of the 212,514 database queries in the burst come from the per-Player state reads (`sendPlayerState`, 3 queries each, 67,850 calls for 450 Attempts). The submission itself is cheap: on the server, from the moment the `attempt:submit` handler starts to the moment the ack is sent, the median is 9.4 ms (p95 16.8 ms). The engine's `exclusive()` queue adds no measurable wait (0 ms at p50, p95 and max). The mechanism is that the event loop stays busy with earlier submissions' refresh work, so even a probe that does no database work waits 0.6 to 13.7 s for its reply. This refines F1: the fix is to stop the refresh work from occupying the event loop, not to speed up the submission or the queue.
+The cause of the slow acks is the refresh that runs after every submission, and it is confirmed as the dominant cost. 95.8% of the 212,514 database queries in the burst come from the per-Player state reads (`sendPlayerState`, about 3 queries per call: 203,550 queries, roughly 67,850 calls for 450 Attempts). The submission itself is cheap: on the server, from the moment the `attempt:submit` handler starts to the moment the ack is sent, the median is 9.4 ms (p95 16.8 ms). The engine's `exclusive()` queue adds no measurable wait (0 ms at p50, p95 and max). The mechanism is that the event loop stays busy with earlier submissions' refresh work, so even a probe that does no submission work waits 0.6 to 13.7 s for its reply. This refines F1: the fix is to stop the refresh work from occupying the event loop, not to speed up the submission or the queue.
 
 ## Numbers the next tickets must improve on
 
@@ -56,7 +56,7 @@ Time measures from the same run:
 
 The submission takes about 10 ms on the server, but the client waits about 10.6 s for the ack. The probe shows the wait is not in the submission code:
 
-- The probe sends `attempt:submit` with a number instead of a prompt. The server answers at once with a refusal, with no database work.
+- The probe sends `attempt:submit` with a number instead of a prompt. The server answers at once with a refusal, with no submission work. It still runs the full per-Player refresh afterwards (`lib/realtime.ts` calls `updateAll()` after `respond()`, even for refused submissions), so each probe adds about one refresh. The reply is sent before that refresh starts, so the delay measured by the probe comes from earlier refreshes, not from its own.
 - Across 37 probes during the burst, round trips range from 0.57 s to 13.7 s. The replies come back in batches about 12 s apart, so responses to probes sent at different times arrive together.
 - The batch pattern matches the long server event-loop stall (max 11.7 s) and the ack spread, so the delay is in the server's event loop and outgoing path.
 
