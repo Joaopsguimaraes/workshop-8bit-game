@@ -33,6 +33,8 @@ export function installRealtime({ httpServer, engine, presence }: Deps) {
   let nextId = 1;
   engine.subscribe((event) => {
     if (event.type === "round-closed") roundsClosed++;
+    // A Player entering changes the Facilitator's list; the Player is not connected yet, so no socket event tells us.
+    if (event.type === "player-joined") requestFacilitatorState();
     const item: FeedItem = { id: nextId++, event };
     if (event.type === "match-reset") {
       // New match: the old feed leaves everyone's screen, including the big screen.
@@ -110,26 +112,43 @@ export function installRealtime({ httpServer, engine, presence }: Deps) {
     }
   }
 
+  // The Facilitator state is read one at a time, like the Scoreboard, so a burst of changes (for example, 12 Players
+  // entering in a row) cannot leave an older state on screen after a newer one. Each read sees the latest data.
+  let facilitatorReading = false;
+  let facilitatorStale = false;
+
+  function requestFacilitatorState() {
+    facilitatorStale = true;
+    if (facilitatorReading) return;
+    void sendFacilitatorState();
+  }
+
   async function sendFacilitatorState() {
+    facilitatorReading = true;
+    facilitatorStale = false;
     try {
       io.to(FACILITATOR_ROOM).emit("facilitator:state", await engine.facilitatorState());
     } catch (error) {
       // A failure reading the Facilitator state must not block the send to the Players.
       console.error("Falha ao enviar o estado do Facilitador", error);
+    } finally {
+      facilitatorReading = false;
+      // A change arrived while this read was running: it goes out next.
+      if (facilitatorStale) requestFacilitatorState();
     }
   }
 
   // After any state change: each Player receives only their own state.
   async function updateAll() {
     requestScoreboard();
-    await sendFacilitatorState();
+    requestFacilitatorState();
     await sendPlayerStates(() => true);
   }
 
   // After an Attempt: only the Player who sent it gets a new state, on every tab they have open.
   async function updateAfterAttempt(playerId: string) {
     requestScoreboard();
-    await sendFacilitatorState();
+    requestFacilitatorState();
     await sendPlayerStates((socket) => socket.data.playerId === playerId);
   }
 
@@ -149,6 +168,7 @@ export function installRealtime({ httpServer, engine, presence }: Deps) {
     socket.on("disconnect", () => {
       presence.disconnect(socket.id);
       requestScoreboard();
+      requestFacilitatorState();
     });
 
     socket.on("attempt:submit", async (prompt: unknown, respond?: unknown) => {
@@ -215,7 +235,7 @@ export function installRealtime({ httpServer, engine, presence }: Deps) {
       await updateAll();
     });
 
-    void sendFacilitatorState();
+    requestFacilitatorState();
     // The big screen needs the Scoreboard as soon as it opens; the Scoreboard is otherwise only sent after a change.
     requestScoreboard();
   }

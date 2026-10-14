@@ -51,6 +51,23 @@ async function connectFacilitator(): Promise<ClientSocket> {
   return socket;
 }
 
+// Connects a Facilitator and records every state they receive, starting with the one sent on connection.
+async function connectFacilitatorRecording() {
+  const cookie = `${FACILITATOR_COOKIE_NAME}=${createFacilitatorSession(processSecret(), new Date())}`;
+  const socket = connect(url, { extraHeaders: { cookie }, forceNew: true, transports: ["websocket"] });
+  clients.push(socket);
+  const states: FacilitatorState[] = [];
+  socket.on("facilitator:state", (state: FacilitatorState) => states.push(state));
+  await waitFor(() => socket.connected);
+  return { socket, states };
+}
+
+type FacilitatorState = { players: { nickname: string }[] };
+
+function listedNicknames(state: FacilitatorState | undefined) {
+  return state?.players.map((player) => player.nickname) ?? [];
+}
+
 function submit(client: ClientSocket, prompt: string) {
   return new Promise((resolve) => client.emit("attempt:submit", prompt, resolve));
 }
@@ -143,6 +160,55 @@ describe("Round broadcasts", () => {
 
     expect(ana.playerStates).toHaveLength(1);
     expect(bruno.playerStates).toHaveLength(1);
+  });
+});
+
+describe("Facilitator broadcasts", () => {
+  it("lists a Player as soon as they enter, without any other action", async () => {
+    const facilitator = await connectFacilitatorRecording();
+    await pause(100);
+
+    await enterAs("Ana");
+
+    await waitFor(() => listedNicknames(facilitator.states.at(-1)).includes("Ana"));
+    expect(listedNicknames(facilitator.states.at(-1))).toEqual(["Ana"]);
+  });
+
+  it("lists all 12 Players when they enter in a row", async () => {
+    const facilitator = await connectFacilitatorRecording();
+    const nicknames = Array.from({ length: 12 }, (_, index) => `Jogadora${index}`);
+
+    for (const nickname of nicknames) await enterAs(nickname);
+
+    await waitFor(() => listedNicknames(facilitator.states.at(-1)).length === 12);
+    expect(listedNicknames(facilitator.states.at(-1))).toEqual(nicknames);
+  });
+
+  it("sends a new list when a Player's connection drops", async () => {
+    const ana = await connectPlayer(await enterAs("Ana"));
+    const facilitator = await connectFacilitatorRecording();
+    await waitFor(() => facilitator.states.length >= 1);
+    const sentBefore = facilitator.states.length;
+
+    ana.socket.disconnect();
+
+    await waitFor(() => facilitator.states.length > sentBefore);
+    expect(listedNicknames(facilitator.states.at(-1))).toEqual(["Ana"]);
+  });
+
+  it("drops a removed Player from the list", async () => {
+    await enterAs("Ana");
+    const facilitator = await connectFacilitatorRecording();
+    await enterAs("Bruno");
+    await waitFor(() => listedNicknames(facilitator.states.at(-1)).includes("Bruno"));
+    const bruno = (await engine.facilitatorState()).players.find((p) => p.nickname === "Bruno");
+
+    await new Promise((resolve) =>
+      facilitator.socket.emit("facilitator:removePlayer", { playerId: bruno?.id }, resolve),
+    );
+
+    await waitFor(() => !listedNicknames(facilitator.states.at(-1)).includes("Bruno"));
+    expect(listedNicknames(facilitator.states.at(-1))).toEqual(["Ana"]);
   });
 });
 
