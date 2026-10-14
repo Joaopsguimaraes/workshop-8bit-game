@@ -6,13 +6,13 @@ Status: ready-for-agent
 
 In a prompt engineering workshop, the Facilitator needs to teach a whole class to write **structured** prompts: with a role, context, a clear task, format, constraints and examples. Today the material is static. The reference activity is a single-page HTML: each person does the exercise alone, pastes an LLM's answer and gets a score that only they see. There is no sense of class, competition, progress across the workshop, or a shared moment to learn from colleagues' prompts. The Facilitator has no way to run the class at the same pace or to see, in real time, who is engaged.
 
-For the participant, there is no immediate, specific feedback on *what* is missing from their prompt. There is also no fun reason to try again and improve.
+For the participant, there is no immediate, specific feedback on *what* is missing from their prompt, and no credit for prompts that are partly well structured. There is also no fun reason to try again and improve.
 
 ## Solution
 
 A real-time web application with the feel of a game: an MS-DOS desktop with an 8-bit aesthetic, all in pt-BR. Each Player logs in with only a Nickname and gets an Avatar made of the first two letters of the name. The Facilitator runs the workshop in Rounds. They open a Challenge (a scenario such as "write the prompt that schedules an alignment meeting"), and all Players write prompts in their personal Window (`PROMPT.EXE`), with up to 3 Attempts per Round.
 
-Each Attempt gets a Score from 0 to 100 immediately, calculated **without calling any LLM**: the prompt itself is evaluated against six structure Criteria (Role, Context, Task, Format, Constraints, Examples). The Player sees a ✓/✕ checklist with a tip for each Criterion that is missing. The best Attempt of the Round goes onto the Scoreboard, which everyone sees live, together with an event feed, Achievements, 8-bit sounds and LEVEL UP animations.
+Each Attempt gets a Score from 0 to 100 immediately, calculated **without calling any LLM**: the prompt itself is evaluated against eight structure Criteria (Role, Context, Task, Format, Constraints, Examples, Delimiters, Uncertainty). Each Criterion is scored by the strength of its signal: an explicit label with content gives full points, a clear natural phrase gives most of the points, and a weak mention gives a small share. The Player sees a checklist with ✓, parcial or ✕ for each Criterion, and the window `DICAS.TXT` lists a tip for each Criterion that is missing or partial, ordered by the points lost, with a link to the reference section of the Anthropic prompting documentation. The best Attempt of the Round goes onto the Scoreboard, which everyone sees live, together with an event feed, Achievements, 8-bit sounds and LEVEL UP animations.
 
 The other Players' prompts stay hidden during the Round. When the Facilitator closes the Round, everyone sees the Challenge's Reference prompt and the prompts of the top 3. This is the moment of collective learning. The Facilitator projects everything on the Big screen.
 
@@ -31,7 +31,7 @@ The other Players' prompts stay hidden during the Round. When the Facilitator cl
 
 ### Desktop and Window
 
-9. As a Player, I want to see an MS-DOS-style desktop with the windows `PROMPT.EXE`, `DESAFIO.TXT` and `PLACAR.EXE`, so I feel I am inside a retro game.
+9. As a Player, I want to see an MS-DOS-style desktop with the windows `PROMPT.EXE`, `DESAFIO.TXT`, `DICAS.TXT` and `PLACAR.EXE`, so I feel I am inside a retro game.
 10. As a Player, I want to drag, minimize and restore the desktop windows, so I can organize the screen my way.
 11. As a Player, I want the position of my windows to be saved in my browser, so I do not have to rearrange the screen after reloading.
 12. As a Player, I want only me to see my Window, so I can write my prompts without anyone copying them.
@@ -45,68 +45,76 @@ The other Players' prompts stay hidden during the Round. When the Facilitator cl
 17. As a Player, I want to write my prompt in a free text field, not a form with ready-made fields, so I learn to structure the prompt myself.
 18. As a Player, I want to submit my prompt and get the Score right away, so I can iterate quickly.
 19. As a Player, I want to see the Score from 0 to 100 with a short verdict ("Na mosca!", "Quase lá", etc.), so I can tell at a glance how I did.
-20. As a Player, I want to see the checklist of the six Criteria with ✓/✕ and the points of each, so I know exactly where I gained and lost points.
-21. As a Player, I want to see a practical tip for each Criterion I did not meet, so I know how to improve on my next Attempt.
+20. As a Player, I want to see the checklist of the eight Criteria with ✓, parcial or ✕ and the points of each, so I know exactly where I gained and lost points.
+21. As a Player, I want a practical tip for each Criterion that is missing or only partly met, ordered by the points I lost, so I know what to improve on my next Attempt first.
 22. As a Player, I want to see the excerpt of my prompt that met a Criterion, so I understand what the system recognized.
-23. As a Player, I want the system to recognize my prompt's structure both with explicit labels (`Papel:`, `## Contexto`, `<contexto>`) and with natural phrases ("Atue como…", "Responda em…"), so I am not penalized for writing naturally.
+23. As a Player, I want the system to recognize my prompt's structure with explicit labels (`Papel:`, `## Contexto`, `**Tarefa**`, `<contexto>…</contexto>`) and with natural phrases ("Você é…", "Atue como…", "Responda em…", "Sendo um especialista…"), so I am not penalized for writing naturally.
 24. As a Player, I want prompts written in English to be recognized too, so I can practice in the language I use day to day.
-25. As a Player, I want a Criterion to count only when there is real content, not just an empty label, so the Score reflects a prompt that is truly well structured.
-26. As a Player, I want the Task Criterion to require my prompt to address the Challenge's subject, so that reusing a prompt from another Round does not work.
+25. As a Player, I want a labeled Criterion to count in full as soon as the label has some content, such as `Papel: consultor`, so a short but explicit structure is rewarded, while an empty label does not count.
+26. As a Player, I want the Task Criterion to recognize my prompt's action and to reward it more when the prompt also addresses the Challenge's subject, so that reusing a prompt from another Round scores less.
 27. As a Player, I want to see the history of my Round's Attempts with prompt and Score, so I can compare versions and learn from my progress.
 28. As a Player, I want to be prevented from submitting an empty prompt or one with more than 4,000 characters, and to see the reason, so I do not waste an Attempt by mistake.
 29. As a Player, I want submitting to be blocked when my 3 Attempts are used up, so I understand that I have used them all.
 30. As a Player, I want submitting to be blocked when the Round closes, even if I was typing, so everyone plays under the same rules.
+31. As a Player, I want a prompt that tells the model what to do when information is missing (for example, "escreva 'não informado'") to be recognized as Uncertainty handling, so the Score rewards the habit of not guessing.
+32. As a Player, I want a prompt that separates its parts with delimiters (tags, headings or separators) to be recognized as Delimiters, so the Score rewards clear structure.
 
 ### Scoreboard and events
 
-31. As a Player, I want to see all Players with Avatar, Nickname and total score in `PLACAR.EXE`, ordered, so I know my position.
-32. As a Player, I want the Scoreboard to update in real time when any Player submits an Attempt, so I can feel the competition happening.
-33. As a Player, I want only my best Attempt of each Round to count on the Scoreboard, so I can take risks without fear of making things worse.
-34. As a Player, I want the total to be the sum of my best Scores from each Round, so consistency across the workshop is rewarded.
-35. As a Player, I want ties to be decided by fewer Attempts used and then by who reached the Score first, so the tiebreaker is fair and predictable.
-36. As a Player, I want to see each Player's status on the Scoreboard (online, offline, sent in the Round, Attempts used), so I know who is active.
-37. As a Player, I want to stay on the Scoreboard with my points even when I go offline, so I do not lose progress because of my connection.
-38. As a Player, I want a live event feed ("JO tirou 100!", "AN enviou a 2ª Tentativa", "MA ganhou Evolução"), so I can follow the game even without seeing other Players' Windows.
-39. As a Player, I want to never see another Player's prompt text during the Round, so the competition is fair.
+33. As a Player, I want to see all Players with Avatar, Nickname and total score in `PLACAR.EXE`, ordered, so I know my position.
+34. As a Player, I want the Scoreboard to update in real time when any Player submits an Attempt, so I can feel the competition happening.
+35. As a Player, I want only my best Attempt of each Round to count on the Scoreboard, so I can take risks without fear of making things worse.
+36. As a Player, I want the total to be the sum of my best Scores from each Round, so consistency across the workshop is rewarded.
+37. As a Player, I want ties to be decided by fewer Attempts used and then by who reached the Score first, so the tiebreaker is fair and predictable.
+38. As a Player, I want to see each Player's status on the Scoreboard (online, offline, sent in the Round, Attempts used), so I know who is active.
+39. As a Player, I want to stay on the Scoreboard with my points even when I go offline, so I do not lose progress because of my connection.
+40. As a Player, I want a live event feed ("JO tirou 100!", "AN enviou a 2ª Tentativa", "MA ganhou Evolução"), so I can follow the game even without seeing other Players' Windows.
+41. As a Player, I want to never see another Player's prompt text during the Round, so the competition is fair.
 
 ### Achievements and game feedback
 
-40. As a Player, I want to earn the **Na mosca** Achievement by scoring 100 on an Attempt, so I am recognized for a perfect prompt.
-41. As a Player, I want to earn the **De primeira** Achievement by scoring 100 already on the Round's 1st Attempt, so I am recognized for getting it right without iterating.
-42. As a Player, I want to earn the **Primeiro sangue** Achievement by making the first submission of the Round, so I am rewarded for speed.
-43. As a Player, I want to earn the **Evolução** Achievement when one of my Attempts beats my first Attempt of the same Round by 30 points or more, so I am rewarded for reading the feedback and improving.
-44. As a Player, I want to earn the **Campeão da Rodada** Achievement by finishing first in the Round, so I have a trophy per Round.
-45. As a Player, I want to see my Achievements and those of other Players on the Scoreboard, so I can compare.
-46. As a Player, I want to see a LEVEL UP animation when my Score improves or I move up on the Scoreboard, so I can feel my progression.
-47. As a Player, I want to hear 8-bit sound effects when I submit, when I receive my Score and when I move up in position, so the game is more fun.
-48. As a Player, I want sound to start off and to have a button to turn it on, so it does not disturb the workshop room.
+42. As a Player, I want to earn the **Na mosca** Achievement by scoring 100 on an Attempt, so I am recognized for a perfect prompt.
+43. As a Player, I want to earn the **De primeira** Achievement by scoring 100 already on the Round's 1st Attempt, so I am recognized for getting it right without iterating.
+44. As a Player, I want to earn the **Primeiro sangue** Achievement by making the first submission of the Round, so I am rewarded for speed.
+45. As a Player, I want to earn the **Evolução** Achievement when one of my Attempts beats my first Attempt of the same Round by 30 points or more, so I am rewarded for reading the feedback and improving.
+46. As a Player, I want to earn the **Campeão da Rodada** Achievement by finishing first in the Round, so I have a trophy per Round.
+47. As a Player, I want to see my Achievements and those of other Players on the Scoreboard, so I can compare.
+48. As a Player, I want to see a LEVEL UP animation when my Score improves or I move up on the Scoreboard, so I can feel my progression.
+49. As a Player, I want to hear 8-bit sound effects when I submit, when I receive my Score and when I move up in position, so the game is more fun.
+50. As a Player, I want sound to start off and to have a button to turn it on, so it does not disturb the workshop room.
 
 ### End of Round and learning
 
-49. As a Player, I want to see the Challenge's Reference prompt when the Round closes, so I can compare it with mine and learn.
-50. As a Player, I want to see the prompts of the Round's top 3, with Avatar and Score, when it closes, so I can learn from those who did best.
-51. As a Player, I want to keep seeing the reveal of the last Round until the Facilitator opens the next one, so I have time to read and discuss.
+51. As a Player, I want to see the Challenge's Reference prompt when the Round closes, so I can compare it with mine and learn.
+52. As a Player, I want to see the prompts of the Round's top 3, with Avatar and Score, when it closes, so I can learn from those who did best.
+53. As a Player, I want to keep seeing the reveal of the last Round until the Facilitator opens the next one, so I have time to read and discuss.
 
 ### Facilitator
 
-52. As a Facilitator, I want to enter through the `/facilitador` route with a PIN, so that only I control the game.
-53. As a Facilitator, I want not to appear on the Scoreboard, so the ranking shows only Players.
-54. As a Facilitator, I want to see the list of Challenges marking those already played in this match, so I can choose the next one.
-55. As a Facilitator, I want to open a Round with the chosen Challenge, so all Players start at the same time.
-56. As a Facilitator, I want to optionally set a timer when opening the Round, so I can control the workshop's time.
-57. As a Facilitator, I want the Round to close on its own when the timer reaches zero, so I do not have to keep an eye on the clock.
-58. As a Facilitator, I want to close the Round manually at any time, so I can adapt the pace to the class.
-59. As a Facilitator, I want to see how many Players have already submitted in the current Round, so I can decide when to close it.
-60. As a Facilitator, I want to remove a Player (for example, for an offensive Nickname), freeing the Nickname and taking them off the Scoreboard, so I can keep the environment appropriate.
-61. As a Facilitator, I want to reset the match, deleting Players, Attempts, Achievements and Rounds after a confirmation, so I can start a new workshop from scratch.
-62. As a Facilitator, I want a full-screen Big screen mode with the large Scoreboard, the timer, the submission count and the event feed, so I can project it for the class.
-63. As a Facilitator, I want the Big screen to show the reveal (Reference prompt and top 3) when the Round closes, so I can lead the discussion with everyone looking at the same screen.
-64. As a Facilitator, I want the match to survive a server restart in the middle of the workshop, so the class does not lose progress.
+54. As a Facilitator, I want to enter through the `/facilitador` route with a PIN, so that only I control the game.
+55. As a Facilitator, I want not to appear on the Scoreboard, so the ranking shows only Players.
+56. As a Facilitator, I want to see the list of Challenges marking those already played in this match, so I can choose the next one.
+57. As a Facilitator, I want to open a Round with the chosen Challenge, so all Players start at the same time.
+58. As a Facilitator, I want to optionally set a timer when opening the Round, so I can control the workshop's time.
+59. As a Facilitator, I want the Round to close on its own when the timer reaches zero, so I do not have to keep an eye on the clock.
+60. As a Facilitator, I want to close the Round manually at any time, so I can adapt the pace to the class.
+61. As a Facilitator, I want to see how many Players have already submitted in the current Round, so I can decide when to close it.
+62. As a Facilitator, I want to remove a Player (for example, for an offensive Nickname), freeing the Nickname and taking them off the Scoreboard, so I can keep the environment appropriate.
+63. As a Facilitator, I want to reset the match, deleting Players, Attempts, Achievements and Rounds after a confirmation, so I can start a new workshop from scratch.
+64. As a Facilitator, I want a full-screen Big screen mode with the large Scoreboard, the timer, the submission count and the event feed, so I can project it for the class.
+65. As a Facilitator, I want the Big screen to show the reveal (Reference prompt and top 3) when the Round closes, so I can lead the discussion with everyone looking at the same screen.
+66. As a Facilitator, I want the match to survive a server restart in the middle of the workshop, so the class does not lose progress.
 
 ### Challenges
 
-65. As a Facilitator, I want the match to come with five ready Challenges, in increasing difficulty, so I do not have to prepare content before the workshop.
-66. As a Facilitator, I want to be able to review and edit the Challenges' text in a versioned file before the workshop, so I can adjust the content to the class.
+67. As a Facilitator, I want the match to come with five ready Challenges, in increasing difficulty, so I do not have to prepare content before the workshop.
+68. As a Facilitator, I want to be able to review and edit the Challenges' text in a versioned file before the workshop, so I can adjust the content to the class.
+
+### Tips window and prompt guide
+
+69. As a Player, I want a floating `DICAS.TXT` window that is updated after each Attempt with the tips for that prompt, so I know what to improve on the next one.
+70. As a Player, I want the same `DICAS.TXT` window to show a fixed guide to a good prompt (role, context, task, format, constraints, examples, delimiters, uncertainty), so I can learn even between Attempts.
+71. As a Player, I want each tip to point to the section of the Anthropic prompting documentation it comes from, so I can read more on the subject.
 
 ## Implementation Decisions
 
@@ -123,26 +131,32 @@ The other Players' prompts stay hidden during the Round. When the Facilitator cl
 ### Modules
 
 1. **Evaluator** (deep module, pure, no I/O). Interface: `evaluate(prompt, challenge) → Evaluation`.
-   - `Evaluation` = Score (0–100), verdict (title and text) and the list of the six Criteria. Each item in the list carries the Criterion's id and name, whether it was met, the points obtained and the maximum, the tip (when not met) and the recognized excerpt (when met).
-   - Fixed Criteria, the same for all Challenges (the display names are the pt-BR names shown in the UI, and the recognized markers are pt-BR and English input, which the Evaluator matches):
+   - `Evaluation` = Score (0–100), verdict (title and text) and the list of the eight Criteria. Each item carries the Criterion's id and name, its maximum, the points obtained, the strength level reached (full, partial or missing), the tip (when points are below the maximum) and the recognized excerpt (when there is any signal).
+   - **Scoring by strength**: each Criterion has three levels, and the points are the maximum times the level, rounded to the nearest integer. The Score is the sum of the points, from 0 to 100.
+     - **Full (100%)**: an explicit label with content. Labels can appear as `Rótulo:`, `## Rótulo`, `**Rótulo**`, `<rotulo>…</rotulo>` or `<rotulo>` with a closing tag. The label must be followed by at least one word of content (a letter or a digit). An empty label does not count.
+     - **Partial (70%)**: a clear natural marker in a sentence with at least 4 words beyond the marker (for example, "Você é um analista…").
+     - **Weak (30%)**: a single marker word or a loose mention without the 4-word sentence.
+     - A Criterion can reach a level from more than one signal; the highest level wins, and the points are not added up.
+   - Fixed Criteria, the same for all Challenges. The display names are the pt-BR names shown in the UI. The recognized markers are pt-BR and English input, matched case- and accent-insensitive:
 
-     | Criterion | Points | Recognizes (pt-BR and English, case- and accent-insensitive) |
-     |---|---|---|
-     | Papel | 15 | "você é", "atue/aja como", "seu papel", label `Papel:`/`Persona:`/`Role:`, "you are", "act as" |
-     | Contexto | 20 | label `Contexto:`/`Context:`, audience ("para a diretoria", "o público é"), situation ("estou/estamos…"), goal ("o objetivo é…") |
-     | Tarefa | 20 | action verb in the imperative (liste, escreva, redija, resuma, extraia, gere, identifique, crie, analise; list, write…) **and** at least 2 distinct groups of the Challenge's Keywords |
-     | Formato | 20 | "formato", list or bullets, numbered, table, JSON, markdown, titles, item count ("3 itens"), size ("no máximo N palavras"), label `Formato:`/`Format:` |
-     | Restrições | 15 | "não inclua/use/escreva", "evite", "sem …", "apenas", "somente", "no máximo", "nunca", label `Restrições:`, "don't", "avoid", "only" |
-     | Exemplos | 10 | "por exemplo", "exemplo:", "ex.:", a quoted excerpt or a block presented as an example, "example" |
+     | Criterion | Max points | Labels (full) | Natural markers (70%) | Weak mentions (30%) |
+     |---|---|---|---|---|
+     | Papel | 15 | `Papel:`, `Persona:`, `Role:` | "você é", "atue como", "aja como", "seu papel é", "sendo um especialista", "you are", "act as", "as an expert", "as a specialist" | "especialista", "consultor" alone |
+     | Contexto | 15 | `Contexto:`, `Context:` | "estamos", "estou", "o público é", "a audiência é", "o objetivo é", "para a diretoria", "para a equipe", "we are", "i am", "the audience is", "the goal is" | "contexto", "situação" alone |
+     | Tarefa | 20 | `Tarefa:`, `Task:` **and** at least 1 group of the Challenge's Keywords | an imperative action verb from the verb list (about 60 verbs in pt-BR and English, for example liste, escreva, resuma, extraia, gere, marque, agende, envie, explique, compare, classifique, transforme, responda; list, write, summarize…) **and** at least 1 group of Keywords | a verb alone, or a Keywords group alone |
+     | Formato | 15 | `Formato:`, `Format:` | "formato", "tópicos", "em tópicos", "em lista", "numerad[oa]", "bullets", "bullet points", "tabela", "JSON", "markdown", "títulos", "N itens", "N palavras", "table", "bulleted" | "formato" alone |
+     | Restrições | 10 | `Restrições:`, `Restrictions:`, `Constraints:` | "não inclua/use/escreva/invente…", "evite", "sem …", "apenas", "somente", "no máximo", "nunca", "don't", "avoid", "only", "never" | "sem" alone |
+     | Exemplos | 10 | `Exemplo:`, `Exemplos:`, `Example:`, `Examples:` | "por exemplo", "exemplo:", "ex.:", "for example", "such as", a quoted excerpt of at least 4 words | "exemplo" alone |
+     | Delimitadores | 10 | at least 2 isolated blocks: an XML tag pair `<name>…</name>` with any name, a Markdown heading (`##`), or a `---` separator | 1 isolated block with content | a single tag or heading without content |
+     | Incerteza | 5 | a conditional instruction with the action to take, such as "se não estiver no texto, escreva 'não informado'" or "caso falte…, escreva…" | a conditional phrase without the action: "se não souber", "caso faltar", "se não tiver" | "não informado" or "não encontrado" alone |
 
-   - Labels can appear as `Rótulo:`, `## Rótulo`, `**Rótulo**` or `<rotulo>…</rotulo>`.
-   - **Minimum content**: the excerpt that triggers a Criterion (the content after the label up to the next label, or the sentence containing the natural marker) must have at least 4 words besides the marker itself. An empty label or one with 1 to 3 words does not score.
-   - The same excerpt can meet more than one Criterion (for example, "no máximo 6 palavras por item" counts for Format and for Constraints).
+   - **Keywords** are the groups from the Challenge catalog. They count only for Tarefa.
+   - The same excerpt can meet more than one Criterion (for example, "no máximo 6 palavras por item" counts for Formato and for Restrições).
    - Verdicts: 100 is "Na mosca!"; 80 to 99 is "Quase lá"; 50 to 79 is "No caminho certo"; below 50 is "Longe do alvo". The supporting texts follow the tone of the reference HTML.
-   - Each Criterion has a fixed tip in pt-BR that says what to add, with a mini example.
+   - Each Criterion has a fixed tip in pt-BR that says what to add, with a mini example, and a reference to the section of the Anthropic prompting documentation it comes from (see Further Notes). The Incerteza tip cites the workshop's guide, not the official page, because the official page does not recommend an uncertainty instruction.
 
-2. **Challenge catalog**: a versioned seed file in the repository, loaded by the server; Challenges do not live in the database. Each Challenge has a stable identifier, order, title, scenario (text of `DESAFIO.TXT`), Keywords (in groups of synonyms, like the `groups` of the reference HTML) and a Reference prompt. Reference prompts must score 100 in the Evaluator. The five Challenges:
-   1. **Advantages and disadvantages of remote work**: the Reference prompt is the one from the reference HTML, enriched with Role, Context and Example. Keywords: trabalho remoto/home office, vantagens/prós, desvantagens/contras.
+2. **Challenge catalog**: a versioned seed file in the repository, loaded by the server; Challenges do not live in the database. Each Challenge has a stable identifier, order, title, scenario (text of `DESAFIO.TXT`), Keywords (in groups of synonyms, like the `groups` of the reference HTML) and a Reference prompt. The Reference prompt must include all eight Criteria at full strength and must score 100 in the Evaluator. The five Challenges:
+   1. **Advantages and disadvantages of remote work**: the Reference prompt is the one from the reference HTML, enriched with Role, Context, Example, Delimiters and Uncertainty. Keywords: trabalho remoto/home office, vantagens/prós, desvantagens/contras.
    2. **Email scheduling an alignment meeting**: Keywords: e-mail, reunião, alinhamento, data/horário, participantes.
    3. **Meeting summary for the next agenda**: the scenario brings loose notes from a meeting; the prompt must turn them into a summary with decisions, pending items and owners, organized as the agenda of the next meeting. Keywords: anotações/ata, resumo, decisões, pendências, responsáveis, pauta.
    4. **Extract data from a .docx contract**: the Player will attach a .docx contract to an LLM and must extract the contracting party, contracted party, value, term and penalty in **JSON**, marking "não encontrado" for anything missing. Keywords: contrato, docx/documento, extrair, JSON, contratante, valor, vigência, multa.
@@ -175,7 +189,7 @@ The other Players' prompts stay hidden during the Round. When the Facilitator cl
 4. **Persistence** (Prisma/SQLite). Conceptual schema (the Prisma models and columns are mapped to the EN names in the code):
    - Player: id, nickname, normalized nickname (unique), initials, token (unique), createdAt.
    - Round: id, challengeId, openedAt, deadline (optional), closedAt (optional).
-   - Attempt: id, playerId, roundId, number (1–3), prompt, Score, serialized Evaluation, createdAt.
+   - Attempt: id, playerId, roundId, number (1–3), prompt, Score, serialized Evaluation (including the level reached by each Criterion), createdAt.
    - Achievement: id, playerId, roundId, type, createdAt.
    - Presence (online/offline) lives only in memory, derived from socket connections.
 
@@ -185,8 +199,9 @@ The other Players' prompts stay hidden during the Round. When the Facilitator cl
 
 7. **Player UI**:
    - Login screen with a Nickname field, an explanation about the Avatar and a live preview; the token is saved in the browser.
-   - DOS desktop with three draggable and minimizable windows; positions are saved per browser.
-   - `PROMPT.EXE`: waiting state, prompt field, character counter, Attempts left, timer, result (Score, verdict, checklist with tips and excerpts), Round history and reveal.
+   - DOS desktop with four draggable and minimizable windows (`PROMPT.EXE`, `DESAFIO.TXT`, `DICAS.TXT`, `PLACAR.EXE`); positions are saved per browser.
+   - `PROMPT.EXE`: waiting state, prompt field, character counter, Attempts left, timer, result (Score, verdict, checklist of the eight Criteria with ✓, parcial or ✕ and the excerpts), Round history and reveal.
+   - `DICAS.TXT` (floating window, reuses the desktop's window frame): two sections. "Dicas deste envio" shows the tips for the last Attempt, ordered by the points lost, and is updated after each submission. "Guia de um bom prompt" is a fixed guide to the eight Criteria, always available.
    - `DESAFIO.TXT`: scenario of the current Round.
    - `PLACAR.EXE`: ranking, status, Achievements and event feed.
    - Sound button, off by default. LEVEL UP animation when the Score improves or the Player moves up.
@@ -195,15 +210,20 @@ The other Players' prompts stay hidden during the Round. When the Facilitator cl
 
 ## Testing Decisions
 
-- **What makes a good test here**: it exercises only the external behavior through the public interface of one of the two test points, and asserts on observable results and events, never on internal structure, specific regex or Prisma calls. The tests read like the game's rules ("a prompt with only empty labels scores less than 20").
+- **What makes a good test here**: it exercises only the external behavior through the public interface of one of the two test points, and asserts on observable results and events, never on internal structure, specific regex or Prisma calls. The tests read like the game's rules ("a label with one word of content scores in full", "a verb alone scores 30% of Task").
 - **Point 1, Evaluator**: tested as a pure function, with TDD (red, green, refactor). Minimum cases:
   - A one-line bad prompt scores low.
-  - Each Criterion is recognized by label and by natural phrase, in pt-BR and in English.
-  - Labels without content ("Papel: x. Contexto: x. …") do not score.
-  - The Task fails when the prompt is excellent but addresses another Challenge (Round 1's prompt evaluated on Challenge 2).
+  - The three strength levels: a label with content gives full points, a natural phrase gives 70%, a weak mention gives 30%.
+  - Each Criterion is recognized by label and by natural phrase, in pt-BR and in English, including `<papel>…</papel>` and `**Tarefa**`.
+  - Labels without content do not score; a label with one word of content does (`Papel: consultor`).
+  - Task: a verb plus a Keywords group gives 70%; the verb alone gives 30%; the Keywords group alone gives 30%. A prompt addressing another Challenge does not reach full points for Task.
+  - Delimiters: 2 isolated blocks give full points; 1 block gives 70%.
+  - Uncertainty: a conditional instruction with the action gives full points; "não informado" alone gives 30%.
   - The same excerpt can score for Format and for Constraints.
+  - The points are rounded to the nearest integer and the Score never exceeds 100.
   - The verdict boundaries are correct (49/50, 79/80, 99/100).
-  - **Each seed Challenge's Reference prompt scores 100** (protects the seed against regressions).
+  - **Each seed Challenge's Reference prompt scores 100 with all eight Criteria at full strength** (protects the seed against regressions).
+  - Regression: the prompt "Você é um gestor de produto que gerencia um time de três pessoas. Deve marcar uma reunião de alinhamento com toda equipe com a data mais próxima disponível às 15:00 com todos da equipe." on the email Challenge scores more than 15, with Papel and Tarefa recognized.
 - **Point 2, Game Engine**: tested through commands against a real SQLite test database (a clean database per test) and with an injectable clock. Minimum cases:
   - Nickname rules and normalized uniqueness; initials.
   - Resume by token.
@@ -213,7 +233,7 @@ The other Players' prompts stay hidden during the Round. When the Facilitator cl
   - Each of the five Achievements, including the non-grant cases.
   - Scoreboard events never contain prompt text; the reveal contains the top 3 and the Reference prompt.
   - Removing a Player frees the Nickname and clears it from the Scoreboard; reset clears everything.
-- **No automated tests**: the Socket.IO transport, the Player UI and the Facilitator UI and Big screen. They are thin enough that verification is manual, running the app with more than one tab open.
+- **No automated tests**: the Socket.IO transport, the Player UI (including the `DICAS.TXT` window), and the Facilitator UI and Big screen. They are thin enough that verification is manual, running the app with more than one tab open.
 - **Tool**: Vitest.
 - **Prior art**: the repository starts from scratch, with no existing tests. The "Workshop Prompts" HTML used as reference (the `analyze` function, which returns `score` and a list of checks) is the conceptual model for the Evaluation format.
 
@@ -230,13 +250,17 @@ The other Players' prompts stay hidden during the Round. When the Facilitator cl
 - Browser-based E2E tests.
 - Serverless deployment (Vercel and similar) or an external real-time service (ADR-0001).
 - Mobile-first layout: the target is laptop or desktop. The layout may degrade acceptably on smaller screens.
+- Tips generated by an LLM or personalized per Player; tips are fixed texts per Criterion.
 
 ## Further Notes
 
-- The vocabulary follows `CONTEXT.md` (Player, Nickname, Avatar, Facilitator, Big screen, Room, Challenge, Keywords, Reference prompt, Criterion, Score, Round, Attempt, Window, Scoreboard, Achievement). The `DESAFIO.TXT` and `PLACAR.EXE` windows are not a "Window" in the glossary's sense.
+- The vocabulary follows `CONTEXT.md` (Player, Nickname, Avatar, Facilitator, Big screen, Room, Challenge, Keywords, Reference prompt, Criterion, Score, Round, Attempt, Window, Scoreboard, Achievement). The `DESAFIO.TXT`, `DICAS.TXT` and `PLACAR.EXE` windows are not a "Window" in the glossary's sense.
 - Relevant ADRs: `docs/adr/0001-single-node-server-with-sqlite.md` and `docs/adr/0002-evaluate-prompt-without-llm.md`.
-- The reference HTML ("Workshop Prompts", Atividade 1) inspired Challenge 1, the ✓/✕ checklist format with points and the verdicts. Its target-answer mechanism was deliberately dropped.
+- The reference HTML ("Workshop Prompts", Atividade 1) inspired Challenge 1, the checklist format with points and the verdicts. Its target-answer mechanism was deliberately dropped.
+- The Criteria and their fixed tips are based on the Anthropic prompting best practices page (https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices). Mapping used for the tips: Papel to "Give Claude a role"; Contexto to "Add context"; Formato to "Control the format of responses" (including "say what to do instead of what not to do"); Exemplos to "Use examples effectively"; Delimitadores to "Structure prompts with XML tags"; Restrições and Tarefa to "Be clear and direct". The page has no recommendation for an uncertainty instruction, so Incerteza is a workshop criterion, cited to the guide and not to the official page.
 - Decision taken in this spec without explicit discussion: each Challenge can be played at most once per match, so the Scoreboard sum does not count the same Challenge twice. If the Facilitator needs to repeat a Challenge, that becomes a new spec.
-- The texts of scenarios, tips and Reference prompts are written during implementation and reviewed by the Facilitator before the workshop (story 66).
+- Scoring decisions made in the grilling session of 2026-10-14: graded scoring by strength (100%, 70%, 30%); eight Criteria with the weights in the table above; Task now needs one Keywords group instead of two; labels count when they have one word of content; the Dicas window is a floating `DICAS.TXT` with a per-Attempt section and a fixed guide. The name `DICAS.TXT` is a choice of this spec, following the names of the other windows.
+- Known gap to confirm during implementation: the example prompt in the Regression case above reaches Papel and Tarefa but not Contexto, because "com toda equipe" is not a Contexto marker. Recognizing that phrasing is outside the agreed rules and would need a new marker.
+- The texts of scenarios, tips and Reference prompts are written during implementation and reviewed by the Facilitator before the workshop (story 68).
 - Color decision (revised during implementation): the first version used DOS terminal colors (blue background, green text) and was hard to read. It was replaced with black and grey, like the default Windows prompt, using the 8bitcn tokens. It is a visual decision and reversible, so it lives here and not in an ADR. Highlights use white instead of yellow and green, so the hierarchy depends on font size and weight, not on color.
-- The heuristic can always be gamed with effort; the minimum content and the Keywords make that laborious, and the top 3 reveal exposes abuses. Perfect precision is not the goal.
+- The heuristic can always be gamed with effort; the minimum content, the Keywords and the strength levels make that laborious, and the top 3 reveal exposes abuses. Perfect precision is not the goal.
