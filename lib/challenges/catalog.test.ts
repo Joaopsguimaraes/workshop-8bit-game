@@ -49,7 +49,8 @@ describe("challenge catalog", () => {
 
     const task = evaluate(challenge1.referencePrompt, challenge2).criteria.find((c) => c.id === "task");
 
-    expect(task).toMatchObject({ met: false, points: 0 });
+    expect(task).toMatchObject({ level: "weak", points: 6 });
+    expect(task?.level).not.toBe("full");
   });
 
   it("the reference prompt of challenge 1 meets role and task", () => {
@@ -57,8 +58,8 @@ describe("challenge catalog", () => {
     if (!challenge) throw new Error("Challenge 1 missing");
 
     const evaluation = evaluate(challenge.referencePrompt, challenge);
-    const met = evaluation.criteria.filter((c) => c.met).map((c) => c.id);
+    const full = evaluation.criteria.filter((c) => c.level === "full").map((c) => c.id);
 
-    expect(met).toEqual(expect.arrayContaining(["role", "task"]));
+    expect(full).toEqual(expect.arrayContaining(["role", "task"]));
   });
 });

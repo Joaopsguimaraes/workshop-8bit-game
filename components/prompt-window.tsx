@@ -6,6 +6,7 @@ import { formatTime } from "@/lib/client/time";
 import type { LivePlayerState } from "@/lib/client/use-realtime";
 import { CHARACTER_LIMIT, ATTEMPT_LIMIT } from "@/lib/limits";
 import type { AttemptResult, PublicAttempt, Reveal } from "@/lib/engine/engine";
+import type { CriterionResult } from "@/lib/evaluator/evaluator";
 import { Avatar } from "./avatar";
 
 type Props = {
@@ -157,6 +158,14 @@ function RoundReveal({ reveal }: { reveal: Reveal }) {
   );
 }
 
+// Checklist mark per strength level: full is ✓, partial and weak are "parcial", missing is ✕.
+const LEVEL_MARK: Record<CriterionResult["level"], string> = {
+  full: "✓",
+  partial: "parcial",
+  weak: "parcial",
+  missing: "✕",
+};
+
 function AttemptEvaluation({ attempt }: { attempt: PublicAttempt }) {
   const { evaluation } = attempt;
   return (
@@ -170,16 +179,14 @@ function AttemptEvaluation({ attempt }: { attempt: PublicAttempt }) {
       <ul className="flex flex-col gap-1">
         {evaluation.criteria.map((criterion) => (
           <li key={criterion.id}>
-            <span className={criterion.met ? "text-foreground" : "text-destructive"}>
-              {criterion.met ? "✓" : "✕"}
+            <span className={criterion.level === "missing" ? "text-destructive" : "text-foreground"}>
+              {LEVEL_MARK[criterion.level]}
             </span>{" "}
             {criterion.name} {criterion.points}/{criterion.max}
-            {criterion.met && criterion.excerpt && (
+            {criterion.excerpt && (
               <span className="block text-muted-foreground">reconhecido: “{criterion.excerpt}”</span>
             )}
-            {!criterion.met && criterion.tip && (
-              <span className="block text-foreground">dica: {criterion.tip}</span>
-            )}
+            {criterion.tip && <span className="block text-foreground">dica: {criterion.tip}</span>}
           </li>
         ))}
       </ul>

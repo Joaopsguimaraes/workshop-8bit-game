@@ -30,9 +30,9 @@ const BETA: Challenge = {
   referencePrompt: "Referência beta.",
 };
 
-// Score 35 on challenge alfa: Role (15) and Task (20).
+// Score 29 on challenge alfa: Role (15) and Task (14: a verb and a Keywords group, 70% of 20).
 const PROMPT_ALFA = "Papel: você é um consultor de RH experiente. Liste as vantagens do trabalho remoto.";
-// Score 20 on challenge beta: only the Task.
+// Score 14 on challenge beta: a verb and a Keywords group, 70% of the Task.
 const PROMPT_BETA = "Escreva um e-mail sobre a reunião de alinhamento.";
 
 let database: ReturnType<typeof createTestDatabase>;
@@ -280,7 +280,7 @@ describe("submitAttempt", () => {
 
     expect(result).toMatchObject({
       ok: true,
-      attempt: { number: 1, prompt: PROMPT_ALFA, score: 35 },
+      attempt: { number: 1, prompt: PROMPT_ALFA, score: 29 },
       attemptsLeft: 2,
     });
     if (!result.ok) throw new Error("expected success");
@@ -414,7 +414,7 @@ describe("scoreboard", () => {
     await engine.closeRound();
 
     expect(await engine.scoreboard()).toEqual([
-      expect.objectContaining({ nickname: "Ana", points: 35 }),
+      expect.objectContaining({ nickname: "Ana", points: 29 }),
     ]);
   });
 
@@ -431,8 +431,8 @@ describe("scoreboard", () => {
 
     const scoreboard = await engine.scoreboard();
     expect(scoreboard.map((j) => [j.nickname, j.points])).toEqual([
-      ["Ana", 35],
-      ["Bia", 20],
+      ["Ana", 29],
+      ["Bia", 14],
     ]);
   });
 
@@ -487,7 +487,7 @@ describe("restart", () => {
 
       expect(await restarted.playerState(ana.token)).toMatchObject({
         round: { deadline: new Date(now.getTime() + 600_000).toISOString() },
-        attempts: [{ number: 1, score: 35 }],
+        attempts: [{ number: 1, score: 29 }],
         attemptsLeft: 2,
       });
     } finally {
@@ -515,7 +515,7 @@ describe("removePlayer", () => {
 
     expect((await engine.scoreboard()).map((player) => player.nickname)).toEqual(["Bia"]);
     expect(await engine.facilitatorState()).toMatchObject({ sent: 1 });
-    expect(await entryOf(engine, "Bia")).toMatchObject({ points: 35, attemptsInRound: 1 });
+    expect(await entryOf(engine, "Bia")).toMatchObject({ points: 29, attemptsInRound: 1 });
   });
 
   it("the token of the removed player stops working", async () => {
@@ -639,7 +639,7 @@ describe("facilitatorState: players and reveal", () => {
     expect(await engine.facilitatorState()).toMatchObject({
       reveal: {
         challenge: { title: ALFA.title, referencePrompt: ALFA.referencePrompt },
-        top3: [{ nickname: "Ana", score: 35, prompt: PROMPT_ALFA }],
+        top3: [{ nickname: "Ana", score: 29, prompt: PROMPT_ALFA }],
       },
     });
 
@@ -700,8 +700,8 @@ describe("scoreboard: tie-break and status", () => {
     await engine.submitAttempt(ana.token, "oi");
     await engine.closeRound();
 
-    // Ana: 35 with 1 attempt in the round that scored (the 3 in beta do not count).
-    // Bia: 35 with 2 attempts. Without the rule, Bia would be ahead with 2 against 4.
+    // Ana: 29 with 1 attempt in the round that scored (the 3 in beta do not count).
+    // Bia: 29 with 2 attempts. Without the rule, Bia would be ahead with 2 against 4.
     expect((await engine.scoreboard()).map((j) => j.nickname)).toEqual(["Ana", "Bia"]);
   });
 
@@ -727,7 +727,7 @@ describe("scoreboard: tie-break and status", () => {
 
     expect(await entryOf(engine, "Ana")).toMatchObject({
       position: 1,
-      points: 35,
+      points: 29,
       sentInRound: true,
       attemptsInRound: 1,
     });

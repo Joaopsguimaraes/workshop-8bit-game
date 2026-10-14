@@ -1,5 +1,5 @@
 import type { Challenge } from "../challenges/types";
-import { CONTEXT, EXAMPLES, FORMAT, ROLE, CONSTRAINTS, TASK, type Criterion } from "./criteria";
+import { CONTEXT, EXAMPLES, FORMAT, ROLE, CONSTRAINTS, TASK, type Criterion, type Level } from "./criteria";
 
 export type Evaluation = {
   score: number;
@@ -10,7 +10,7 @@ export type Evaluation = {
 export type CriterionResult = {
   id: string;
   name: string;
-  met: boolean;
+  level: Level | "missing";
   points: number;
   max: number;
   tip?: string;
@@ -19,6 +19,9 @@ export type CriterionResult = {
 
 const CRITERIA: Criterion[] = [ROLE, CONTEXT, TASK, FORMAT, CONSTRAINTS, EXAMPLES];
 
+// Share of the Criterion's points reached by each strength level.
+const SHARE: Record<Level, number> = { full: 1, partial: 0.7, weak: 0.3 };
+
 export function verdictForScore(score: number): Evaluation["verdict"] {
   if (score >= 100) return { title: "Na mosca!", text: "Prompt perfeito. Estrutura completa." };
   if (score >= 80) return { title: "Quase lá", text: "Falta pouco. Veja as dicas dos Critérios que faltaram." };
@@ -26,15 +29,18 @@ export function verdictForScore(score: number): Evaluation["verdict"] {
   return { title: "Longe do alvo", text: "Ainda faltam partes importantes na estrutura do prompt." };
 }
 
-// Evaluator: pure function. The score is the sum of the points of the met criteria.
+// Evaluator: pure function. The score is the sum of the points of each Criterion,
+// each one scaled by the strength of its signal.
 export function evaluate(prompt: string, challenge: Challenge): Evaluation {
   const criteria = CRITERIA.map((criterion): CriterionResult => {
     const recognized = criterion.check(prompt, challenge);
     const base = { id: criterion.id, name: criterion.name, max: criterion.max };
-    if (recognized) {
-      return { ...base, met: true, points: criterion.max, excerpt: recognized.excerpt };
+    if (!recognized) {
+      return { ...base, level: "missing", points: 0, tip: criterion.tip };
     }
-    return { ...base, met: false, points: 0, tip: criterion.tip };
+    const points = Math.round(criterion.max * SHARE[recognized.level]);
+    const tip = points < criterion.max ? criterion.tip : undefined;
+    return { ...base, level: recognized.level, points, tip, excerpt: recognized.excerpt };
   });
 
   const score = criteria.reduce((sum, criterion) => sum + criterion.points, 0);
