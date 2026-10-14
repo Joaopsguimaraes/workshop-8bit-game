@@ -24,10 +24,14 @@ const FEED_MAX = 30;
 export function installRealtime({ httpServer, engine, presence }: Deps) {
   const io = new Server(httpServer);
 
+  // Counts the Rounds closed so far, so an Attempt can tell whether it was the one that closed a Round.
+  let roundsClosed = 0;
+
   // Room feed: recent events stay in memory, so late joiners can see what happened.
   const feed: FeedItem[] = [];
   let nextId = 1;
   engine.subscribe((event) => {
+    if (event.type === "round-closed") roundsClosed++;
     const item: FeedItem = { id: nextId++, event };
     if (event.type === "match-reset") {
       // New match: the old feed leaves everyone's screen, including the big screen.
@@ -60,6 +64,12 @@ export function installRealtime({ httpServer, engine, presence }: Deps) {
     socket.emit("player:state", state);
   }
 
+  async function sendPlayerStates(include: (socket: Socket) => boolean) {
+    for (const socket of io.sockets.sockets.values()) {
+      if (socket.data.role === "player" && include(socket)) await sendPlayerState(socket);
+    }
+  }
+
   async function sendFacilitatorState() {
     try {
       io.to(FACILITATOR_ROOM).emit("facilitator:state", await engine.facilitatorState());
@@ -73,9 +83,14 @@ export function installRealtime({ httpServer, engine, presence }: Deps) {
   async function updateAll() {
     await sendScoreboard();
     await sendFacilitatorState();
-    for (const socket of io.sockets.sockets.values()) {
-      if (socket.data.role === "player") await sendPlayerState(socket);
-    }
+    await sendPlayerStates(() => true);
+  }
+
+  // After an Attempt: only the Player who sent it gets a new state, on every tab they have open.
+  async function updateAfterAttempt(playerId: string) {
+    await sendScoreboard();
+    await sendFacilitatorState();
+    await sendPlayerStates((socket) => socket.data.playerId === playerId);
   }
 
   // Sends the socket back to login: the Engine no longer accepts its token.
@@ -97,13 +112,16 @@ export function installRealtime({ httpServer, engine, presence }: Deps) {
     });
 
     socket.on("attempt:submit", async (prompt: unknown, respond?: unknown) => {
+      const closedBefore = roundsClosed;
       const result =
         typeof prompt === "string"
           ? await engine.submitAttempt(token, prompt)
           : { ok: false as const, error: "Escreva um prompt antes de enviar." };
       if (typeof respond === "function") respond(result);
       // Even a refused submission may have closed the Round, because the deadline had already passed.
-      await updateAll();
+      // A closed Round changes every Player's state, so it gets the full refresh.
+      if (roundsClosed !== closedBefore) await updateAll();
+      else await updateAfterAttempt(playerId);
     });
   }
 
@@ -199,7 +217,7 @@ export function installRealtime({ httpServer, engine, presence }: Deps) {
   });
 
   // Server tick: closes the Round when the deadline passes, without anyone clicking.
-  setInterval(() => {
+  const tick = setInterval(() => {
     void (async () => {
       try {
         const { closed } = await engine.checkDeadline(new Date());
@@ -209,6 +227,7 @@ export function installRealtime({ httpServer, engine, presence }: Deps) {
       }
     })();
   }, TICK_INTERVAL_MS);
+  httpServer.on("close", () => clearInterval(tick));
 
   return io;
 }
