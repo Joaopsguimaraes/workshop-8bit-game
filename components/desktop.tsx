@@ -5,6 +5,7 @@ import { WindowFrame } from "./window-frame";
 import { LevelUp } from "./level-up";
 import { ScoreboardWindow } from "./scoreboard-window";
 import { PromptWindow } from "./prompt-window";
+import { TipsWindow } from "./tips-window";
 import {
   loadWindows,
   saveWindows,
@@ -26,17 +27,19 @@ const TITLES: Record<WindowId, string> = {
   prompt: "PROMPT.EXE",
   challenge: "DESAFIO.TXT",
   scoreboard: "PLACAR.EXE",
+  tips: "DICAS.TXT",
 };
 
 const WIDTHS: Record<WindowId, number> = {
   prompt: 560,
   challenge: 340,
   scoreboard: 360,
+  tips: 360,
 };
 
-const INITIAL_ORDER: WindowId[] = ["challenge", "scoreboard", "prompt"];
+const INITIAL_ORDER: WindowId[] = ["challenge", "scoreboard", "tips", "prompt"];
 
-// MS-DOS style desktop: three draggable, minimizable windows saved in the browser.
+// MS-DOS style desktop: four draggable, minimizable windows saved in the browser.
 export function Desktop({ nickname, initials, token, onSessionInvalid }: Props) {
   const [windows, setWindows] = useState<WindowStates>(loadWindows);
   const [order, setOrder] = useState<WindowId[]>(INITIAL_ORDER);
@@ -116,6 +119,8 @@ export function Desktop({ nickname, initials, token, onSessionInvalid }: Props) 
               <PromptWindow state={state} onSubmit={submitWithSound} />
             ) : id === "challenge" ? (
               <ChallengeWindow challenge={state?.round?.challenge ?? null} />
+            ) : id === "tips" ? (
+              <TipsWindow evaluation={state?.attempts.at(-1)?.evaluation ?? null} />
             ) : (
               <ScoreboardWindow players={players} feed={feed} myId={state?.player.id ?? null} />
             );

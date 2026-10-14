@@ -1,6 +1,6 @@
 import { readItem, writeItem } from "./storage";
 
-export type WindowId = "prompt" | "challenge" | "scoreboard";
+export type WindowId = "prompt" | "challenge" | "scoreboard" | "tips";
 
 export type WindowState = { x: number; y: number; minimized: boolean };
 
@@ -12,6 +12,7 @@ export const DEFAULT_WINDOWS: WindowStates = {
   prompt: { x: 32, y: 32, minimized: false },
   challenge: { x: 32, y: 360, minimized: false },
   scoreboard: { x: 640, y: 32, minimized: false },
+  tips: { x: 640, y: 360, minimized: false },
 };
 
 // Merges what was saved with the defaults; invalid or missing data falls back to the defaults.

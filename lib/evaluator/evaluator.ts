@@ -28,7 +28,7 @@ export type CriterionResult = {
   excerpt?: string;
 };
 
-const CRITERIA: Criterion[] = [ROLE, CONTEXT, TASK, FORMAT, CONSTRAINTS, EXAMPLES, DELIMITERS, UNCERTAINTY];
+export const CRITERIA: Criterion[] = [ROLE, CONTEXT, TASK, FORMAT, CONSTRAINTS, EXAMPLES, DELIMITERS, UNCERTAINTY];
 
 // Share of the Criterion's points reached by each strength level.
 const SHARE: Record<Level, number> = { full: 1, partial: 0.7, weak: 0.3 };

@@ -6,13 +6,28 @@ export type Level = "full" | "partial" | "weak";
 
 export type Recognition = { level: Level; excerpt: string } | null;
 
+// Where a tip comes from: a section of the Anthropic prompting documentation, or the workshop's own guide.
+export type Reference = { label: string; url?: string };
+
 export type Criterion = {
   id: string;
   name: string;
   max: number;
   tip: string;
+  // One line of the fixed "Guia de um bom prompt", shown to the Player at all times.
+  guide: string;
+  reference: Reference;
   check: (prompt: string, challenge: Challenge) => Recognition;
 };
+
+const ANTHROPIC_PROMPTING_DOCS =
+  "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices";
+
+function anthropicSection(section: string): Reference {
+  return { label: `Documentação da Anthropic: “${section}”`, url: ANTHROPIC_PROMPTING_DOCS };
+}
+
+const WORKSHOP_GUIDE: Reference = { label: "Guia de um bom prompt, nesta janela" };
 
 // A natural marker is only a phrase when at least 4 words follow it in the same sentence.
 const MIN_WORDS = 4;
@@ -85,6 +100,8 @@ export const ROLE: Criterion = {
   id: "role",
   name: "Papel",
   max: 15,
+  guide: "Defina quem o modelo deve ser, com uma persona ou especialidade.",
+  reference: anthropicSection("Give Claude a role"),
   tip: "Diga quem o modelo deve ser. Ex.: \"Você é um consultor de RH experiente.\"",
   check(prompt) {
     return strongest(
@@ -138,6 +155,8 @@ export const TASK: Criterion = {
   id: "task",
   name: "Tarefa",
   max: 20,
+  guide: "Diga o que fazer, com um verbo de ação e o assunto do Desafio.",
+  reference: anthropicSection("Be clear and direct"),
   tip:
     "Comece com um verbo de ação (liste, escreva, resuma) e fale do assunto do Desafio. Ex.: \"Liste as vantagens e desvantagens do trabalho remoto.\"",
   check(prompt, challenge) {
@@ -162,6 +181,8 @@ export const CONTEXT: Criterion = {
   id: "context",
   name: "Contexto",
   max: 15,
+  guide: "Diga a situação e para quem é a resposta.",
+  reference: anthropicSection("Add context"),
   tip: "Diga para quem é e em que situação está. Ex.: \"Estamos decidindo o modelo de trabalho. O público é a diretoria.\"",
   check(prompt) {
     return strongest(
@@ -178,6 +199,8 @@ export const FORMAT: Criterion = {
   id: "format",
   name: "Formato",
   max: 15,
+  guide: "Diga como organizar a resposta: lista, tabela, JSON ou número de itens.",
+  reference: anthropicSection("Control the format of responses"),
   tip: "Diga como a resposta deve ser organizada. Ex.: \"Responda em 3 itens, em tópicos curtos.\"",
   check(prompt) {
     return strongest(
@@ -195,6 +218,8 @@ export const CONSTRAINTS: Criterion = {
   id: "constraints",
   name: "Restrições",
   max: 10,
+  guide: "Diga o que não deve aparecer e quais limites seguir.",
+  reference: anthropicSection("Be clear and direct"),
   tip: "Diga o que não deve aparecer ou quais limites seguir. Ex.: \"Não inclua opiniões pessoais.\"",
   check(prompt) {
     return strongest(
@@ -220,6 +245,8 @@ export const EXAMPLES: Criterion = {
   id: "examples",
   name: "Exemplos",
   max: 10,
+  guide: "Mostre um exemplo do resultado esperado.",
+  reference: anthropicSection("Use examples effectively"),
   tip: "Mostre um exemplo do que espera na resposta. Ex.: \"Exemplo: Vantagem: economia com aluguel.\"",
   check(prompt) {
     return strongest(
@@ -262,6 +289,8 @@ export const DELIMITERS: Criterion = {
   id: "delimiters",
   name: "Delimitadores",
   max: 10,
+  guide: "Separe as partes do prompt com tags ou títulos.",
+  reference: anthropicSection("Structure prompts with XML tags"),
   tip: "Separe as partes do prompt com tags ou títulos. Ex.: \"<contexto>…</contexto>\" ou \"## Tarefa\".",
   check: recognizeDelimiters,
 };
@@ -296,6 +325,8 @@ export const UNCERTAINTY: Criterion = {
   id: "uncertainty",
   name: "Incerteza",
   max: 5,
+  guide: "Diga o que fazer quando alguma informação faltar.",
+  reference: WORKSHOP_GUIDE,
   tip: "Diga o que fazer quando faltar informação. Ex.: \"Se o valor não estiver no texto, escreva 'não informado'.\"",
   check(prompt) {
     return strongest(recognizeConditional(prompt), recognizeMention(prompt, UNCERTAINTY_WEAK));
