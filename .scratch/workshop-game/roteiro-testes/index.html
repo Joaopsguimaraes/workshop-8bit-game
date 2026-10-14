@@ -67,28 +67,44 @@
 
 <header>
   <h1>Roteiro de testes humanos · Jogo de Prompts 8-bit</h1>
-  <p class="sub">Workshop de Prompts · funcionalidade descrita em <code>.scratch/workshop-game/spec.md</code></p>
-  <p class="sub">Versão testada: branch <code>feat/placar-conquistas-reveal</code>, commit <code>4430dbe</code> · Data: 13/10/2026</p>
+  <p class="sub">Workshop de Prompts · funcionalidade descrita em <code>.scratch/workshop-game/spec.md</code> · publicado em <code>/help</code></p>
+  <p class="sub">Versão testada: branch <code>feat/placar-conquistas-reveal</code>, commit <code>393700e</code> · Revisão: 14/10/2026</p>
 </header>
 
 <nav class="indice" aria-label="Sumário">
   <strong>Sumário</strong>
   <ol>
+    <li><a href="#novidades">O que mudou nesta revisão</a></li>
     <li><a href="#visao">Visão geral e papéis</a></li>
     <li><a href="#preparo">Preparação: como rodar e como simular vários Jogadores</a></li>
     <li><a href="#facilitador">Manual do Facilitador</a></li>
     <li><a href="#jogador">Manual do Jogador</a></li>
     <li><a href="#roteiro">Roteiro de execução: cinco Rodadas, quatro Jogadores</a></li>
     <li><a href="#checklist">Checklist para o testador humano</a></li>
-    <li><a href="#resultados">Resultados desta execução</a></li>
+    <li><a href="#resultados">Resultados e estado da verificação</a></li>
     <li><a href="#achados">Achados e observações</a></li>
   </ol>
 </nav>
 
 <!-- ============================================================ -->
+<h2 id="novidades">O que mudou nesta revisão</h2>
+<div class="aviso">
+  <p>Esta revisão atualiza o roteiro para o commit <code>393700e</code>. As Notas esperadas foram recalculadas com o Avaliador desse commit. As mudanças que afetam o teste:</p>
+  <ul>
+    <li><strong>Oito Critérios</strong> (eram seis). Entram <strong>Delimitadores</strong> (10 pontos) e <strong>Incerteza</strong> (5 pontos). Os pesos mudaram: Papel 15, Contexto 15, Tarefa 20, Formato 15, Restrições 10, Exemplos 10.</li>
+    <li><strong>Pontuação por força do sinal.</strong> Cada Critério vale tudo (✓), 70% (frase natural clara, mostrada como <em>parcial</em>) ou 30% (menção fraca, também <em>parcial</em>). Antes era tudo ou nada.</li>
+    <li><strong>Tarefa</strong> precisa de <em>um</em> grupo de Palavras-chave (antes eram dois). Verbo de ação sem Palavra-chave vale só 30%.</li>
+    <li><strong>Rótulo com uma letra ou número</strong> já é conteúdo: <code>Papel: x.</code> vale o Critério inteiro. Rótulo vazio continua sem pontos.</li>
+    <li><strong>Janela <code>DICAS.TXT</code></strong>: "Dicas deste envio" (uma dica por Critério parcial ou ✕ do último envio, da que mais custou para a que menos custou) e "Guia de um bom prompt" com os oito Critérios.</li>
+    <li><strong>Roteiro em <code>/help</code>:</strong> esta página é servida pelo app enquanto ele está no ar.</li>
+  </ul>
+  <p class="nota">As capturas de tela são da execução de 13/10 (commit <code>4430dbe</code>). Elas mostram Notas e Placar daquela versão e ainda não foram refeitas. Veja a seção de resultados.</p>
+</div>
+
+<!-- ============================================================ -->
 <h2 id="visao">1. Visão geral e papéis</h2>
 <p>O Jogo de Prompts é uma aplicação em tempo real para um workshop. Cada <strong>Jogador</strong> entra com um <strong>Nickname</strong> e escreve prompts numa janela <code>PROMPT.EXE</code>. O <strong>Facilitador</strong> conduz o workshop: abre <strong>Rodadas</strong> com um <strong>Desafio</strong>, encerra, remove Jogadores e projeta o <strong>Telão</strong>.</p>
-<p>Cada Tentativa recebe uma <strong>Nota de 0 a 100</strong> calculada sem nenhuma LLM, a partir de seis Critérios: Papel (15), Contexto (20), Tarefa (20), Formato (20), Restrições (15) e Exemplos (10).</p>
+<p>Cada Tentativa recebe uma <strong>Nota de 0 a 100</strong> calculada sem nenhuma LLM, a partir de oito Critérios: Papel (15), Contexto (15), Tarefa (20), Formato (15), Restrições (10), Exemplos (10), Delimitadores (10) e Incerteza (5). Cada Critério vale tudo, 70% ou 30% dos seus pontos, conforme a força do sinal encontrado no prompt.</p>
 
 <div class="grade">
   <div class="cartao">
@@ -97,7 +113,7 @@
   </div>
   <div class="cartao">
     <h3>Jogador <span class="quem">muitos</span></h3>
-    <p class="nota">Entra com Nickname, escreve prompts na <code>PROMPT.EXE</code>, lê a Nota e o checklist, acompanha o Placar e o reveal.</p>
+    <p class="nota">Entra com Nickname, escreve prompts na <code>PROMPT.EXE</code>, lê a Nota e o checklist, consulta as dicas na <code>DICAS.TXT</code>, acompanha o Placar e o reveal.</p>
   </div>
 </div>
 
@@ -111,6 +127,7 @@ cp .env.example .env          # defina FACILITADOR_PIN (não use o valor de exem
 pnpm db:deploy                # aplica as migrações do SQLite
 pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
   <p>Use <code>pnpm start</code> (com <code>pnpm build</code> antes) para um teste com a versão de produção. O banco fica no arquivo indicado em <code>DATABASE_URL</code> e sobrevive a restarts.</p>
+  <p>Este roteiro fica disponível em <code>http://localhost:3000/help</code>. A rota lê o arquivo <code>.scratch/workshop-game/roteiro-testes/index.html</code> a cada acesso, então uma edição aparece sem rebuild. Ela depende de a pasta do repositório existir no servidor.</p>
 </div>
 
 <div class="passo">
@@ -123,6 +140,7 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
     <tr><td>Pedro</td><td><code>http://[::1]:3000/</code></td></tr>
     <tr><td>Maria</td><td><code>http://127.0.0.2:3000/</code></td></tr>
     <tr><td>Facilitador</td><td><code>http://localhost:3000/facilitador</code> e o Telão em <code>/facilitador/telao</code></td></tr>
+    <tr><td>Roteiro</td><td><code>http://localhost:3000/help</code></td></tr>
   </table>
   <p class="aviso alerta">No modo <code>pnpm dev</code>, o Next bloqueia recursos de desenvolvimento vindos de endereços fora de <code>allowedDevOrigins</code>. Se a tela ficar parada em <strong>CARREGANDO...</strong> num endereço como <code>127.0.0.1</code>, esse é o motivo (veja o achado 3). A forma mais simples de evitar é usar só <code>localhost</code> ou rodar em produção.</p>
   <p class="aviso">Em um workshop de verdade, cada participante usa o próprio aparelho e o endereço da rede local. Esse truque serve só para o teste.</p>
@@ -130,6 +148,7 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
 
 <!-- ============================================================ -->
 <h2 id="facilitador">3. Manual do Facilitador</h2>
+<p class="aviso"><strong>Capturas desta seção:</strong> são da execução de 13/10 (commit <code>4430dbe</code>). A tela e os fluxos continuam os mesmos, mas os números nas legendas são daquela versão.</p>
 
 <div class="passo">
   <h3>3.1 Entrar no painel <span class="quem">Facilitador</span></h3>
@@ -162,7 +181,7 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
     <li>Cada Desafio pode ser jogado <strong>uma vez por partida</strong>. Para repetir um, é preciso resetar a Sala.</li>
     <li>Com uma Rodada aberta, os outros botões <em>ABRIR RODADA</em> ficam desativados.</li>
   </ol>
-  <p class="nota">Os jogadores veem o cenário em <code>DESAFIO.TXT</code> assim que a Rodada abre.</p>
+  <p class="nota">Os Jogadores veem o cenário em <code>DESAFIO.TXT</code> assim que a Rodada abre.</p>
 </div>
 
 <div class="passo">
@@ -175,7 +194,7 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
   </ol>
   <figure>
     <img src="screenshots/08-telao-reveal.png" alt="Telão mostrando o reveal da Rodada 1">
-    <figcaption>Captura 08: Telão com o Prompt de referência e o top 3 da Rodada 1 (Joao 100, Maria 100, Lucas 90).</figcaption>
+    <figcaption>Captura 08 (execução de 13/10): Telão com o Prompt de referência e o top 3 da Rodada 1. Com a pontuação nova, o top 3 esperado está na seção 5.</figcaption>
   </figure>
 </div>
 
@@ -188,11 +207,11 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
   </ol>
   <figure>
     <img src="screenshots/09-telao-placar-rodada2.png" alt="Telão com o Placar depois da Rodada 2">
-    <figcaption>Captura 09: Telão com o Placar depois da Rodada 2. Maria 200, Lucas 145, Joao 140, Pedro 60, com as Conquistas de cada um.</figcaption>
+    <figcaption>Captura 09 (execução de 13/10): Telão com o Placar depois da Rodada 2, com as Conquistas de cada um. Os valores são da versão anterior.</figcaption>
   </figure>
   <figure>
     <img src="screenshots/10-telao-reveal-rodada3.png" alt="Telão com o reveal da Rodada 3">
-    <figcaption>Captura 10: reveal da Rodada 3 (cronômetro de 1 minuto que encerrou sozinho). Top 3: Maria 70, Pedro 20, Joao 20.</figcaption>
+    <figcaption>Captura 10 (execução de 13/10): reveal da Rodada 3 (cronômetro de 1 minuto que encerrou sozinho). Os valores são da versão anterior.</figcaption>
   </figure>
 </div>
 
@@ -253,13 +272,13 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
 
 <div class="passo">
   <h3>4.2 Área de trabalho <span class="quem">Jogador</span></h3>
-  <p>A área tem três janelas: <code>DESAFIO.TXT</code> (cenário), <code>PLACAR.EXE</code> (ranking e feed) e <code>PROMPT.EXE</code> (onde você escreve). Arraste pela barra de título, minimize com <code>_</code> e restaure pela barra de tarefas embaixo. A posição fica salva no seu navegador.</p>
+  <p>A área tem quatro janelas: <code>DESAFIO.TXT</code> (cenário), <code>PLACAR.EXE</code> (ranking e feed), <code>DICAS.TXT</code> (dicas e guia) e <code>PROMPT.EXE</code> (onde você escreve). Arraste pela barra de título, minimize com <code>_</code> e restaure pela barra de tarefas embaixo. A posição fica salva no seu navegador.</p>
   <p>Enquanto não há Rodada aberta, a <code>PROMPT.EXE</code> mostra <code>AGUARDANDO O FACILITADOR...</code> com o cursor piscando.</p>
   <p>O botão <strong>SOM</strong> no topo começa <strong>desligado</strong>. Clique para ligar os efeitos 8-bit.</p>
-  <p class="aviso alerta"><strong>Atenção:</strong> no layout padrão, a <code>PROMPT.EXE</code> cobre a <code>DESAFIO.TXT</code>. Para ler o cenário, minimize a <code>PROMPT.EXE</code> ou arraste a <code>DESAFIO.TXT</code> para fora. Veja o achado 2.</p>
+  <p class="aviso alerta"><strong>Atenção:</strong> no layout padrão, a <code>PROMPT.EXE</code> pode cobrir a <code>DESAFIO.TXT</code>. Para ler o cenário, minimize a <code>PROMPT.EXE</code> ou arraste a <code>DESAFIO.TXT</code> para fora. Veja o achado 2.</p>
   <figure>
     <img src="screenshots/04-jogador-rodada-aberta.png" alt="Área de trabalho do Jogador com a Rodada aberta">
-    <figcaption>Captura 04: área de trabalho do Joao com a Rodada aberta.</figcaption>
+    <figcaption>Captura 04 (execução de 13/10): área de trabalho do Joao com a Rodada aberta. Ainda não tem a janela <code>DICAS.TXT</code>.</figcaption>
   </figure>
 </div>
 
@@ -267,10 +286,10 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
   <h3>4.3 Escrever e enviar uma Tentativa <span class="quem">Jogador</span></h3>
   <ol>
     <li>Leia o cenário em <code>DESAFIO.TXT</code>.</li>
-    <li>Escreva o prompt no campo livre da <code>PROMPT.EXE</code>. Não há formulário com campos: você escreve do seu jeito.</li>
+    <li>Escreva o prompt no campo livre da <code>PROMPT.EXE</code>. Não há formulário com campos: você escreve do seu jeito. Enter quebra a linha.</li>
     <li>Confira o contador <code>n/4000</code>, o número de Tentativas restantes e o cronômetro (se houver).</li>
     <li>Clique em <strong>ENVIAR</strong>. O botão só fica ativo com texto e dentro do limite de caracteres.</li>
-    <li>A resposta aparece na hora: <strong>TENTATIVA n · NOTA x</strong>, o veredito e o checklist.</li>
+    <li>A resposta aparece na hora: <strong>TENTATIVA n · NOTA x</strong>, o veredito e o checklist de Critérios. As dicas do envio aparecem na <code>DICAS.TXT</code>.</li>
   </ol>
   <p><strong>Regras que você vai notar:</strong></p>
   <ul>
@@ -279,10 +298,6 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
     <li>Quando o Facilitador encerra a Rodada (ou o tempo acaba), o campo some e o envio fica bloqueado, mesmo que você estivesse digitando.</li>
     <li>Depois de um envio aceito, o campo é limpo. Depois de uma recusa, o texto fica para você corrigir.</li>
   </ul>
-  <figure>
-    <img src="screenshots/05-avaliacao-checklist.png" alt="Checklist de avaliação do Lucas com Nota 55">
-    <figcaption>Captura 05: Tentativa 1 do Lucas, Nota 55. ✓ para Papel, Contexto e Tarefa, com o trecho reconhecido; ✕ para Formato e Restrições, cada um com uma dica.</figcaption>
-  </figure>
 </div>
 
 <div class="passo">
@@ -294,24 +309,45 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
     <tr><td class="num">50 a 79</td><td>No caminho certo. A base está boa. Acrescente o que falta.</td></tr>
     <tr><td class="num">abaixo de 50</td><td>Longe do alvo. Ainda faltam partes importantes na estrutura do prompt.</td></tr>
   </table>
-  <p>Cada Critério conta <strong>tudo ou nada</strong>. Ele é reconhecido por rótulo (<code>Papel:</code>, <code>## Contexto</code>, <code>&lt;restricoes&gt;</code>) ou por frase natural ("Atue como…", "Responda em…", "You are…"). O conteúdo precisa ter pelo menos 4 palavras: um rótulo vazio não pontua. O prompt também precisa falar do assunto do Desafio, senão a Tarefa não conta.</p>
+  <p>Cada Critério aparece no checklist com a marca da sua força:</p>
+  <ul>
+    <li><strong>✓</strong>: vale tudo (100% dos pontos do Critério).</li>
+    <li><strong>parcial</strong>: vale 70% (frase natural clara) ou 30% (menção fraca). Os pontos aparecem ao lado, e o trecho reconhecido também.</li>
+    <li><strong>✕</strong>: não foi reconhecido e vale 0.</li>
+  </ul>
+  <p>A Nota é a soma dos pontos. Um rótulo só conta quando tem pelo menos uma letra ou um número depois dele: <code>Papel: x</code> já vale o Critério inteiro, e <code>Papel:</code> sem nada não vale nada. Uma frase natural só conta quando tem pelo menos 4 palavras depois do marcador, na mesma frase.</p>
   <table>
-    <tr><th>Critério</th><th class="num">Pontos</th><th>Exemplo de palavra que reconhece</th></tr>
-    <tr><td>Papel</td><td class="num">15</td><td>"Você é…", "Atue como…", <code>Papel:</code>, "You are"</td></tr>
-    <tr><td>Contexto</td><td class="num">20</td><td><code>Contexto:</code>, "Estamos…", "O público é…", "For the team"</td></tr>
-    <tr><td>Tarefa</td><td class="num">20</td><td>Verbo no imperativo (liste, escreva, resuma, extraia…) <strong>e</strong> pelo menos 2 grupos de Palavras-chave do Desafio</td></tr>
-    <tr><td>Formato</td><td class="num">20</td><td>"formato", "tópicos", tabela, JSON, "3 itens", "no máximo 120 palavras"</td></tr>
-    <tr><td>Restrições</td><td class="num">15</td><td>"Não use…", "evite…", "apenas…", "no máximo…", "don't"</td></tr>
-    <tr><td>Exemplos</td><td class="num">10</td><td>"por exemplo", <code>Exemplo:</code>, trecho entre aspas</td></tr>
+    <tr><th>Critério</th><th class="num">Pontos</th><th>Rótulo (vale tudo)</th><th>Frase natural (parcial, 70%)</th><th>Menção fraca (30%)</th></tr>
+    <tr><td>Papel</td><td class="num">15</td><td><code>Papel:</code>, <code>Persona:</code>, <code>Role:</code></td><td>"Você é…", "Atue como…", "Sendo um especialista…", "You are", "as an expert"</td><td>"especialista", "consultor"</td></tr>
+    <tr><td>Contexto</td><td class="num">15</td><td><code>Contexto:</code>, <code>Context:</code></td><td>"Estamos…", "O público é…", "For the team"</td><td>"contexto", "situação"</td></tr>
+    <tr><td>Tarefa</td><td class="num">20</td><td><code>Tarefa:</code>, <code>Task:</code> <strong>e</strong> uma Palavra-chave do Desafio</td><td>Verbo de ação (liste, escreva, resuma…) <strong>e</strong> uma Palavra-chave do Desafio. Um grupo basta.</td><td>Só o verbo, ou só a Palavra-chave</td></tr>
+    <tr><td>Formato</td><td class="num">15</td><td><code>Formato:</code>, <code>Format:</code></td><td>"em tópicos", "tabela", "JSON", "3 itens", "no máximo 120 palavras"</td><td>"formato"</td></tr>
+    <tr><td>Restrições</td><td class="num">10</td><td><code>Restrições:</code>, <code>Constraints:</code></td><td>"Não use…", "evite…", "apenas…", "no máximo…", "don't"</td><td>"sem"</td></tr>
+    <tr><td>Exemplos</td><td class="num">10</td><td><code>Exemplo:</code>, <code>Examples:</code></td><td>"por exemplo", "Exemplo:", trecho entre aspas com 4 palavras</td><td>"exemplo"</td></tr>
+    <tr><td>Delimitadores</td><td class="num">10</td><td>Não tem rótulo: vale com <strong>dois</strong> blocos isolados com conteúdo</td><td>Um bloco com conteúdo (uma tag <code>&lt;nome&gt;…&lt;/nome&gt;</code>, um título <code>##</code> ou um separador <code>---</code>)</td><td>Uma tag ou título sem conteúdo</td></tr>
+    <tr><td>Incerteza</td><td class="num">5</td><td>Não tem rótulo: vale com a condição, a ausência e a ação. Ex.: <em>"Se o valor não estiver no texto, escreva 'não informado'."</em></td><td>Condição com ausência, sem ação: "se não souber", "caso faltar"</td><td>"não informado", "não encontrado" sozinhos</td></tr>
   </table>
+  <p class="nota">Só a Tarefa usa as Palavras-chave do Desafio. Um prompt bom de outro Desafio não pontua a Tarefa.</p>
+  <figure>
+    <img src="screenshots/05-avaliacao-checklist.png" alt="Checklist de avaliação do Lucas com Nota 55">
+    <figcaption>Captura 05 (execução de 13/10): Tentativa 1 do Lucas, Nota 55, com o checklist de seis Critérios daquela versão. Na versão atual, o mesmo tipo de checklist tem oito linhas com pontos parciais.</figcaption>
+  </figure>
 </div>
 
 <div class="passo">
-  <h3>4.5 Histórico, Placar e Conquistas <span class="quem">Jogador</span></h3>
+  <h3>4.5 Dicas na janela DICAS.TXT <span class="quem">Jogador</span></h3>
+  <ul>
+    <li><strong>Dicas deste envio</strong>: uma dica por Critério parcial ou ✕ do último envio, ordenada pelos pontos perdidos (o que mais custou vem primeiro). Cada dica tem um link para a documentação da Anthropic sobre prompts. A dica de Incerteza cita o Guia do workshop, porque a documentação oficial não recomenda essa instrução.</li>
+    <li><strong>Guia de um bom prompt</strong>: sempre visível, com uma linha para cada um dos oito Critérios. Serve para aprender entre as Tentativas.</li>
+  </ul>
+</div>
+
+<div class="passo">
+  <h3>4.6 Histórico, Placar e Conquistas <span class="quem">Jogador</span></h3>
   <ul>
     <li>O <strong>histórico</strong> da Rodada lista suas Tentativas com prompt e Nota, para você comparar versões.</li>
     <li>O <strong>PLACAR.EXE</strong> mostra todos os Jogadores com posição, Avatar, Nickname, pontuação total, <code>ONLINE</code>/<code>OFFLINE</code>, <code>ENVIOU</code>, <code>TENT. n/3</code> e as Conquistas.</li>
-    <li>A pontuação total é a soma, por Rodada, da <strong>melhor</strong> Nota. Só suas melhores Tentativas contam. Empate: menos Tentativas usadas e, depois, quem atingiu a pontuação antes.</li>
+    <li>A pontuação total é a soma, por Rodada, da <strong>melhor</strong> Nota. Só suas melhores Tentativas contam. Empate: menos Tentativas usadas nas Rodadas em que pontuou e, depois, quem atingiu a pontuação antes.</li>
     <li>O feed de <strong>EVENTOS</strong> mostra o que acontece na Sala, sem texto de prompt: "JO tirou 100!", "MA enviou a 2ª Tentativa", "PE ganhou Primeiro sangue".</li>
     <li><strong>LEVEL UP!</strong> aparece quando sua Nota melhora na Rodada ou quando você sobe no Placar.</li>
   </ul>
@@ -325,84 +361,88 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
   </table>
   <figure>
     <img src="screenshots/06-placar-durante-rodada.png" alt="Placar com a Rodada aberta">
-    <figcaption>Captura 06: Placar ao vivo durante a Rodada 1. Você vê quem enviou e quantas Tentativas cada um usou, mas não vê o texto dos prompts.</figcaption>
+    <figcaption>Captura 06 (execução de 13/10): Placar ao vivo durante a Rodada 1. Você vê quem enviou e quantas Tentativas cada um usou, mas não vê o texto dos prompts.</figcaption>
   </figure>
 </div>
 
 <div class="passo">
-  <h3>4.6 Revelação no fim da Rodada <span class="quem">Jogador</span></h3>
+  <h3>4.7 Revelação no fim da Rodada <span class="quem">Jogador</span></h3>
   <p>Quando a Rodada encerra, sua <code>PROMPT.EXE</code> mostra o <strong>REVELAÇÃO</strong>: o Prompt de referência do Desafio e o top 3, com Avatar, Nickname, Nota e prompt de cada um. Esse reveal fica até o Facilitador abrir a próxima Rodada.</p>
   <figure>
     <img src="screenshots/07-reveal-jogador.png" alt="Reveal da Rodada 1 na janela do Jogador">
-    <figcaption>Captura 07: reveal da Rodada 1 na janela do Joao.</figcaption>
+    <figcaption>Captura 07 (execução de 13/10): reveal da Rodada 1 na janela do Joao.</figcaption>
   </figure>
 </div>
 
 <!-- ============================================================ -->
 <h2 id="roteiro">5. Roteiro de execução: cinco Rodadas, quatro Jogadores</h2>
-<p>Este é o roteiro que foi executado. Um testador pode repetir a sequência com Joao, Lucas, Pedro e Maria e comparar as Notas com as da tabela. <strong>A ordem importa</strong>: o Primeiro sangue e o desempate dependem dela.</p>
+<p>Este é o roteiro a executar. Um testador repete a sequência com Joao, Lucas, Pedro e Maria e compara as Notas com a tabela. <strong>A ordem importa</strong>: o Primeiro sangue, o desempate e a Evolução dependem dela.</p>
+<p class="aviso"><strong>Como as Notas foram calculadas.</strong> Cada prompt desta seção foi passado pelo Avaliador do commit <code>393700e</code>, com as mesmas funções que o motor usa, e o Placar foi somado com as regras de desempate do motor. Isso confere os números, mas não substitui o teste no navegador (seção 7). Os textos abaixo são os que devem ser digitados. Os textos com quebra de linha usam Enter na <code>PROMPT.EXE</code>.</p>
 
 <div class="aviso">
-  <strong>Como comparar.</strong> Para cada envio, a Nota na tela tem que ser igual à coluna <em>Nota esperada</em>. Os pontos por Critério também estão na tabela, em <code>Papel/Contexto/Tarefa/Formato/Restrições/Exemplos</code>.
+  <strong>Como comparar.</strong> Para cada envio, a Nota na tela tem que ser igual à coluna <em>Nota esperada</em>. A coluna <em>Pontos por Critério</em> segue a ordem <code>Pa/Co/Ta/Fo/Re/Ex/De/In</code> (Papel, Contexto, Tarefa, Formato, Restrições, Exemplos, Delimitadores, Incerteza). A coluna <em>Observação</em> diz quais Critérios ficaram parciais ou fracos.
 </div>
 
 <h3>Rodada 1 · Desafio 1 · Vantagens e desvantagens do trabalho remoto (sem cronômetro)</h3>
 <table>
-  <tr><th>#</th><th>Jogador</th><th>Prompt (texto para copiar)</th><th class="num">Nota esperada</th><th>Critérios (P/C/T/F/R/E)</th></tr>
-  <tr><td>1</td><td>Joao</td><td>(enviar em branco; ENVIAR deve ficar desativado)</td><td class="num">—</td><td>não consome Tentativa</td></tr>
-  <tr><td>2</td><td>Joao</td><td>Liste as vantagens e desvantagens do trabalho remoto.</td><td class="num">20</td><td>0/0/20/0/0/0</td></tr>
-  <tr><td>3</td><td>Pedro</td><td>Escreva um texto sobre home office.</td><td class="num">0</td><td>0/0/0/0/0/0 (só 1 grupo de palavras-chave)</td></tr>
-  <tr><td>4</td><td>Maria</td><td>Papel: x. Contexto: x. Tarefa: x. Formato: x. Restrições: x. Exemplo: x.</td><td class="num">0</td><td>rótulos sem conteúdo não pontuam</td></tr>
-  <tr><td>5</td><td>Lucas</td><td>Papel: Você é um consultor de RH experiente. Contexto: Estamos decidindo o modelo de trabalho. Tarefa: liste as vantagens e desvantagens do trabalho remoto.</td><td class="num">55</td><td>15/20/20/0/0/0</td></tr>
-  <tr><td>6</td><td>Pedro</td><td>Liste as vantagens e as desvantagens do trabalho remoto em tópicos.</td><td class="num">40</td><td>0/0/20/20/0/0 · Evolução (40 ≥ 0 + 30)</td></tr>
-  <tr><td>7</td><td>Lucas</td><td>Papel: Você é um consultor de RH experiente. Contexto: Estamos decidindo o modelo de trabalho. Tarefa: liste as vantagens e desvantagens do trabalho remoto. Formato: lista com 2 títulos, no máximo 5 itens cada. Restrições: não use jargão técnico.</td><td class="num">90</td><td>15/20/20/20/15/0 · Evolução (90 ≥ 55 + 30)</td></tr>
-  <tr><td>8</td><td>Joao</td><td>Papel: Você é um consultor de gestão de pessoas com experiência em modelos de trabalho. Contexto: Estamos decidindo se mantemos o trabalho remoto. O público é a diretoria. Tarefa: Liste as vantagens e as desvantagens do trabalho remoto para a empresa e para as pessoas. Formato: Duas listas com títulos, com no máximo 5 itens cada. Restrições: Evite opiniões pessoais e jargão técnico. Exemplo: Vantagem: economia com aluguel, por exemplo, com deslocamento.</td><td class="num">100</td><td>15/20/20/20/15/10 · Na mosca · Evolução</td></tr>
-  <tr><td>9</td><td>Maria</td><td>You are an experienced HR consultant. Context: we are deciding on remote work. Task: list the advantages and disadvantages of remote work. Format: two bulleted lists with short items. Don't use technical jargon in the answer. For example, a bullet: pro, lower rent.</td><td class="num">100</td><td>15/20/20/20/15/10 · Na mosca · Evolução (texto em inglês)</td></tr>
-  <tr><td>10</td><td>Pedro</td><td>Liste as vantagens e desvantagens do trabalho remoto.</td><td class="num">20</td><td>0/0/20/0/0/0 (3ª Tentativa; a melhor continua 40)</td></tr>
-  <tr><td>11</td><td>Pedro</td><td>(4ª Tentativa, qualquer texto)</td><td class="num">recusado</td><td>"Você já usou as 3 Tentativas desta Rodada."</td></tr>
+  <tr><th>#</th><th>Jogador</th><th>Prompt (texto para copiar)</th><th class="num">Nota esperada</th><th class="num">Pa/Co/Ta/Fo/Re/Ex/De/In</th><th>Observação</th></tr>
+  <tr><td>1</td><td>Joao</td><td>(enviar em branco; ENVIAR deve ficar desativado)</td><td class="num">—</td><td class="num">—</td><td>não consome Tentativa</td></tr>
+  <tr><td>2</td><td>Joao</td><td>Liste as vantagens e desvantagens do trabalho remoto.</td><td class="num">14</td><td class="num">0 0 14 0 0 0 0 0</td><td>Tarefa parcial: verbo e Palavra-chave, sem rótulo</td></tr>
+  <tr><td>3</td><td>Pedro</td><td>Escreva um texto sobre home office.</td><td class="num">14</td><td class="num">0 0 14 0 0 0 0 0</td><td>Tarefa parcial: um grupo de Palavras-chave ("home office") basta</td></tr>
+  <tr><td>4</td><td>Maria</td><td>Papel: . Contexto: . Tarefa: . Formato: . Restrições: . Exemplo: .</td><td class="num">0</td><td class="num">0 0 0 0 0 0 0 0</td><td>rótulos sem conteúdo não pontuam</td></tr>
+  <tr><td>5</td><td>Lucas</td><td>Papel: Você é um consultor de RH experiente. Contexto: Estamos decidindo o modelo de trabalho. Tarefa: liste as vantagens e desvantagens do trabalho remoto.</td><td class="num">50</td><td class="num">15 15 20 0 0 0 0 0</td><td>Papel, Contexto e Tarefa cheios; sem Formato</td></tr>
+  <tr><td>6</td><td>Pedro</td><td>Liste as vantagens e as desvantagens do trabalho remoto em tópicos.</td><td class="num">25</td><td class="num">0 0 14 11 0 0 0 0</td><td>Tarefa parcial; Formato parcial ("em tópicos" como frase natural)</td></tr>
+  <tr><td>7</td><td>Lucas</td><td>Papel: Você é um consultor de RH experiente. Contexto: Estamos decidindo o modelo de trabalho. Tarefa: liste as vantagens e desvantagens do trabalho remoto. Formato: lista com 2 títulos, no máximo 5 itens cada. Restrições: não use jargão técnico.</td><td class="num">75</td><td class="num">15 15 20 15 10 0 0 0</td><td>sem Exemplos, Delimitadores e Incerteza</td></tr>
+  <tr><td>8</td><td>Joao</td><td>Papel: Você é um consultor de gestão de pessoas com experiência em modelos de trabalho. Contexto: Estamos decidindo se mantemos o trabalho remoto. O público é a diretoria. Tarefa: Liste as vantagens e as desvantagens do trabalho remoto para a empresa e para as pessoas. Formato: Duas listas com títulos, com no máximo 5 itens cada. Restrições: Evite opiniões pessoais e jargão técnico. Exemplo: Vantagem: economia com aluguel, por exemplo, com deslocamento.</td><td class="num">85</td><td class="num">15 15 20 15 10 10 0 0</td><td>"Quase lá". Faltam Delimitadores (10) e Incerteza (5): as duas dicas aparecem em <code>DICAS.TXT</code></td></tr>
+  <tr><td>9</td><td>Maria</td><td>You are an experienced HR consultant. Context: we are deciding on remote work. Task: list the advantages and disadvantages of remote work. Format: two bulleted lists with short items. Don't use technical jargon in the answer. For example, a bullet: pro, lower rent.</td><td class="num">75</td><td class="num">11 15 20 15 7 7 0 0</td><td>Papel, Restrições e Exemplos parciais (frases em inglês sem rótulo)</td></tr>
+  <tr><td>10</td><td>Pedro</td><td>Liste as vantagens e desvantagens do trabalho remoto.</td><td class="num">14</td><td class="num">0 0 14 0 0 0 0 0</td><td>3ª Tentativa. A melhor do Pedro continua 25</td></tr>
+  <tr><td>11</td><td>Pedro</td><td>(4ª Tentativa, qualquer texto)</td><td class="num">recusado</td><td class="num">—</td><td>"Você já usou as 3 Tentativas desta Rodada."</td></tr>
 </table>
-<p><strong>Ao encerrar a Rodada 1:</strong> Joao em 1º (campeão da Rodada). Maria também tirou 100, mas Joao chegou ao 100 antes. Top 3 do reveal: Joao 100, Maria 100, Lucas 90. Depois de encerrada, o envio de qualquer Jogador deve ser recusado com <em>"A Rodada foi encerrada."</em>, e o Desafio 1 não pode ser reaberto: <em>"Este Desafio já foi jogado nesta Sala."</em></p>
+<p><strong>Ao encerrar a Rodada 1:</strong> Campeão da Rodada: Joao (85). Top 3 do reveal: Joao 85, Lucas 75, Maria 75. Lucas e Maria empatam em 75 com 2 Tentativas cada, e Lucas chegou antes. Depois de encerrada, o envio de qualquer Jogador deve ser recusado com <em>"A Rodada foi encerrada."</em>, e o Desafio 1 não pode ser reaberto: <em>"Este Desafio já foi jogado nesta Sala."</em></p>
 
 <h3>Rodada 2 · Desafio 2 · E-mail marcando uma reunião de alinhamento (sem cronômetro)</h3>
 <table>
-  <tr><th>#</th><th>Jogador</th><th>Prompt (texto para copiar)</th><th class="num">Nota esperada</th><th>Critérios</th></tr>
-  <tr><td>1</td><td>Maria</td><td>Escreva um e-mail para a equipe marcando uma reunião de alinhamento com data e participantes.</td><td class="num">40</td><td>0/20/20/0/0/0 · Primeiro sangue</td></tr>
-  <tr><td>2</td><td>Pedro</td><td>Escreva um texto curto.</td><td class="num">0</td><td>0/0/0/0/0/0</td></tr>
-  <tr><td>3</td><td>Joao</td><td>Escreva um e-mail sobre a reunião.</td><td class="num">20</td><td>0/0/20/0/0/0</td></tr>
-  <tr><td>4</td><td>Lucas</td><td>Escreva um e-mail marcando uma reunião de alinhamento.</td><td class="num">20</td><td>0/0/20/0/0/0</td></tr>
-  <tr><td>5</td><td>Maria</td><td>Papel: Você é uma assistente de comunicação de projetos. Contexto: Precisamos alinhar o escopo da entrega. Tarefa: Escreva um e-mail marcando uma reunião de alinhamento com data e participantes. Formato: Assunto na primeira linha e corpo em tópicos curtos. Restrições: Não invente datas e evite tom informal. Exemplo: Assunto: Alinhamento, por exemplo, reunião na terça às 14h.</td><td class="num">100</td><td>15/20/20/20/15/10 · Na mosca · Evolução (100 ≥ 40 + 30)</td></tr>
-  <tr><td>6</td><td>Pedro</td><td>Escreva um e-mail marcando uma reunião de alinhamento.</td><td class="num">20</td><td>0/0/20/0/0/0 (sem Evolução: 20 &lt; 0 + 30)</td></tr>
-  <tr><td>7</td><td>Lucas</td><td>Papel: Você é um coordenador de projetos. Tarefa: escreva um e-mail marcando uma reunião de alinhamento com data e participantes.</td><td class="num">35</td><td>15/0/20/0/0/0 (sem Evolução: 35 &lt; 20 + 30)</td></tr>
-  <tr><td>8</td><td>Joao</td><td>Escreva um e-mail para o time marcando uma reunião de alinhamento com data e participantes.</td><td class="num">40</td><td>0/20/20/0/0/0 (sem Evolução: 40 &lt; 20 + 30)</td></tr>
-  <tr><td>9</td><td>Lucas</td><td>Escreva um e-mail marcando uma reunião de alinhamento com data, horário e participantes, em no máximo 80 palavras.</td><td class="num">55</td><td>0/0/20/20/15/0 · Evolução (55 ≥ 20 + 30)</td></tr>
+  <tr><th>#</th><th>Jogador</th><th>Prompt (texto para copiar)</th><th class="num">Nota esperada</th><th class="num">Pa/Co/Ta/Fo/Re/Ex/De/In</th><th>Observação</th></tr>
+  <tr><td>1</td><td>Maria</td><td>Escreva um e-mail para a equipe marcando uma reunião de alinhamento com data e participantes.</td><td class="num">25</td><td class="num">0 11 14 0 0 0 0 0</td><td>Contexto parcial ("para a equipe"); Tarefa parcial. Primeiro sangue</td></tr>
+  <tr><td>2</td><td>Pedro</td><td>Escreva um texto curto.</td><td class="num">6</td><td class="num">0 0 6 0 0 0 0 0</td><td>Tarefa fraca: verbo sem Palavra-chave</td></tr>
+  <tr><td>3</td><td>Joao</td><td>Escreva um e-mail sobre a reunião.</td><td class="num">14</td><td class="num">0 0 14 0 0 0 0 0</td><td>Tarefa parcial</td></tr>
+  <tr><td>4</td><td>Lucas</td><td>Escreva um e-mail marcando uma reunião de alinhamento.</td><td class="num">14</td><td class="num">0 0 14 0 0 0 0 0</td><td>Tarefa parcial</td></tr>
+  <tr><td>5</td><td>Maria</td><td>Papel: Você é uma assistente de comunicação de projetos. Contexto: Precisamos alinhar o escopo da entrega. Tarefa: Escreva um e-mail marcando uma reunião de alinhamento com data e participantes. Formato: Assunto na primeira linha e corpo em tópicos curtos. Restrições: Não invente datas e evite tom informal. Exemplo: Assunto: Alinhamento, por exemplo, reunião na terça às 14h.</td><td class="num">85</td><td class="num">15 15 20 15 10 10 0 0</td><td>"Quase lá". Faltam Delimitadores e Incerteza</td></tr>
+  <tr><td>6</td><td>Pedro</td><td>Escreva um e-mail marcando uma reunião de alinhamento.</td><td class="num">14</td><td class="num">0 0 14 0 0 0 0 0</td><td>Tarefa parcial. Sem Evolução (14 &lt; 6 + 30)</td></tr>
+  <tr><td>7</td><td>Lucas</td><td>Papel: Você é um coordenador de projetos. Tarefa: escreva um e-mail marcando uma reunião de alinhamento com data e participantes.</td><td class="num">35</td><td class="num">15 0 20 0 0 0 0 0</td><td>Papel e Tarefa cheios (com rótulo). Sem Evolução (35 &lt; 14 + 30)</td></tr>
+  <tr><td>8</td><td>Joao</td><td>Escreva um e-mail para o time marcando uma reunião de alinhamento com data e participantes.</td><td class="num">25</td><td class="num">0 11 14 0 0 0 0 0</td><td>Contexto parcial ("para o time"); Tarefa parcial. Sem Evolução (25 &lt; 14 + 30)</td></tr>
+  <tr><td>9</td><td>Lucas</td><td>Escreva um e-mail marcando uma reunião de alinhamento com data, horário e participantes, em no máximo 80 palavras.</td><td class="num">32</td><td class="num">0 0 14 11 7 0 0 0</td><td>Tarefa, Formato e Restrições parciais</td></tr>
+  <tr><td>10</td><td>Maria</td><td>Papel: Você é uma assistente de comunicação de projetos. Contexto: Precisamos alinhar o escopo da entrega. Tarefa: Escreva um e-mail marcando uma reunião de alinhamento com data e participantes. Formato: Assunto na primeira linha e corpo em tópicos curtos. Restrições: Não invente datas e evite tom informal. Exemplo: Assunto: Alinhamento, por exemplo, reunião na terça às 14h.<br>## Dados<br>Se a data não estiver informada, escreva 'data a definir'.</td><td class="num">100</td><td class="num">15 15 20 15 10 10 10 5</td><td>"Na mosca!". Delimitadores (dois blocos: o texto e <code>## Dados</code>) e Incerteza (condição, ausência e ação). Evolução (100 ≥ 25 + 30)</td></tr>
 </table>
-<p><strong>Ao encerrar a Rodada 2:</strong> Top 3 do reveal: Maria 100, Lucas 55, Joao 40. Campeão da Rodada: Maria.</p>
+<p class="nota">No envio 10, digite a linha <code>## Dados</code> sozinha, com Enter antes e depois dela. Sem as quebras de linha, o título não conta como bloco.</p>
+<p><strong>Ao encerrar a Rodada 2:</strong> Top 3 do reveal: Maria 100, Lucas 35, Joao 25. Campeão da Rodada: Maria. Primeiro sangue: Maria (envio 1).</p>
 
 <h3>Rodada 3 · Desafio 3 · Resumo da reunião (cronômetro de 1 minuto)</h3>
 <table>
-  <tr><th>#</th><th>Jogador</th><th>Prompt (texto para copiar)</th><th class="num">Nota esperada</th><th>Critérios</th></tr>
-  <tr><td>1</td><td>Pedro</td><td>Resuma as anotações da reunião em decisões, pendências e responsáveis, e transforme em pauta.</td><td class="num">20</td><td>0/0/20/0/0/0 · Primeiro sangue</td></tr>
-  <tr><td>2</td><td>Maria</td><td>Atue como um secretário de reuniões. Contexto: as anotações abaixo são de uma reunião de projeto. Formato: lista com três títulos, Decisões, Pendências e Pauta, com no máximo 5 itens.</td><td class="num">70</td><td>15/20/0/20/15/0 · "no máximo" conta em Formato e em Restrições</td></tr>
-  <tr><td>3</td><td>Lucas</td><td>Escreva um resumo da reunião.</td><td class="num">0</td><td>só o grupo "resumo" (1 grupo)</td></tr>
-  <tr><td>4</td><td>Joao</td><td>Crie um resumo das anotações.</td><td class="num">20</td><td>0/0/20/0/0/0</td></tr>
+  <tr><th>#</th><th>Jogador</th><th>Prompt (texto para copiar)</th><th class="num">Nota esperada</th><th class="num">Pa/Co/Ta/Fo/Re/Ex/De/In</th><th>Observação</th></tr>
+  <tr><td>1</td><td>Pedro</td><td>Resuma as anotações da reunião em decisões, pendências e responsáveis, e transforme em pauta.</td><td class="num">14</td><td class="num">0 0 14 0 0 0 0 0</td><td>Tarefa parcial. Primeiro sangue</td></tr>
+  <tr><td>2</td><td>Maria</td><td>Atue como um secretário de reuniões. Contexto: as anotações abaixo são de uma reunião de projeto. Formato: lista com três títulos, Decisões, Pendências e Pauta, com no máximo 5 itens.</td><td class="num">54</td><td class="num">11 15 6 15 7 0 0 0</td><td>Papel parcial; Tarefa fraca (só a Palavra-chave, sem verbo de ação); Restrições parcial ("no máximo")</td></tr>
+  <tr><td>3</td><td>Lucas</td><td>Escreva um resumo da reunião.</td><td class="num">14</td><td class="num">0 0 14 0 0 0 0 0</td><td>Tarefa parcial</td></tr>
+  <tr><td>4</td><td>Joao</td><td>Crie um resumo das anotações.</td><td class="num">14</td><td class="num">0 0 14 0 0 0 0 0</td><td>Tarefa parcial</td></tr>
 </table>
 <p><strong>Cronômetro:</strong> o campo mostra <em>TEMPO: 00:55</em> logo depois da abertura. Sem envio depois do zero, a Rodada deve encerrar <strong>sozinha</strong>. Um envio do Joao depois disso deve ser recusado com <em>"A Rodada foi encerrada."</em></p>
-<p><strong>Ao encerrar a Rodada 3:</strong> Top 3: Maria 70, Pedro 20, Joao 20. O empate fica com quem enviou antes (Pedro).</p>
+<p><strong>Ao encerrar a Rodada 3:</strong> Campeão da Rodada: Maria (54). Top 3 do reveal: Maria 54, Pedro 14, Lucas 14. Pedro e Lucas empatam em 14, e Pedro chegou antes. Joao também tem 14 e fica em 4º.</p>
 
 <h3>Rodada 4 · Desafio 4 · Extrair dados de um contrato em JSON (sem cronômetro)</h3>
 <table>
-  <tr><th>#</th><th>Jogador</th><th>Prompt (texto para copiar)</th><th class="num">Nota esperada</th><th>Critérios</th></tr>
-  <tr><td>1</td><td>Lucas</td><td>Extraia dados do contrato em JSON.</td><td class="num">40</td><td>0/0/20/20/0/0 · Primeiro sangue</td></tr>
-  <tr><td>2</td><td>Joao</td><td>Papel: Você é um analista de dados. Contexto: O documento é um contrato em .docx da empresa. Tarefa: Extraia os campos contratante, contratado, valor, vigência e multa do contrato. Formato: JSON com as chaves contratante, contratado, valor, vigência e multa. Restrições: Não invente dados nem valores.</td><td class="num">90</td><td>15/20/20/20/15/0 · Quase lá</td></tr>
+  <tr><th>#</th><th>Jogador</th><th>Prompt (texto para copiar)</th><th class="num">Nota esperada</th><th class="num">Pa/Co/Ta/Fo/Re/Ex/De/In</th><th>Observação</th></tr>
+  <tr><td>1</td><td>Lucas</td><td>Extraia dados do contrato em JSON.</td><td class="num">25</td><td class="num">0 0 14 11 0 0 0 0</td><td>Tarefa parcial; Formato parcial ("JSON" numa frase). Primeiro sangue</td></tr>
+  <tr><td>2</td><td>Joao</td><td>Papel: Você é um analista de dados. Contexto: O documento é um contrato em .docx da empresa. Tarefa: Extraia os campos contratante, contratado, valor, vigência e multa do contrato. Formato: JSON com as chaves contratante, contratado, valor, vigência e multa. Restrições: Não invente dados nem valores.</td><td class="num">75</td><td class="num">15 15 20 15 10 0 0 0</td><td>"No caminho certo". Faltam Exemplos, Delimitadores e Incerteza</td></tr>
 </table>
+<p><strong>Ao encerrar a Rodada 4:</strong> Campeão da Rodada: Joao (75). Top 2 do reveal: Joao 75, Lucas 25.</p>
 
 <h3>Rodada 5 · Desafio 5 · Pontos-chave de um e-mail de cliente (sem cronômetro)</h3>
 <table>
-  <tr><th>#</th><th>Jogador</th><th>Prompt (texto para copiar)</th><th class="num">Nota esperada</th><th>Critérios</th></tr>
-  <tr><td>1</td><td>Pedro</td><td>(enviar em branco, depois um texto de mais de 4.000 caracteres)</td><td class="num">recusado</td><td>não consome Tentativa</td></tr>
-  <tr><td>2</td><td>Pedro</td><td>Extraia os pontos-chave, as perguntas e o prazo do e-mail do cliente, em tópicos.</td><td class="num">40</td><td>0/0/20/20/0/0 · Campeão da Rodada</td></tr>
+  <tr><th>#</th><th>Jogador</th><th>Prompt (texto para copiar)</th><th class="num">Nota esperada</th><th class="num">Pa/Co/Ta/Fo/Re/Ex/De/In</th><th>Observação</th></tr>
+  <tr><td>1</td><td>Pedro</td><td>(enviar em branco, depois um texto de mais de 4.000 caracteres)</td><td class="num">recusado</td><td class="num">—</td><td>não consome Tentativa</td></tr>
+  <tr><td>2</td><td>Pedro</td><td>Extraia os pontos-chave, as perguntas e o prazo do e-mail do cliente, em tópicos.</td><td class="num">25</td><td class="num">0 0 14 11 0 0 0 0</td><td>Tarefa parcial; Formato parcial. Primeiro sangue e Campeão da Rodada</td></tr>
 </table>
-<p><strong>Presença:</strong> feche a aba do Lucas e espere alguns segundos. Ele deve aparecer como <code>OFFLINE</code> no Placar, com os 185 pontos. Ao voltar, deve aparecer <code>ONLINE</code> de novo.</p>
+<p><strong>Presença:</strong> feche a aba do Lucas e espere alguns segundos. Ele deve aparecer como <code>OFFLINE</code> no Placar, com os 149 pontos. Ao voltar, deve aparecer <code>ONLINE</code> de novo.</p>
 
 <h3>Moderação e reset</h3>
 <ol>
@@ -414,12 +454,28 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
 <h3>Placar esperado ao longo do workshop</h3>
 <table>
   <tr><th>Depois de</th><th>1º</th><th>2º</th><th>3º</th><th>4º</th></tr>
-  <tr><td>Rodada 1</td><td>Joao 100</td><td>Maria 100</td><td>Lucas 90</td><td>Pedro 40</td></tr>
-  <tr><td>Rodada 2</td><td>Maria 200</td><td>Lucas 145</td><td>Joao 140</td><td>Pedro 60</td></tr>
-  <tr><td>Rodada 3</td><td>Maria 270</td><td>Joao 160</td><td>Lucas 145</td><td>Pedro 80</td></tr>
-  <tr><td>Rodada 4</td><td>Maria 270</td><td>Joao 250</td><td>Lucas 185</td><td>Pedro 80</td></tr>
-  <tr><td>Rodada 5</td><td>Maria 270</td><td>Joao 250</td><td>Lucas 185</td><td>Pedro 120</td></tr>
+  <tr><td>Rodada 1</td><td>Joao 85</td><td>Lucas 75</td><td>Maria 75</td><td>Pedro 25</td></tr>
+  <tr><td>Rodada 2</td><td>Maria 175</td><td>Joao 110</td><td>Lucas 110</td><td>Pedro 39</td></tr>
+  <tr><td>Rodada 3</td><td>Maria 229</td><td>Joao 124</td><td>Lucas 124</td><td>Pedro 53</td></tr>
+  <tr><td>Rodada 4</td><td>Maria 229</td><td>Joao 199</td><td>Lucas 149</td><td>Pedro 53</td></tr>
+  <tr><td>Rodada 5</td><td>Maria 229</td><td>Joao 199</td><td>Lucas 149</td><td>Pedro 78</td></tr>
 </table>
+<p><strong>Empates que o roteiro testa:</strong></p>
+<ul>
+  <li><strong>Depois da Rodada 1, Lucas e Maria, 75:</strong> mesmo número de Tentativas (2 cada). Lucas fica em 2º porque chegou ao 75 antes.</li>
+  <li><strong>Depois da Rodada 2, Joao e Lucas, 110:</strong> Joao usou 4 Tentativas nas Rodadas em que pontuou, e Lucas usou 5. Joao fica em 2º pelo desempate por Tentativas, e não pelo horário.</li>
+</ul>
+
+<h3>Conquistas esperadas por Rodada</h3>
+<table>
+  <tr><th>Rodada</th><th>Conquistas que devem aparecer</th></tr>
+  <tr><td>1</td><td>Primeiro sangue (Joao) · Evolução (Joao, 85 sobre 14; Maria, 75 sobre 0) · Campeão da Rodada (Joao)</td></tr>
+  <tr><td>2</td><td>Primeiro sangue (Maria) · Na mosca (Maria, 100) · Evolução (Maria) · Campeão da Rodada (Maria)</td></tr>
+  <tr><td>3</td><td>Primeiro sangue (Pedro) · Campeão da Rodada (Maria, 54)</td></tr>
+  <tr><td>4</td><td>Primeiro sangue (Lucas) · Campeão da Rodada (Joao, 75)</td></tr>
+  <tr><td>5</td><td>Primeiro sangue (Pedro) · Campeão da Rodada (Pedro)</td></tr>
+</table>
+<p class="nota">Ninguém tira 100 na 1ª Tentativa, então <em>De primeira</em> não aparece. Essa ausência é esperada.</p>
 
 <!-- ============================================================ -->
 <h2 id="checklist">6. Checklist para o testador humano</h2>
@@ -439,7 +495,7 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
 
 <h3>Área de trabalho e Janela (histórias 9 a 16)</h3>
 <ul class="checklist">
-  <li><span class="caixa"></span>As três janelas <code>PROMPT.EXE</code>, <code>DESAFIO.TXT</code> e <code>PLACAR.EXE</code> aparecem (9).</li>
+  <li><span class="caixa"></span>As quatro janelas <code>PROMPT.EXE</code>, <code>DESAFIO.TXT</code>, <code>DICAS.TXT</code> e <code>PLACAR.EXE</code> aparecem (9).</li>
   <li><span class="caixa"></span>Arrastar, minimizar e restaurar pela barra de tarefas funciona (10).</li>
   <li><span class="caixa"></span>A posição das janelas sobrevive a um reload (11).</li>
   <li><span class="caixa"></span>Sem Rodada aberta, <code>AGUARDANDO O FACILITADOR...</code> com cursor piscando (13).</li>
@@ -450,14 +506,15 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
 
 <h3>Tentativas e Avaliação (histórias 17 a 30)</h3>
 <ul class="checklist">
-  <li><span class="caixa"></span>Campo de texto livre, sem formulário (17).</li>
+  <li><span class="caixa"></span>Campo de texto livre, sem formulário (17). Enter quebra a linha.</li>
   <li><span class="caixa"></span>Nota aparece na hora, de 0 a 100, com veredito (18, 19).</li>
-  <li><span class="caixa"></span>Checklist com ✓/✕ e pontos por Critério (20).</li>
-  <li><span class="caixa"></span>Dica para cada Critério não atendido (21).</li>
+  <li><span class="caixa"></span>Checklist com ✓, parcial ou ✕ e pontos por Critério, com oito linhas (20).</li>
+  <li><span class="caixa"></span>Pontos parciais: uma frase natural dá 70% e uma menção fraca dá 30% (20). Ex.: Tarefa 14 e 6 nos envios da Rodada 2.</li>
+  <li><span class="caixa"></span>Dica para cada Critério parcial ou não atendido, em <code>DICAS.TXT</code> (21). A ordem vai do que mais custou para o que menos custou.</li>
   <li><span class="caixa"></span>Trecho reconhecido para cada Critério atendido (22).</li>
   <li><span class="caixa"></span>Rótulo (<code>Papel:</code>, <code>## Contexto</code>) e frase natural ("Atue como…") são reconhecidos (23).</li>
-  <li><span class="caixa"></span>Prompt em inglês é reconhecido (24, caso "Maria 2" da Rodada 1).</li>
-  <li><span class="caixa"></span>Rótulo sem conteúdo não pontua (25, caso "Maria 1" da Rodada 1).</li>
+  <li><span class="caixa"></span>Prompt em inglês é reconhecido (24, caso "Maria 2" da Rodada 1, com 75 pontos).</li>
+  <li><span class="caixa"></span>Rótulo sem conteúdo não pontua (25, caso "Maria 1" da Rodada 1, com 0).</li>
   <li><span class="caixa"></span>Prompt bom de outro Desafio não pontua a Tarefa (26).</li>
   <li><span class="caixa"></span>Histórico da Rodada mostra prompt e Nota de cada Tentativa (27).</li>
   <li><span class="caixa"></span>Prompt vazio é recusado, sem gastar Tentativa, e o motivo aparece (28).</li>
@@ -465,13 +522,24 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
   <li><span class="caixa"></span>Depois do encerramento, o envio fica bloqueado, mesmo digitando (30).</li>
 </ul>
 
+<h3>Critérios novos: Delimitadores e Incerteza (histórias 68 a 70)</h3>
+<ul class="checklist">
+  <li><span class="caixa"></span>Dois blocos isolados (texto e título <code>## Dados</code>) dão os 10 pontos de Delimitadores. Envio 10 da Rodada 2.</li>
+  <li><span class="caixa"></span>Um só bloco, ou uma tag sem conteúdo, dá Delimitadores parcial (7 pontos) ou fraco (3 pontos).</li>
+  <li><span class="caixa"></span>Condição com ausência e ação ("Se a data não estiver informada, escreva…") dá os 5 pontos de Incerteza. Envio 10 da Rodada 2.</li>
+  <li><span class="caixa"></span>Condição sem ação ("se não souber") dá Incerteza parcial (4 pontos, 70% de 5 arredondado). Digite um prompt com só essa frase para conferir.</li>
+  <li><span class="caixa"></span><code>DICAS.TXT</code> mostra "Dicas deste envio" com as dicas de Delimitadores e Incerteza no envio 8 da Rodada 1 (Joao, 85).</li>
+  <li><span class="caixa"></span>O "Guia de um bom prompt" mostra as oito linhas, sempre (69, 70).</li>
+</ul>
+
 <h3>Placar e eventos (histórias 31 a 39)</h3>
 <ul class="checklist">
   <li><span class="caixa"></span>Placar mostra Avatar, Nickname e total, ordenado (31).</li>
   <li><span class="caixa"></span>Placar atualiza ao vivo quando alguém envia (32).</li>
-  <li><span class="caixa"></span>Só a melhor Tentativa da Rodada conta (33). Ex.: Pedro tem 0, 40 e 20; conta 40.</li>
-  <li><span class="caixa"></span>Total é a soma das melhores Notas de cada Rodada (34).</li>
-  <li><span class="caixa"></span>Empate de 100 entre Joao e Maria: Joao fica em 1º (35).</li>
+  <li><span class="caixa"></span>Só a melhor Tentativa da Rodada conta (33). Ex.: Pedro na Rodada 1 tem 14, 25 e 14; conta 25.</li>
+  <li><span class="caixa"></span>Total é a soma das melhores Notas de cada Rodada (34). Ex.: Maria tem 229 = 75 + 100 + 54.</li>
+  <li><span class="caixa"></span>Empate de 75 entre Lucas e Maria na Rodada 1: Lucas fica em 2º por ter chegado antes (35).</li>
+  <li><span class="caixa"></span>Empate de 110 entre Joao e Lucas depois da Rodada 2: Joao fica em 2º por ter usado menos Tentativas (35).</li>
   <li><span class="caixa"></span>Status ONLINE/OFFLINE, ENVIOU e tentativas usadas aparecem (36).</li>
   <li><span class="caixa"></span>Quem fica OFFLINE continua com os pontos (37).</li>
   <li><span class="caixa"></span>Feed de eventos sem texto de prompt (38, 39).</li>
@@ -479,10 +547,10 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
 
 <h3>Conquistas e feedback (histórias 40 a 48)</h3>
 <ul class="checklist">
-  <li><span class="caixa"></span>Na mosca aparece quando tira 100 (40).</li>
+  <li><span class="caixa"></span>Na mosca aparece quando tira 100 (40). Maria, Rodada 2, envio 10.</li>
   <li><span class="caixa"></span>De primeira: nenhum Jogador a ganha no roteiro, porque ninguém tirou 100 na 1ª Tentativa. Verifique se ela não aparece (41).</li>
-  <li><span class="caixa"></span>Primeiro sangue vai para o primeiro envio aceito da Rodada (42).</li>
-  <li><span class="caixa"></span>Evolução aparece com +30 e não aparece com +29 ou menos (43).</li>
+  <li><span class="caixa"></span>Primeiro sangue vai para o primeiro envio aceito da Rodada (42). Ex.: Joao na Rodada 1, Maria na Rodada 2.</li>
+  <li><span class="caixa"></span>Evolução aparece com +30 e não aparece com +29 ou menos (43). Ex.: Joao na Rodada 1, 85 sobre 14 (+71). Lucas na Rodada 1, 75 sobre 50 (+25), não aparece.</li>
   <li><span class="caixa"></span>Campeão da Rodada vai para o 1º lugar ao encerrar (44).</li>
   <li><span class="caixa"></span>Conquistas aparecem no Placar para todos (45).</li>
   <li><span class="caixa"></span>LEVEL UP aparece quando a Nota melhora ou quando você sobe no Placar (46).</li>
@@ -520,20 +588,21 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
 </ul>
 
 <!-- ============================================================ -->
-<h2 id="resultados">7. Resultados desta execução</h2>
+<h2 id="resultados">7. Resultados e estado da verificação</h2>
 
 <table>
   <tr><th>Etapa</th><th>Como foi feita</th><th>Resultado</th></tr>
-  <tr><td>Suíte automatizada (Vitest)</td><td><code>pnpm test</code> sobre o HEAD do repositório</td><td class="ok">197 de 197 testes passaram (6 arquivos)</td></tr>
-  <tr><td>Typecheck</td><td><code>pnpm typecheck</code></td><td class="ok">sem erros</td></tr>
-  <tr><td>Cenário com quatro Jogadores (scripted)</td><td>Socket.IO contra o servidor real, com Joao, Lucas, Pedro, Maria e o Facilitador; script em <code>verificacao/cenario-verificacao.cjs</code></td><td class="ok">207 de 207 verificações passaram: Notas, pontos por Critério, Placar, desempate, Conquistas, cronômetro, recusas, privacidade, presença, remoção e reset</td></tr>
-  <tr><td>Roteiro pelo navegador (quatro Jogadores + Facilitador + Telão)</td><td>Chrome via MCP, cada Jogador numa origem diferente; capturas nesta pasta</td><td class="ok">Todas as Notas, Placar, reveal, cronômetro, bloqueios, remoção e reset batem com a tabela. Achados abaixo.</td></tr>
+  <tr><td>Suíte automatizada (Vitest)</td><td><code>pnpm test</code> sobre o commit <code>393700e</code></td><td class="ok">239 de 239 testes passaram (7 arquivos), em 14/10/2026</td></tr>
+  <tr><td>Notas e Placar esperados desta revisão</td><td>Script temporário que chama <code>evaluate()</code> e as funções de pontuação e Conquistas do motor sobre os textos da seção 5</td><td class="ok">Calculados. Os números da seção 5 vêm dessa conta. Não é uma execução de tela.</td></tr>
+  <tr><td>Cenário automatizado (<code>verificacao/cenario-verificacao.cjs</code>)</td><td>Não repetido nesta revisão</td><td class="falha">Pendente. O script tem os valores da versão 4430dbe e vai falhar nas Notas. Veja o apêndice.</td></tr>
+  <tr><td>Roteiro pelo navegador (quatro Jogadores + Facilitador + Telão)</td><td>Não repetido nesta revisão</td><td class="falha">Pendente. Os resultados abaixo são da execução de 13/10, no commit 4430dbe.</td></tr>
 </table>
 
-<h3>Notas conferidas no navegador</h3>
+<h3>Execução de 13/10 (commit 4430dbe): resultados históricos</h3>
+<p class="nota">Esta tabela e as capturas são da versão anterior. Com seis Critérios e pontuação tudo ou nada, as Notas batiam com o roteiro antigo. Elas não valem como prova da versão atual.</p>
 <table>
   <tr><th>Rodada</th><th>Jogador</th><th class="num">Tentativas (Notas, em ordem)</th><th>Observado</th></tr>
-  <tr><td>1</td><td>Joao</td><td class="num">20, 100</td><td>igual ao esperado</td></tr>
+  <tr><td>1</td><td>Joao</td><td class="num">20, 100</td><td>igual ao esperado da versão anterior</td></tr>
   <tr><td>1</td><td>Lucas</td><td class="num">55, 90</td><td>igual; LEVEL UP "NOTA MELHOROU!"</td></tr>
   <tr><td>1</td><td>Pedro</td><td class="num">0, 40, 20 (4ª recusada)</td><td>igual; campo bloqueado com o motivo</td></tr>
   <tr><td>1</td><td>Maria</td><td class="num">0, 100</td><td>igual (inglês reconhecido)</td></tr>
@@ -545,41 +614,36 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
   <tr><td>4</td><td>Lucas / Joao</td><td class="num">40 / 90</td><td>igual</td></tr>
   <tr><td>5</td><td>Pedro</td><td class="num">40</td><td>igual; vazio recusado antes</td></tr>
 </table>
-
-<h3>Placar final (Telão)</h3>
-<p>Após a Rodada 5: <strong>Maria 270, Joao 250, Lucas 185, Pedro 120</strong>, com as Conquistas de cada um, conforme a captura 11. Os valores batem com o Placar esperado.</p>
 <figure>
   <img src="screenshots/11-telao-placar-final.png" alt="Telão com o Placar final">
-  <figcaption>Captura 11: Telão com o Placar final.</figcaption>
+  <figcaption>Captura 11 (execução de 13/10): Telão com o Placar final da versão anterior (Maria 270, Joao 250, Lucas 185, Pedro 120).</figcaption>
 </figure>
 
 <!-- ============================================================ -->
 <h2 id="achados">8. Achados e observações</h2>
-<p>Estes pontos não quebram a spec. São riscos para o workshop real, e nenhum foi corrigido nesta execução.</p>
+<p>Estes pontos não quebram a spec. São riscos para o workshop real. Nenhum foi corrigido nesta revisão.</p>
 
 <div class="passo">
   <h3>Achado 1 · Plural não é reconhecido pelo Critério Tarefa</h3>
-  <p><strong>O que acontece:</strong> o Critério Tarefa procura as Palavras-chave com a forma exata. "e-mail" não bate com "e-mails", e "reunião" não bate com "reuniões". Verificado com o Avaliador:</p>
-  <pre>"Escreva um e-mail marcando uma reunião de alinhamento."   → Tarefa 20
-"Escreva e-mails marcando reuniões de alinhamento."        → Tarefa 0  (nota 0)
-
-</pre>
-  <p><strong>Impacto:</strong> um Jogador que escreve no plural perde 20 pontos de Tarefa, mesmo com um prompt bom. Isso quebra a expectativa de quem vê uma resposta correta e ganha 0.</p>
-  <p><strong>Sugestão:</strong> aceitar as formas plurais das Palavras-chave no Critério Tarefa (ex.: "e-mails", "reuniões"), ou listar as formas plurais no seed de cada Desafio. Não corrigido nesta execução.</p>
+  <p><strong>O que acontece:</strong> a Palavra-chave é procurada na forma exata. "e-mail" não bate com "e-mails", e "reunião" não bate com "reuniões". Verificado com o Avaliador do commit <code>393700e</code>:</p>
+  <pre>"Escreva um e-mail marcando uma reunião."   → Tarefa 14 (parcial)
+"Escreva e-mails marcando reuniões."        → Tarefa 6  (fraca)  · nota 6</pre>
+  <p><strong>Impacto:</strong> quem escreve no plural perde 8 pontos de Tarefa, e a Nota cai de 14 para 6. Se o texto não tiver nenhum outro termo do Desafio, o prompt bom perde a parte que mais pesa.</p>
+  <p><strong>Sugestão:</strong> aceitar as formas plurais das Palavras-chave no Critério Tarefa, ou listar as formas plurais no seed de cada Desafio. Não corrigido nesta revisão.</p>
 </div>
 
 <div class="passo">
-  <h3>Achado 2 · DESAFIO.TXT fica escondido atrás da PROMPT.EXE no layout padrão</h3>
-  <p><strong>O que acontece:</strong> a posição padrão da <code>DESAFIO.TXT</code> é x=32, y=360 (<code>lib/client/windows.ts</code>), e a <code>PROMPT.EXE</code> começa em x=32, y=32 e é alta o bastante para cobrir essa posição. Na captura 05 (janela do Lucas), não há nenhum sinal da <code>DESAFIO.TXT</code> na tela. Ela só aparece na barra de tarefas.</p>
+  <h3>Achado 2 · DESAFIO.TXT pode ficar escondido atrás da PROMPT.EXE no layout padrão</h3>
+  <p><strong>O que acontece:</strong> a posição padrão da <code>DESAFIO.TXT</code> é x=32, y=360 (<code>lib/client/windows.ts</code>), e a <code>PROMPT.EXE</code> começa em x=32, y=32 e é alta o bastante para cobrir essa posição. Na captura 05 (janela do Lucas, versão anterior), não há sinal da <code>DESAFIO.TXT</code> na tela. Ela só aparece na barra de tarefas. A <code>DICAS.TXT</code> entrou no layout com posição padrão x=640, y=360, do lado direito. A mudança do layout não foi conferida na tela nesta revisão.</p>
   <p><strong>Impacto:</strong> o Jogador pode não ver o cenário (história 14), e o Desafio fica "invisível" no primeiro uso. O Jogador precisa descobrir que deve minimizar a <code>PROMPT.EXE</code> ou arrastar a outra janela.</p>
   <p><strong>Sugestão:</strong> posicionar a <code>DESAFIO.TXT</code> num lugar que não fique sob a <code>PROMPT.EXE</code> no layout padrão, ou destacar a <code>DESAFIO.TXT</code> quando uma Rodada abre.</p>
 </div>
 
 <div class="passo">
   <h3>Achado 3 · pnpm dev trava em CARREGANDO... em outros endereços</h3>
-  <p><strong>O que acontece:</strong> <code>next.config.ts</code> não define <code>allowedDevOrigins</code>. Quando a página é aberta por <code>127.0.0.1</code>, <code>[::1]</code> ou um IP da rede, o Next bloqueia os recursos de desenvolvimento (<code>/_next/hmr</code>, fontes). O JavaScript não hidrata e a tela fica em <strong>CARREGANDO...</strong> para sempre. O log do servidor mostra: <em>"Blocked cross-origin request to Next.js dev resource /_next/hmr from ..."</em>. Só <code>localhost</code> funcionava sem configuração.</p>
+  <p><strong>O que acontece:</strong> <code>next.config.ts</code> não define <code>allowedDevOrigins</code> (conferido no commit <code>393700e</code>). Quando a página é aberta por <code>127.0.0.1</code>, <code>[::1]</code> ou um IP da rede, o Next bloqueia os recursos de desenvolvimento (<code>/_next/hmr</code>, fontes). O JavaScript não hidrata e a tela fica em <strong>CARREGANDO...</strong> para sempre. O log do servidor mostra: <em>"Blocked cross-origin request to Next.js dev resource /_next/hmr from ..."</em>. Só <code>localhost</code> funcionava sem configuração.</p>
   <p><strong>Impacto:</strong> quem tentar testar pela rede do workshop em modo de desenvolvimento vê a aplicação travada, sem mensagem na tela.</p>
-  <p><strong>Sugestão:</strong> acrescentar o IP ou o nome da máquina do workshop em <code>allowedDevOrigins</code>, ou usar <code>pnpm start</code> no dia do workshop. Na cópia de teste usada aqui, liberei as origens de loopback só nessa cópia; o código do projeto não foi alterado.</p>
+  <p><strong>Sugestão:</strong> acrescentar o IP ou o nome da máquina do workshop em <code>allowedDevOrigins</code>, ou usar <code>pnpm start</code> no dia do workshop.</p>
 </div>
 
 <div class="passo">
@@ -587,14 +651,20 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
   <p>Isso é o comportamento desejado (história 7), mas confunde quem testa. Se duas abas do mesmo endereço entram com Nicknames diferentes, a segunda sobrescreve o token da primeira. Use endereços diferentes ou perfis de navegador separados, como no item 2.2.</p>
 </div>
 
-<h3>Limitações deste teste</h3>
+<div class="passo">
+  <h3>Achado 5 · Rótulo com uma letra já pontua (decisão da spec)</h3>
+  <p><strong>O que acontece:</strong> pela regra de 14/10, "Papel: x" vale os 15 pontos de Papel. Antes da revisão, o mesmo texto valia 0. Teste com o Avaliador: "Papel: x. Contexto: x. Tarefa: x. Formato: x. Restrições: x. Exemplo: x." dá 71 pontos.</p>
+  <p><strong>Impacto:</strong> um Jogador pode ganhar pontos com rótulos sem sentido. O roteiro usa rótulos vazios (<code>Papel: .</code>) para o caso "sem conteúdo".</p>
+  <p><strong>Sugestão:</strong> decidir se o workshop quer exigir uma palavra com sentido, e não só uma letra. Se sim, é mudança da regra de Rótulo na spec, não do código.</p>
+</div>
+
+<h3>Limitações desta revisão</h3>
 <ul>
-  <li><strong>Não coberto pelo navegador:</strong> o efeito sonoro (áudio), o arrastar das janelas com o mouse, o modo TELA CHEIA do Telão e a animação LEVEL UP só foram verificados pelo texto na página, não pela imagem. Não há captura do LEVEL UP.</li>
-  <li><strong>Caminho positivo de De primeira não exercitado:</strong> ninguém tirou 100 na 1ª Tentativa. O caso negativo foi verificado, mas a Conquista em si não.</li>
-  <li><strong>Desempate por Tentativas usadas não exercitado:</strong> o empate de 100 entre Joao e Maria foi resolvido pelo horário. O empate por número de Tentativas está coberto só pelos testes unitários do Motor.</li>
+  <li><strong>Não repetido pelo navegador:</strong> o roteiro de tela, com quatro Jogadores e o Telão, não foi executado de novo. As capturas são de 13/10.</li>
+  <li><strong>Não repetido pelo cenário automatizado:</strong> o <code>cenario-verificacao.cjs</code> ainda tem os valores antigos.</li>
+  <li><strong>Efeitos e animações:</strong> o efeito sonoro, o arrastar com o mouse, o modo TELA CHEIA do Telão e o LEVEL UP continuam verificados só pelo texto da página, não pela imagem.</li>
   <li><strong>Reinício do servidor no meio do workshop (história 64):</strong> não testado.</li>
-  <li><strong>Acesso pelo IP da rede local:</strong> não testado. O quarto endereço usado foi <code>127.0.0.2</code>. Um comando de rede para checar o IP da rede local foi bloqueado pelo classificador de segurança, então não usei esse endereço.</li>
-  <li><strong>Ambiente:</strong> o servidor de teste rodou numa cópia de <code>HEAD</code> no scratchpad, com banco SQLite separado e PIN de teste. O <code>data/workshop.db</code> e o servidor de desenvolvimento na porta 3000 não foram tocados.</li>
+  <li><strong>Acesso pelo IP da rede local:</strong> não testado.</li>
 </ul>
 
 <h2 id="repetir">Apêndice · Como repetir a verificação automatizada</h2>
@@ -604,7 +674,7 @@ PIN=1234 \
 SAIDA=resultado.json \
 node verificacao/cenario-verificacao.cjs</pre>
 <p><strong>Atenção:</strong> o script começa com a Sala vazia e termina com um <em>reset</em>. Rode-o só num servidor de teste com banco descartável, cujo <code>FACILITADOR_PIN</code> seja o mesmo do <code>PIN</code>. Não o rode no servidor do workshop.</p>
-<p>O arquivo <code>verificacao/saida-verificacao.txt</code> guarda a última saída (207 de 207). <code>verificacao/resultado-verificacao.json</code> traz cada checagem, com o valor obtido e o esperado.</p>
+<p><strong>Antes de rodar:</strong> o script e os arquivos <code>verificacao/saida-verificacao.txt</code> e <code>verificacao/resultado-verificacao.json</code> têm os valores da versão 4430dbe (207 de 207, Notas de seis Critérios). Com a pontuação atual, as Notas não batem e o script vai falhar. Atualize os valores esperados para os da seção 5 antes de usá-lo como prova.</p>
 
 </main>
 </body>
