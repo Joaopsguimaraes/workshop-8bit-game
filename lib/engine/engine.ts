@@ -47,6 +47,9 @@ export type Event =
   | { type: "player-removed"; player: PublicPlayer }
   | { type: "match-reset" };
 
+// Feed event with an increasing number, so the client can sort it and not repeat it.
+export type FeedItem = { id: number; event: Event };
+
 export type EnterResult = { ok: true; token: string; player: Player } | { ok: false; error: string };
 
 export type ResumeResult = { ok: true; player: Player } | { ok: false; error: string };
@@ -95,6 +98,10 @@ export type AttemptResult =
   | { ok: false; error: string };
 
 const SESSION_INVALID = "Sessão inválida. Entre novamente.";
+// Feed events kept for the screens; older ones are not returned.
+const FEED_MAX = 30;
+// A Player seen within this window counts as online. Clients poll every 1.5 s, so this tolerates a few missed polls.
+const ONLINE_WINDOW_MS = 10_000;
 const NICKNAME_IN_USE = "Nickname já em uso";
 
 type Options = { challenges?: Challenge[]; now?: () => Date };
@@ -141,10 +148,9 @@ function summarize(challenge: Challenge): ChallengeSummary {
 export function createEngine(prisma: PrismaClient, options: Options = {}) {
   const challenges = options.challenges ?? CHALLENGES;
   const clock = options.now ?? (() => new Date());
-  const listeners = new Set<(event: Event) => void>();
-
-  function emit(event: Event) {
-    for (const listener of listeners) listener(event);
+  // Every match fact is stored, so any serverless instance can read the same feed.
+  async function emit(event: Event) {
+    await prisma.feedEvent.create({ data: { payload: JSON.stringify(event) } });
   }
 
   // State-changing commands run one at a time, so the invariants hold even with
@@ -247,7 +253,7 @@ export function createEngine(prisma: PrismaClient, options: Options = {}) {
         data: { playerId: player.id, roundId, type, createdAt: instant },
       });
       owned.add(type);
-      emit({ type: "achievement-earned", player: toPublicPlayer(player), achievement: type });
+      await emit({ type: "achievement-earned", player: toPublicPlayer(player), achievement: type });
     }
   }
 
@@ -259,7 +265,7 @@ export function createEngine(prisma: PrismaClient, options: Options = {}) {
     });
 
     const rankings = roundRanking(await attemptsOfRound(round.id));
-    emit({
+    await emit({
       type: "round-closed",
       title: challengeOfRound(round).title,
       reveal: buildReveal(round, rankings),
@@ -333,12 +339,27 @@ export function createEngine(prisma: PrismaClient, options: Options = {}) {
   }
 
   return {
-    // Subscribes a listener to the feed. Returns the function that cancels the subscription.
-    subscribe(listener: (event: Event) => void): () => void {
-      listeners.add(listener);
-      return () => {
-        listeners.delete(listener);
-      };
+    // The last events of the Room, oldest first. Each poll reads this whole window.
+    async liveFeed(): Promise<FeedItem[]> {
+      const rows = await prisma.feedEvent.findMany({ orderBy: { id: "desc" }, take: FEED_MAX });
+      return rows
+        .map((row) => ({ id: row.id, event: JSON.parse(row.payload) as Event }))
+        .reverse();
+    },
+
+    // Marks the Player as seen now, so the Scoreboard can show who is online.
+    async touch(token: string): Promise<void> {
+      await prisma.player.updateMany({ where: { token }, data: { lastSeenAt: clock() } });
+    },
+
+    // Ids of the Players seen within the online window.
+    async onlinePlayerIds(): Promise<Set<string>> {
+      const since = new Date(clock().getTime() - ONLINE_WINDOW_MS);
+      const rows = await prisma.player.findMany({
+        where: { lastSeenAt: { gte: since } },
+        select: { id: true },
+      });
+      return new Set(rows.map((row) => row.id));
     },
 
     async enter(nickname: string): Promise<EnterResult> {
@@ -356,7 +377,7 @@ export function createEngine(prisma: PrismaClient, options: Options = {}) {
             token,
           },
         });
-        emit({ type: "player-joined", player: toPublicPlayer(row) });
+        await emit({ type: "player-joined", player: toPublicPlayer(row) });
         return { ok: true, token, player: toPlayer(row) };
       } catch (error) {
         if (isUniqueViolation(error)) return { ok: false, error: NICKNAME_IN_USE };
@@ -413,7 +434,7 @@ export function createEngine(prisma: PrismaClient, options: Options = {}) {
                 : new Date(instant.getTime() + durationSeconds * 1000),
           },
         });
-        emit({ type: "round-opened", title: challenge.title });
+        await emit({ type: "round-opened", title: challenge.title });
         return { ok: true as const, round: toPublicRound(created) };
       });
     },
@@ -487,8 +508,8 @@ export function createEngine(prisma: PrismaClient, options: Options = {}) {
         });
 
         const publicPlayer = toPublicPlayer(player);
-        emit({ type: "attempt-submitted", player: publicPlayer, number });
-        if (evaluation.score === 100) emit({ type: "max-score", player: publicPlayer, number });
+        await emit({ type: "attempt-submitted", player: publicPlayer, number });
+        if (evaluation.score === 100) await emit({ type: "max-score", player: publicPlayer, number });
 
         await grant(
           { id: player.id, ...publicPlayer },
@@ -570,7 +591,7 @@ export function createEngine(prisma: PrismaClient, options: Options = {}) {
           prisma.attempt.deleteMany({ where: { playerId } }),
           prisma.player.delete({ where: { id: playerId } }),
         ]);
-        emit({ type: "player-removed", player: toPublicPlayer(player) });
+        await emit({ type: "player-removed", player: toPublicPlayer(player) });
         return { ok: true as const };
       });
     },
@@ -583,8 +604,9 @@ export function createEngine(prisma: PrismaClient, options: Options = {}) {
           prisma.attempt.deleteMany(),
           prisma.round.deleteMany(),
           prisma.player.deleteMany(),
+          prisma.feedEvent.deleteMany(),
         ]);
-        emit({ type: "match-reset" });
+        await emit({ type: "match-reset" });
         return { ok: true as const };
       });
     },

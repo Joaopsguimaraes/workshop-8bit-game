@@ -1,0 +1,9 @@
+-- AlterTable
+ALTER TABLE "Jogador" ADD COLUMN "ultimoAcesso" DATETIME;
+
+-- CreateTable
+CREATE TABLE "EventoFeed" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "conteudo" TEXT NOT NULL,
+    "criadoEm" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

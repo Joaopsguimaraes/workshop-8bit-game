@@ -2,7 +2,8 @@ import { Avatar } from "./avatar";
 import { eventText } from "@/lib/client/feed";
 import { ACHIEVEMENT_NAMES } from "@/lib/engine/achievements";
 import { ATTEMPT_LIMIT } from "@/lib/limits";
-import type { FeedItem, LiveScoreboardEntry } from "@/lib/realtime";
+import type { FeedItem } from "@/lib/engine/engine";
+import type { LiveScoreboardEntry } from "@/lib/live";
 
 type Props = {
   players: LiveScoreboardEntry[] | null;

@@ -1,6 +1,7 @@
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaLibSql } from "@prisma/adapter-libsql";
 import { PrismaClient } from "../../generated/prisma/client";
 
-export function createPrismaClient(url: string) {
-  return new PrismaClient({ adapter: new PrismaBetterSqlite3({ url }) });
+// `url` is a local file (`file:./data/workshop.db`) or a hosted libSQL database (`libsql://...`, e.g. Turso).
+export function createPrismaClient(url: string, authToken?: string) {
+  return new PrismaClient({ adapter: new PrismaLibSql({ url, authToken }) });
 }

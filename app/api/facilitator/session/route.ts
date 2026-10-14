@@ -9,7 +9,7 @@ import {
 
 const TWELVE_HOURS_IN_SECONDS = 12 * 60 * 60;
 
-// Checks the PIN and issues the httpOnly cookie that the Facilitator socket validates.
+// Checks the PIN and issues the httpOnly cookie that the Facilitator routes validate.
 export async function POST(request: Request) {
   const body: unknown = await request.json().catch(() => null);
   const pin =

@@ -1,4 +1,4 @@
-import Database from "better-sqlite3";
+import { createClient } from "@libsql/client";
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
@@ -16,17 +16,16 @@ export function readMigrationsSql() {
     .join("\n");
 }
 
-// Serverless runtimes start with an empty file (e.g. /tmp), so the schema is applied on first use.
-export function applyMigrationsIfNeeded(url: string) {
-  if (!url.startsWith("file:")) return;
-
-  const connection = new Database(url.slice("file:".length));
+// Serverless runtimes start with an empty database, so the schema is applied on first use.
+// Works for a local file and for a hosted libSQL database alike.
+export async function applyMigrationsIfNeeded(url: string, authToken?: string) {
+  const client = createClient({ url, authToken });
   try {
-    const hasSchema = connection
-      .prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'Jogador'")
-      .get();
-    if (!hasSchema) connection.exec(readMigrationsSql());
+    const existing = await client.execute(
+      "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'Jogador'",
+    );
+    if (existing.rows.length === 0) await client.executeMultiple(readMigrationsSql());
   } finally {
-    connection.close();
+    client.close();
   }
 }

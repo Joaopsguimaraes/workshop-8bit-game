@@ -35,7 +35,7 @@ const PROMPT_ALFA = "Papel: você é um consultor de RH experiente. Liste as van
 // Score 14 on challenge beta: a verb and a Keywords group, 70% of the Task.
 const PROMPT_BETA = "Escreva um e-mail sobre a reunião de alinhamento.";
 
-let database: ReturnType<typeof createTestDatabase>;
+let database: Awaited<ReturnType<typeof createTestDatabase>>;
 let engine: ReturnType<typeof createEngine>;
 let now: Date;
 
@@ -43,8 +43,8 @@ function advance(seconds: number) {
   now = new Date(now.getTime() + seconds * 1000);
 }
 
-beforeEach(() => {
-  database = createTestDatabase();
+beforeEach(async () => {
+  database = await createTestDatabase();
   now = new Date("2026-10-13T12:00:00.000Z");
   engine = createEngine(database.prisma, { challenges: [ALFA, BETA], now: () => now });
 });
@@ -595,11 +595,10 @@ describe("removePlayer", () => {
   });
 
   it("notifies the feed with the avatar and nickname of who left, without internal data", async () => {
-    const received: Event[] = [];
-    engine.subscribe((event) => received.push(event));
     const ana = await enterAs("Ana");
 
     await engine.removePlayer(ana.player.id);
+    const received = (await engine.liveFeed()).map((item) => item.event);
 
     expect(received).toContainEqual({
       type: "player-removed",
@@ -663,13 +662,12 @@ describe("resetMatch", () => {
     expect(await engine.closeRound()).toEqual({ ok: false, error: "Não há Rodada aberta." });
   });
 
-  it("notifies the feed that the match was reset", async () => {
-    const received: Event[] = [];
-    engine.subscribe((event) => received.push(event));
+  it("clears the feed and leaves only the reset in it", async () => {
+    await enterAs("Ana");
 
     await engine.resetMatch();
 
-    expect(received).toContainEqual({ type: "match-reset" });
+    expect((await engine.liveFeed()).map((item) => item.event)).toEqual([{ type: "match-reset" }]);
   });
 });
 
@@ -947,20 +945,22 @@ describe("achievements", () => {
 
 describe("events", () => {
   let seed: Engine;
-  let received: Event[];
   const REMOTE = "trabalho-remoto";
   const REF_REMOTE = CHALLENGES_SEED[0].referencePrompt;
 
   beforeEach(() => {
     seed = createEngine(database.prisma, { challenges: CHALLENGES_SEED, now: () => now });
-    received = [];
-    seed.subscribe((event) => received.push(event));
   });
+
+  // Every event the Room has emitted so far, as the feed stores them.
+  async function received(): Promise<Event[]> {
+    return (await seed.liveFeed()).map((item) => item.event);
+  }
 
   it("notifies when a player enters", async () => {
     await seed.enter("Ana Maria");
 
-    expect(received).toContainEqual({
+    expect(await received()).toContainEqual({
       type: "player-joined",
       player: { nickname: "Ana Maria", initials: "AN" },
     });
@@ -970,11 +970,11 @@ describe("events", () => {
     await seed.openRound(REMOTE);
     await seed.closeRound();
 
-    expect(received).toContainEqual({
+    expect(await received()).toContainEqual({
       type: "round-opened",
       title: CHALLENGES_SEED[0].title,
     });
-    expect(received).toContainEqual(
+    expect(await received()).toContainEqual(
       expect.objectContaining({ type: "round-closed", title: CHALLENGES_SEED[0].title }),
     );
   });
@@ -984,12 +984,12 @@ describe("events", () => {
     await seed.openRound(REMOTE);
     await seed.submitAttempt(ana.token, `oi SEGREDO-DA-ANA`);
 
-    expect(received).toContainEqual({
+    expect(await received()).toContainEqual({
       type: "attempt-submitted",
       player: { nickname: "Ana", initials: "AN" },
       number: 1,
     });
-    expect(JSON.stringify(received)).not.toContain("SEGREDO-DA-ANA");
+    expect(JSON.stringify(await received())).not.toContain("SEGREDO-DA-ANA");
   });
 
   it("notifies when an attempt scores 100 and when an achievement is earned", async () => {
@@ -997,10 +997,10 @@ describe("events", () => {
     await seed.openRound(REMOTE);
     await seed.submitAttempt(ana.token, REF_REMOTE);
 
-    expect(received).toContainEqual(
+    expect(await received()).toContainEqual(
       expect.objectContaining({ type: "max-score", number: 1 }),
     );
-    expect(received).toContainEqual({
+    expect(await received()).toContainEqual({
       type: "achievement-earned",
       player: { nickname: "Ana", initials: "AN" },
       achievement: "bullseye",
@@ -1014,7 +1014,7 @@ describe("events", () => {
     await seed.submitAttempt(bia.token, `${REF_REMOTE} SEGREDO-DA-BIA`);
     await seed.submitAttempt(ana.token, "oi");
 
-    expect(JSON.stringify(received)).not.toContain("SEGREDO-DA-BIA");
+    expect(JSON.stringify(await received())).not.toContain("SEGREDO-DA-BIA");
     expect(JSON.stringify(await seed.playerState(ana.token))).not.toContain("SEGREDO-DA-BIA");
     expect(JSON.stringify(await seed.scoreboard())).not.toContain("SEGREDO-DA-BIA");
   });
@@ -1025,7 +1025,7 @@ describe("events", () => {
     await seed.submitAttempt(ana.token, REF_REMOTE);
     await seed.closeRound();
 
-    expect(received).toContainEqual(
+    expect(await received()).toContainEqual(
       expect.objectContaining({
         type: "round-closed",
         reveal: expect.objectContaining({
@@ -1091,5 +1091,42 @@ describe("reveal", () => {
 
     await seed.openRound(ALIGNMENT);
     expect(await seed.playerState(ana.token)).toMatchObject({ reveal: null });
+  });
+});
+
+describe("liveFeed", () => {
+  it("keeps the events in order, read back from the database", async () => {
+    await enterAs("Ana");
+    await engine.openRound("alfa");
+
+    const feed = await engine.liveFeed();
+
+    expect(feed.map((item) => item.event.type)).toEqual(["player-joined", "round-opened"]);
+    expect(feed[0].id).toBeLessThan(feed[1].id);
+  });
+
+  it("returns only the last 30 events", async () => {
+    for (let index = 0; index < 35; index++) await enterAs(`Jogador${index}`);
+
+    const feed = await engine.liveFeed();
+
+    expect(feed).toHaveLength(30);
+    expect(feed[29].event).toEqual({
+      type: "player-joined",
+      player: { nickname: "Jogador34", initials: "JO" },
+    });
+  });
+});
+
+describe("online players", () => {
+  it("counts a Player as online only after touch, and only within the window", async () => {
+    const ana = await enterAs("Ana");
+    expect([...(await engine.onlinePlayerIds())]).toEqual([]);
+
+    await engine.touch(ana.token);
+    expect([...(await engine.onlinePlayerIds())]).toEqual([ana.player.id]);
+
+    advance(11);
+    expect([...(await engine.onlinePlayerIds())]).toEqual([]);
   });
 });

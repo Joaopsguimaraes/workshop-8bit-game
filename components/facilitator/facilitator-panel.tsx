@@ -2,44 +2,22 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { io, type Socket } from "socket.io-client";
+import { useState } from "react";
 import { Avatar } from "@/components/avatar";
 import { Button } from "@/components/ui/8bit/button";
 import { Input } from "@/components/ui/8bit/input";
 import { Label } from "@/components/ui/8bit/label";
-import type { FacilitatorState } from "@/lib/engine/engine";
-
-type Reply = { ok: boolean; error?: string };
+import { useFacilitator } from "@/lib/client/use-facilitator";
 
 // Facilitator control panel: opens and closes Rounds, removes Players and resets the Room.
 export function FacilitatorPanel() {
   const router = useRouter();
-  const socketRef = useRef<Socket | null>(null);
-  const [state, setState] = useState<FacilitatorState | null>(null);
+  const { state, act } = useFacilitator({ onInvalid: () => router.refresh() });
   const [minutes, setMinutes] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [confirmingReset, setConfirmingReset] = useState(false);
 
-  useEffect(() => {
-    const socket = io();
-    socketRef.current = socket;
-
-    socket.on("facilitator:state", (data: FacilitatorState) => {
-      setState(data);
-    });
-    socket.on("facilitator:invalid", () => {
-      socket.close();
-      router.refresh();
-    });
-
-    return () => {
-      socketRef.current = null;
-      socket.close();
-    };
-  }, [router]);
-
-  function openRound(challengeId: string) {
+  async function openRound(challengeId: string) {
     const text = minutes.trim();
     const minutesNumber = Number(text);
     if (text !== "" && (!Number.isInteger(minutesNumber) || minutesNumber < 1)) {
@@ -48,36 +26,26 @@ export function FacilitatorPanel() {
     }
 
     const durationSeconds = text === "" ? undefined : minutesNumber * 60;
-    socketRef.current?.emit(
-      "facilitator:openRound",
-      { challengeId, durationSeconds },
-      (reply: Reply) => {
-        setError(reply.ok ? null : (reply.error ?? null));
-        // The timer only applies to the Round that was just opened; the next one starts without a deadline.
-        if (reply.ok) setMinutes("");
-      },
-    );
+    const reply = await act("/api/facilitator/rounds", { challengeId, durationSeconds });
+    setError(reply.ok ? null : (reply.error ?? null));
+    // The timer only applies to the Round that was just opened; the next one starts without a deadline.
+    if (reply.ok) setMinutes("");
   }
 
-  function closeRound() {
-    socketRef.current?.emit("facilitator:closeRound", (reply: Reply) =>
-      setError(reply.ok ? null : (reply.error ?? null)),
-    );
+  async function closeRound() {
+    const reply = await act("/api/facilitator/rounds/close");
+    setError(reply.ok ? null : (reply.error ?? null));
   }
 
-  function removePlayer(playerId: string) {
-    socketRef.current?.emit(
-      "facilitator:removePlayer",
-      { playerId },
-      (reply: Reply) => setError(reply.ok ? null : (reply.error ?? null)),
-    );
+  async function removePlayer(playerId: string) {
+    const reply = await act("/api/facilitator/players/remove", { playerId });
+    setError(reply.ok ? null : (reply.error ?? null));
   }
 
-  function resetMatch() {
-    socketRef.current?.emit("facilitator:resetMatch", (reply: Reply) => {
-      setError(reply.ok ? null : (reply.error ?? null));
-      if (reply.ok) setConfirmingReset(false);
-    });
+  async function resetMatch() {
+    const reply = await act("/api/facilitator/reset");
+    setError(reply.ok ? null : (reply.error ?? null));
+    if (reply.ok) setConfirmingReset(false);
   }
 
   if (!state) {
@@ -88,7 +56,8 @@ export function FacilitatorPanel() {
     );
   }
 
-  const { round, sent, challenges, players } = state;
+  const { round, sent, challenges } = state;
+  const players = state.players;
 
   return (
     <main className="flex min-h-dvh flex-col gap-6 p-6">

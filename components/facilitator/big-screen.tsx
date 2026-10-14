@@ -2,56 +2,28 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { io, type Socket } from "socket.io-client";
 import { Avatar } from "@/components/avatar";
 import { Button } from "@/components/ui/8bit/button";
 import { eventText } from "@/lib/client/feed";
+import { useFacilitator } from "@/lib/client/use-facilitator";
 import { formatTime } from "@/lib/client/time";
 import { ACHIEVEMENT_NAMES } from "@/lib/engine/achievements";
-import type { FacilitatorState, Reveal } from "@/lib/engine/engine";
-import type { FeedItem, LiveScoreboardEntry } from "@/lib/realtime";
+import type { FeedItem, Reveal } from "@/lib/engine/engine";
+import type { LiveScoreboardEntry } from "@/lib/live";
 
-// `clockOffsetMs` is the difference between the server clock and the browser clock, for the timer.
-type LiveState = FacilitatorState & { clockOffsetMs: number };
-
-const FEED_MAX = 50;
 const FEED_ON_BIG_SCREEN = 8;
 
 // Full-screen big screen: Scoreboard, current Challenge, timer, submissions, feed and reveal, all live.
-// Uses the Facilitator channel, so the page only works with the PIN session.
+// Uses the Facilitator session, so the page only works with the PIN session.
 export function BigScreen() {
   const router = useRouter();
-  const [state, setState] = useState<LiveState | null>(null);
-  const [players, setPlayers] = useState<LiveScoreboardEntry[] | null>(null);
-  const [feed, setFeed] = useState<FeedItem[]>([]);
+  const { state, players, feed } = useFacilitator({ onInvalid: () => router.refresh() });
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
-    const socket: Socket = io();
-
-    socket.on("facilitator:state", (data: FacilitatorState) => {
-      setState({ ...data, clockOffsetMs: Date.parse(data.now) - Date.now() });
-    });
-    socket.on("scoreboard", (data: { players: LiveScoreboardEntry[] }) => {
-      setPlayers(data.players);
-    });
-    socket.on("feed:history", (items: FeedItem[]) => {
-      setFeed(items.slice(-FEED_MAX));
-    });
-    socket.on("feed:event", (item: FeedItem) => {
-      setFeed((current) => [...current, item].slice(-FEED_MAX));
-    });
-    socket.on("facilitator:invalid", () => {
-      socket.close();
-      router.refresh();
-    });
-
     const clock = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => {
-      window.clearInterval(clock);
-      socket.close();
-    };
-  }, [router]);
+    return () => window.clearInterval(clock);
+  }, []);
 
   function goFullscreen() {
     document.documentElement.requestFullscreen().catch(() => undefined);

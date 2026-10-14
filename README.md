@@ -36,18 +36,21 @@ Each Challenge can be played at most once per match.
 
 ## How to run
 
-Prerequisites: Node 20.19+ (tested on 25) and pnpm. Deploy on a single machine or container, never serverless.
+Prerequisites: Node 20.19+ (tested on 25) and pnpm. Runs on Vercel: the screens poll the server, so no long-lived connection is needed (ADR-0004).
 
 ```bash
 pnpm install
 cp .env.example .env
-pnpm db:deploy           # applies the migrations (use db:migrate when creating a new one)
-pnpm dev                 # Next + Socket.IO in the same process, at http://localhost:3000
+pnpm db:deploy           # applies the migrations to a local file (use db:migrate when creating a new one)
+pnpm dev                 # Next, at http://localhost:3000
 ```
 
 `.env` must set:
 
-- `DATABASE_URL` — SQLite file, for example `file:./data/workshop.db` (never `:memory:`)
+- `DATABASE_URL` — a local file, for example `file:./data/workshop.db`, or a hosted libSQL database such as Turso, for example `libsql://<database>-<org>.turso.io`
+- `DATABASE_AUTH_TOKEN` — only for a hosted database. Local files do not need it.
+
+On Vercel, set both variables for the Production environment. The schema is applied on the first request, so the build does not touch the database.
 
 The Facilitator PIN for `/facilitador` is fixed at `4321` in `lib/facilitator/session.ts` (see [ADR 0003](docs/adr/0003-fixed-facilitator-pin.md)).
 
@@ -57,9 +60,9 @@ Open more than one browser tab to play locally: one Facilitator, one or more Pla
 
 | Script | What it does |
 | --- | --- |
-| `pnpm dev` | Starts Next and Socket.IO in development |
-| `pnpm build` | Applies pending migrations and builds Next for production |
-| `pnpm start` | Starts the production version (`NODE_ENV=production`) |
+| `pnpm dev` | Starts Next in development |
+| `pnpm build` | Generates the Prisma client and builds Next for production |
+| `pnpm start` | Starts the production build |
 | `pnpm db:migrate` | Creates a new migration from `schema.prisma` |
 | `pnpm db:deploy` | Applies the pending migrations |
 | `pnpm db:generate` | Regenerates the Prisma client |
@@ -70,27 +73,26 @@ Open more than one browser tab to play locally: one Facilitator, one or more Pla
 
 ## Structure
 
-- `server.ts`: single Node server with Next and Socket.IO (ADR-0001).
 - `lib/evaluator/`: deep module, pure, no I/O. `evaluate(prompt, challenge)` returns Score, verdict, Criteria and tips.
 - `lib/challenges/`: Challenge catalog loaded from the seed file.
-- `lib/engine/`: Game Engine, the only entry point for changing the Room’s state, with tests against a clean SQLite database per test.
+- `lib/engine/`: Game Engine, the only entry point for changing the Room’s state, with tests against a clean SQLite database per test. The feed and the online presence are stored in the database.
+- `lib/live.ts`: the Scoreboard read by the polls, with the online flag and a one-second cache per instance.
+- `lib/client/`: polling hooks for the Player screen and for the Facilitator panel and Big screen.
 - `lib/nickname.ts`: Nickname and Avatar rules.
-- `lib/presence.ts`: online presence, in memory only, derived from socket connections.
-- `lib/realtime.ts`: thin Socket.IO shell over the Engine.
 - `lib/facilitator/`: PIN session (httpOnly cookie) for the Facilitator channel.
-- `prisma/`: SQLite schema (Player, Round, Attempt, Achievement).
+- `prisma/`: schema (Player, Round, Attempt, Achievement, FeedEvent) on libSQL/SQLite.
 - `components/`: Player login, DOS desktop, draggable windows, Scoreboard, Facilitator panel and Big screen. UI copy is pt-BR.
 - `components/ui/8bit/`: components from the 8bitcn registry (`pnpm dlx shadcn@latest add @8bitcn/<name>`).
-- `app/`: Player home, `/facilitador`, `/facilitador/telao` and thin HTTP routes for enter/session.
+- `app/`: Player home, `/facilitador`, `/facilitador/telao` and HTTP routes: enter, session, player poll and attempt, Facilitator poll and commands.
 
 Palette: black and grey terminal (Windows prompt), no blue background and no green. 8bitcn uses the `dark` class on `<html>`. Target layout is laptop or desktop.
 
 ## Testing
 
-Automated tests cover the Evaluator (pure function) and the Game Engine (commands against a real SQLite test database), plus small units around Nickname, presence, catalog and Facilitator session. They assert observable rules, not regex or Prisma internals.
+Automated tests cover the Evaluator (pure function) and the Game Engine (commands against a real SQLite test database, including the feed and online presence), plus small units around Nickname, catalog and Facilitator session. They assert observable rules, not regex or Prisma internals.
 
-There are no automated tests for Socket.IO, the Player UI or the Facilitator/Big screen. Verify those by running the app with several tabs.
+There are no automated tests for the polling hooks or the screens. Verify those by running the app with several tabs.
 
 ## Out of scope
 
-No LLM calls, no comparison of an LLM answer to a target, no multiple Rooms, no Challenge editor in the UI, no Player accounts across matches, no chat, no serverless deploy, no mobile-first layout. See the spec for the full list.
+No LLM calls, no comparison of an LLM answer to a target, no multiple Rooms, no Challenge editor in the UI, no Player accounts across matches, no chat, no mobile-first layout. See the spec for the full list.

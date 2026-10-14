@@ -45,7 +45,7 @@ export function isFacilitatorSessionValid(
   return expected.length === received.length && timingSafeEqual(expected, received);
 }
 
-// Reads a cookie from the `Cookie` header of an HTTP request or a socket handshake.
+// Reads a cookie from the `Cookie` header of an HTTP request.
 export function cookieValue(header: string | undefined, name: string): string | undefined {
   if (!header) return undefined;
   for (const pair of header.split(";")) {
