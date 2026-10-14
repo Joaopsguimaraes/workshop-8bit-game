@@ -113,6 +113,18 @@ describe("Role criterion", () => {
     ).toMatchObject({ level: "partial", points: 11 });
   });
 
+  it("is partial with 'sendo um especialista' in Portuguese and 'as an expert' in English", () => {
+    expect(
+      criterion("Sendo um especialista em RH, escreva um texto curto sobre o tema para o time agora.", "role"),
+    ).toMatchObject({ level: "partial", points: 11 });
+    expect(
+      criterion("As an expert in HR, write a short text about the topic for the team now.", "role"),
+    ).toMatchObject({ level: "partial", points: 11 });
+    expect(
+      criterion("As a specialist in HR, write a short text about the topic for the team now.", "role"),
+    ).toMatchObject({ level: "partial", points: 11 });
+  });
+
   it("does not take a common sentence that starts with the word as a label", () => {
     expect(criterion("Papel do RH é cuidar das pessoas e da cultura da empresa.", "role")).toMatchObject({
       level: "missing",
@@ -171,6 +183,11 @@ describe("Format criterion", () => {
     expect(criterion("Responda em tópicos curtos sobre o assunto do Desafio.", "format")).toMatchObject({ level: "partial" });
     expect(criterion("Devolva a resposta em JSON com os campos pedidos.", "format")).toMatchObject({ level: "partial" });
     expect(criterion("Answer in a table with three columns for each item.", "format")).toMatchObject({ level: "partial" });
+  });
+
+  it("is partial with 'tópicos' in Portuguese and 'bullet points' in English", () => {
+    expect(criterion("Organize a resposta com tópicos curtos sobre o assunto do Desafio.", "format")).toMatchObject({ level: "partial" });
+    expect(criterion("Organize the answer in bullet points about the topic of the Challenge.", "format")).toMatchObject({ level: "partial" });
   });
 
   it("is partial with a number of items or a size in words", () => {

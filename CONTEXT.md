@@ -47,11 +47,15 @@ An example of a well-structured prompt for a Challenge, revealed to everyone whe
 _Avoid_: Answer key, right answer, ideal prompt
 
 **Criterion**:
-A check on the structure of a prompt (for example, defines a role, gives context, specifies the format) that is worth a fixed number of points; the Criteria are the same for every Challenge (shown in the UI as "Critério").
+A check on the structure of a prompt (for example, defines a role, gives context, specifies the format) that is worth a fixed maximum number of points; the Criteria are the same for every Challenge (shown in the UI as "Critério").
 _Avoid_: Rule, check, requirement
 
+**Strength**:
+How clearly an Attempt shows a Criterion, which sets the share of its points the Player earns: **full** (an explicit label with content, 100%), **partial** (a clear natural phrase, 70%) or **weak** (a bare mention, 30%). The highest strength wins; points are never added across signals. A Criterion with no signal is **missing** and earns nothing (shown in the UI as "parcial" for partial and weak, and "✕" for missing).
+_Avoid_: Grade, quality, intensity
+
 **Score**:
-The sum, from 0 to 100, of the points of the Criteria met by an Attempt (shown in the UI as "Nota").
+The sum, from 0 to 100, of the points each Criterion earns in an Attempt, given its Strength (shown in the UI as "Nota").
 _Avoid_: Grade, result
 
 **Round**:

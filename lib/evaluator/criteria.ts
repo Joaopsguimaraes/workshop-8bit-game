@@ -77,7 +77,8 @@ function recognizeStructure(prompt: string, natural: RegExp, weak?: RegExp): Rec
   );
 }
 
-const ROLE_NATURAL = /(?<![a-z])(voce e|atue como|aja como|seu papel e|you are|act as)(?![a-z])/g;
+const ROLE_NATURAL =
+  /(?<![a-z])(voce e|atue como|aja como|seu papel e|sendo um especialista|you are|act as|as an expert|as a specialist)(?![a-z])/g;
 const ROLE_WEAK = /(?<![a-z])(especialista|consultor)(?![a-z])/g;
 
 export const ROLE: Criterion = {
