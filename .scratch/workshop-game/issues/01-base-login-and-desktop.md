@@ -10,18 +10,18 @@ This ticket sets up the base: git repository, Next.js with a custom Node server 
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** done (validated against the code and the Vitest suite on 2026-10-14)
 
-- [ ] `git init` with `main` as the default branch; project managed with pnpm; scripts for dev, build, start, database migration and tests.
-- [ ] Next.js runs with a custom Node server and Socket.IO in the same process; a single command starts everything.
-- [ ] Prisma over SQLite in a file, with the Player schema (nickname, unique normalized nickname, initials, unique token, createdAt).
-- [ ] Tailwind, shadcn and 8bitcn components installed; DOS/8-bit theme (pixel font, terminal colors, window borders) applied; all text in pt-BR.
-- [ ] The login screen explains that the Avatar uses the first two letters of the Nickname and shows the Avatar preview updating live.
-- [ ] Nickname rules: after trimming spaces, 2 to 16 characters, only letters (with accents), numbers and spaces, and at least 2 alphanumeric characters. Each violation shows a specific pt-BR message.
-- [ ] Uniqueness compares the lowercase, accent-free Nickname ("João" and "JOAO" collide), with the message "Nickname já em uso".
-- [ ] Avatar initials: the first 2 alphanumeric characters, without accents, in uppercase ("Élio" becomes "EL").
-- [ ] The token is saved in the browser; reloading or reopening the tab resumes the same Player; an invalid token returns to the login.
-- [ ] Game Engine with `enter(nickname)`, `resume(token)` and `playerState(token)`, tested with Vitest against a clean SQLite test database per test.
-- [ ] `PLACAR.EXE` lists Players with Avatar, Nickname and online/offline status, updating in real time across tabs; presence lives only in memory, derived from socket connections.
-- [ ] The windows `PROMPT.EXE`, `DESAFIO.TXT` and `PLACAR.EXE` can be dragged, minimized and restored; positions are saved in the browser and survive a reload.
-- [ ] With no open Round, `PROMPT.EXE` shows `AGUARDANDO O FACILITADOR..._` with a blinking cursor.
+- [x] `git init` with `main` as the default branch; project managed with pnpm; scripts for dev, build, start, database migration and tests.
+- [x] Next.js runs with a custom Node server and Socket.IO in the same process; a single command starts everything.
+- [x] Prisma over SQLite in a file, with the Player schema (nickname, unique normalized nickname, initials, unique token, createdAt).
+- [x] Tailwind, shadcn and 8bitcn components installed; DOS/8-bit theme (pixel font, terminal colors, window borders) applied; all text in pt-BR.
+- [x] The login screen explains that the Avatar uses the first two letters of the Nickname and shows the Avatar preview updating live.
+- [x] Nickname rules: after trimming spaces, 2 to 16 characters, only letters (with accents), numbers and spaces, and at least 2 alphanumeric characters. Each violation shows a specific pt-BR message.
+- [x] Uniqueness compares the lowercase, accent-free Nickname ("João" and "JOAO" collide), with the message "Nickname já em uso".
+- [x] Avatar initials: the first 2 alphanumeric characters, without accents, in uppercase ("Élio" becomes "EL").
+- [x] The token is saved in the browser; reloading or reopening the tab resumes the same Player; an invalid token returns to the login.
+- [x] Game Engine with `enter(nickname)`, `resume(token)` and `playerState(token)`, tested with Vitest against a clean SQLite test database per test.
+- [x] `PLACAR.EXE` lists Players with Avatar, Nickname and online/offline status, updating in real time across tabs; presence lives only in memory, derived from socket connections.
+- [x] The windows `PROMPT.EXE`, `DESAFIO.TXT` and `PLACAR.EXE` can be dragged, minimized and restored; positions are saved in the browser and survive a reload.
+- [x] With no open Round, `PROMPT.EXE` shows `AGUARDANDO O FACILITADOR..._` with a blinking cursor.

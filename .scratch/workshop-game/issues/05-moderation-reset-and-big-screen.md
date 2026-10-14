@@ -8,12 +8,12 @@
 
 **Blocked by:** 04
 
-**Status:** ready-for-agent
+**Status:** done (validated against the code and the Vitest suite on 2026-10-14)
 
-- [ ] `removePlayer` command in the Engine: deletes the Player's Attempts and Achievements, frees the Nickname and updates everyone's Scoreboard. The removed Player goes back to the login screen, and their token stops working.
-- [ ] `resetMatch` command in the Engine: deletes Players, Rounds, Attempts and Achievements. All clients go back to the login screen.
-- [ ] The Facilitator panel lists the Players with a remove button and has the reset button with explicit confirmation.
-- [ ] Engine tests: after removal, the Nickname can be used again and the Player disappears from the Scoreboard; after reset, the state returns to the initial one and all Challenges are playable again.
-- [ ] Full-screen Big screen mode, accessible only with the Facilitator's session: large Scoreboard with Avatars and Achievements, current Challenge, timer, submission count and event feed, all live.
-- [ ] On closing the Round, the Big screen shows the reveal (Reference prompt and top 3) readable from a distance on a projector.
-- [ ] The Big screen follows the DOS/8-bit theme and has a layout readable from a distance (large fonts, high contrast).
+- [x] `removePlayer` command in the Engine: deletes the Player's Attempts and Achievements, frees the Nickname and updates everyone's Scoreboard. The removed Player goes back to the login screen, and their token stops working.
+- [x] `resetMatch` command in the Engine: deletes Players, Rounds, Attempts and Achievements. All clients go back to the login screen.
+- [x] The Facilitator panel lists the Players with a remove button and has the reset button with explicit confirmation.
+- [x] Engine tests: after removal, the Nickname can be used again and the Player disappears from the Scoreboard; after reset, the state returns to the initial one and all Challenges are playable again.
+- [x] Full-screen Big screen mode, accessible only with the Facilitator's session: large Scoreboard with Avatars and Achievements, current Challenge, timer, submission count and event feed, all live.
+- [x] On closing the Round, the Big screen shows the reveal (Reference prompt and top 3) readable from a distance on a projector.
+- [x] The Big screen follows the DOS/8-bit theme and has a layout readable from a distance (large fonts, high contrast).
