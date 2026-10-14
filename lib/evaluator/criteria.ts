@@ -229,3 +229,75 @@ export const EXAMPLES: Criterion = {
     );
   },
 };
+
+// XML tag pair with any name (`<contexto>…</contexto>`); the content is between the tags.
+const XML_BLOCK = /<([a-z][\w-]*)>([\s\S]*?)<\/\1>/gi;
+// A Markdown heading line or a `---` separator line: each one splits the prompt into sections.
+const LINE_DELIMITER = /^[ \t]*(?:#{1,6}[ \t]+\S.*|---+)[ \t]*$/gm;
+
+function hasContent(text: string): boolean {
+  return countWords(text) >= 1;
+}
+
+// Isolated blocks: XML pairs with content, plus the sections between heading or separator lines.
+// Two blocks give full points, one block 70%, and a tag or heading without content 30%.
+function recognizeDelimiters(prompt: string): Recognition {
+  const xmlBlocks = [...prompt.matchAll(XML_BLOCK)];
+  // The XML pairs are taken out first, so one block is not counted twice and a heading inside a block is not a section.
+  const text = prompt.replace(XML_BLOCK, "\n");
+  const lineMarks = [...text.matchAll(LINE_DELIMITER)];
+  const sections = lineMarks.length > 0 ? text.split(LINE_DELIMITER).filter(hasContent) : [];
+  const blocks = [
+    ...xmlBlocks.filter((block) => hasContent(block[2])).map((block) => block[0]),
+    ...sections,
+  ].map((block) => block.trim());
+
+  if (blocks.length >= 2) return { level: "full", excerpt: blocks[0] };
+  if (blocks.length === 1) return { level: "partial", excerpt: blocks[0] };
+  const mark = xmlBlocks[0]?.[0] ?? lineMarks[0]?.[0];
+  return mark ? { level: "weak", excerpt: mark.trim() } : null;
+}
+
+export const DELIMITERS: Criterion = {
+  id: "delimiters",
+  name: "Delimitadores",
+  max: 10,
+  tip: "Separe as partes do prompt com tags ou títulos. Ex.: \"<contexto>…</contexto>\" ou \"## Tarefa\".",
+  check: recognizeDelimiters,
+};
+
+// Conditional words, and the words that say the information is absent (`não`, `faltar`…).
+const CONDITIONAL = /(?<![a-z])(se|caso|if)(?![a-z])/g;
+const ABSENCE =
+  /(?<![a-z])(nao|nenhum|nenhuma|falta|faltar|falte|faltando|ausente|vazio|desconhecid[oa]|not|missing|unknown|empty|absent)(?![a-z])/;
+// Verbs that tell the Model what to write in the uncertain case.
+const UNCERTAINTY_ACTION =
+  /(?<![a-z])(escreva|escrever|responda|responder|deixe|deixar|informe|informar|indique|indicar|diga|dizer|retorne|retornar|devolva|devolver|use|usar|mencione|mencionar|marque|marcar|write|respond|leave|say|return|mark|put|answer)(?![a-z])/;
+
+// Conditional with absence in the same sentence: with the action to take it is full, without it 70%.
+function recognizeConditional(prompt: string): Recognition {
+  // Every conditional is checked: a later one with the action beats an earlier one without it.
+  let best: Recognition = null;
+  for (const { index, marker } of findMarker(prompt, CONDITIONAL)) {
+    const { start, end } = sentenceAt(prompt, index);
+    const clause = searchKey(prompt.slice(start, end)).slice(index - start + marker.length);
+    if (!ABSENCE.test(clause)) continue;
+    const level: Level = UNCERTAINTY_ACTION.test(clause) ? "full" : "partial";
+    const excerpt = prompt.slice(start, end).trim();
+    if (level === "full") return { level, excerpt };
+    if (!best) best = { level, excerpt };
+  }
+  return best;
+}
+
+const UNCERTAINTY_WEAK = /(?<![a-z])(nao informad[oa]|nao encontrad[oa])(?![a-z])/g;
+
+export const UNCERTAINTY: Criterion = {
+  id: "uncertainty",
+  name: "Incerteza",
+  max: 5,
+  tip: "Diga o que fazer quando faltar informação. Ex.: \"Se o valor não estiver no texto, escreva 'não informado'.\"",
+  check(prompt) {
+    return strongest(recognizeConditional(prompt), recognizeMention(prompt, UNCERTAINTY_WEAK));
+  },
+};

@@ -298,6 +298,96 @@ describe("Task criterion", () => {
   });
 });
 
+describe("Delimiters criterion", () => {
+  it("is full with two isolated XML blocks with content, whatever the tag names", () => {
+    expect(
+      criterion(
+        "<contexto>Estamos decidindo o modelo de trabalho da empresa.</contexto>\n<dados>O público é a diretoria.</dados>",
+        "delimiters",
+      ),
+    ).toMatchObject({ level: "full", points: 10, max: 10 });
+  });
+
+  it("is full with two Markdown headings with content", () => {
+    expect(
+      criterion("## Contexto\nEstamos decidindo o modelo de trabalho.\n## Tarefa\nListe as vantagens do trabalho remoto.", "delimiters"),
+    ).toMatchObject({ level: "full", points: 10 });
+  });
+
+  it("is full with two blocks with content separated by ---", () => {
+    expect(
+      criterion("Estamos decidindo o modelo de trabalho da empresa.\n---\nListe as vantagens do trabalho remoto.", "delimiters"),
+    ).toMatchObject({ level: "full", points: 10 });
+  });
+
+  it("is partial with one block with content, 70% of the points", () => {
+    expect(
+      criterion("<dados>O público é a diretoria, que quer uma visão equilibrada.</dados>", "delimiters"),
+    ).toMatchObject({ level: "partial", points: 7 });
+  });
+
+  it("is weak with a single tag or heading without content, 30% of the points", () => {
+    expect(criterion("<dados></dados>", "delimiters")).toMatchObject({ level: "weak", points: 3 });
+    expect(criterion("## Contexto", "delimiters")).toMatchObject({ level: "weak", points: 3 });
+  });
+
+  it("a heading inside an XML block does not make a second block", () => {
+    expect(
+      criterion("<dados>\n## Dados\nA empresa tem 50 pessoas.\n</dados>\nListe as vantagens do trabalho remoto.", "delimiters"),
+    ).toMatchObject({ level: "partial", points: 7 });
+  });
+
+  it("is missing with no delimiter, even with a sentence and a label", () => {
+    expect(criterion("Liste as vantagens do trabalho remoto. Contexto: estamos decidindo.", "delimiters")).toMatchObject({
+      level: "missing",
+      points: 0,
+    });
+  });
+});
+
+describe("Uncertainty criterion", () => {
+  it("is full with a conditional instruction that says the action to take", () => {
+    expect(
+      criterion("Se a informação não estiver no texto, escreva 'não informado'.", "uncertainty"),
+    ).toMatchObject({ level: "full", points: 5, max: 5 });
+    expect(
+      criterion("Caso falte o valor no contrato, escreva não informado.", "uncertainty"),
+    ).toMatchObject({ level: "full", points: 5 });
+  });
+
+  it("a later conditional with the action beats an earlier one without it", () => {
+    expect(
+      criterion("Se não souber, não chute. Se faltar o valor, escreva não informado.", "uncertainty"),
+    ).toMatchObject({ level: "full", points: 5 });
+  });
+
+  it("does not take the preposition 'no' or a conditional about presence as uncertainty", () => {
+    expect(criterion("Se o cliente falar no chat, responda com cordialidade.", "uncertainty")).toMatchObject({
+      level: "missing",
+      points: 0,
+    });
+  });
+
+  it("accepts 'nenhum' as the absence word", () => {
+    expect(criterion("Se nenhum prazo for citado, responda prazo a definir.", "uncertainty")).toMatchObject({
+      level: "full",
+    });
+  });
+
+  it("is partial with a conditional phrase that does not say the action, 70% of the points", () => {
+    expect(criterion("Se não souber, não chute.", "uncertainty")).toMatchObject({ level: "partial", points: 4 });
+  });
+
+  it("is weak with 'não informado' or 'não encontrado' alone, 30% of the points", () => {
+    expect(criterion("O campo fica como não informado.", "uncertainty")).toMatchObject({ level: "weak", points: 2 });
+    expect(criterion("Deixe o campo como não encontrado.", "uncertainty")).toMatchObject({ level: "weak", points: 2 });
+  });
+
+  it("is missing with no sign of uncertainty", () => {
+    expect(criterion("Liste as vantagens do trabalho remoto.", "uncertainty")).toMatchObject({ level: "missing", points: 0 });
+  });
+});
+
 describe("label forms", () => {
   const content = "Este trecho tem conteúdo suficiente para contar.";
   const forms = (label: string) => [
@@ -332,7 +422,7 @@ describe("label forms", () => {
 });
 
 describe("evaluation structure", () => {
-  it("has the six criteria with weights 15, 15, 20, 15, 10 and 10", () => {
+  it("has the eight criteria with weights 15, 15, 20, 15, 10, 10, 10 and 5, adding up to 100", () => {
     const criteria = evaluate("oi", challenge).criteria;
 
     expect(criteria.map((c) => [c.id, c.max])).toEqual([
@@ -342,7 +432,10 @@ describe("evaluation structure", () => {
       ["format", 15],
       ["constraints", 10],
       ["examples", 10],
+      ["delimiters", 10],
+      ["uncertainty", 5],
     ]);
+    expect(criteria.reduce((sum, c) => sum + c.max, 0)).toBe(100);
   });
 
   it("recognizes labels and markers regardless of case or accents", () => {
@@ -353,7 +446,7 @@ describe("evaluation structure", () => {
   it("gives a tip with a pt-BR mini-example for each criterion", () => {
     const tips = evaluate("oi", challenge).criteria.map((c) => c.tip ?? "");
 
-    expect(tips).toHaveLength(6);
+    expect(tips).toHaveLength(8);
     tips.forEach((tip) => expect(tip).toMatch(/Ex(emplo)?[.:]/));
   });
 

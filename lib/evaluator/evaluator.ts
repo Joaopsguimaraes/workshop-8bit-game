@@ -1,5 +1,16 @@
 import type { Challenge } from "../challenges/types";
-import { CONTEXT, EXAMPLES, FORMAT, ROLE, CONSTRAINTS, TASK, type Criterion, type Level } from "./criteria";
+import {
+  CONTEXT,
+  CONSTRAINTS,
+  DELIMITERS,
+  EXAMPLES,
+  FORMAT,
+  ROLE,
+  TASK,
+  UNCERTAINTY,
+  type Criterion,
+  type Level,
+} from "./criteria";
 
 export type Evaluation = {
   score: number;
@@ -17,7 +28,7 @@ export type CriterionResult = {
   excerpt?: string;
 };
 
-const CRITERIA: Criterion[] = [ROLE, CONTEXT, TASK, FORMAT, CONSTRAINTS, EXAMPLES];
+const CRITERIA: Criterion[] = [ROLE, CONTEXT, TASK, FORMAT, CONSTRAINTS, EXAMPLES, DELIMITERS, UNCERTAINTY];
 
 // Share of the Criterion's points reached by each strength level.
 const SHARE: Record<Level, number> = { full: 1, partial: 0.7, weak: 0.3 };

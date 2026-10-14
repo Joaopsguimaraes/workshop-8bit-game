@@ -291,6 +291,8 @@ describe("submitAttempt", () => {
       "format",
       "constraints",
       "examples",
+      "delimiters",
+      "uncertainty",
     ]);
   });
 
@@ -747,8 +749,8 @@ describe("achievements", () => {
   const ALIGNMENT = "reuniao-alinhamento";
   const REF_REMOTE = CHALLENGES_SEED[0].referencePrompt;
   const REF_ALIGNMENT = CHALLENGES_SEED[1].referencePrompt;
-  // Same reference prompt without the last criterion (Examples): score 90.
-  const REF_REMOTE_SCORE_90 = REF_REMOTE.split("\n").slice(0, -1).join("\n");
+  // Same reference prompt without the last criterion (Incerteza, 5 points): score 95.
+  const REF_REMOTE_SCORE_95 = REF_REMOTE.split("\n").slice(0, -1).join("\n");
 
   beforeEach(() => {
     seed = createEngine(database.prisma, { challenges: CHALLENGES_SEED, now: () => now });
@@ -762,10 +764,10 @@ describe("achievements", () => {
     expect(await typesOf(seed, "Ana")).toEqual(["bullseye", "first-blood", "first-try"]);
   });
 
-  it("Bullseye is not awarded with score 90", async () => {
+  it("Bullseye is not awarded with score 95", async () => {
     const ana = await enterIn(seed, "Ana");
     await seed.openRound(REMOTE);
-    await seed.submitAttempt(ana.token, REF_REMOTE_SCORE_90);
+    await seed.submitAttempt(ana.token, REF_REMOTE_SCORE_95);
 
     expect(await typesOf(seed, "Ana")).toEqual(["first-blood"]);
   });
@@ -813,7 +815,7 @@ describe("achievements", () => {
   it("Evolution is not awarded when the improvement is below 30 points", async () => {
     const ana = await enterIn(seed, "Ana");
     await seed.openRound(REMOTE);
-    await seed.submitAttempt(ana.token, REF_REMOTE_SCORE_90);
+    await seed.submitAttempt(ana.token, REF_REMOTE_SCORE_95);
     await seed.submitAttempt(ana.token, REF_REMOTE);
 
     expect(await typesOf(seed, "Ana")).not.toContain("evolution");
@@ -847,7 +849,7 @@ describe("achievements", () => {
     const bia = await enterIn(seed, "Bia");
     await seed.openRound(REMOTE);
     await seed.submitAttempt(ana.token, REF_REMOTE);
-    await seed.submitAttempt(bia.token, REF_REMOTE_SCORE_90);
+    await seed.submitAttempt(bia.token, REF_REMOTE_SCORE_95);
     await seed.closeRound();
 
     expect(await typesOf(seed, "Ana")).toContain("round-champion");
@@ -858,10 +860,10 @@ describe("achievements", () => {
     const ana = await enterIn(seed, "Ana");
     const bia = await enterIn(seed, "Bia");
     await seed.openRound(REMOTE);
-    await seed.submitAttempt(ana.token, REF_REMOTE_SCORE_90);
+    await seed.submitAttempt(ana.token, REF_REMOTE_SCORE_95);
     advance(5);
     await seed.submitAttempt(bia.token, "oi");
-    await seed.submitAttempt(bia.token, REF_REMOTE_SCORE_90);
+    await seed.submitAttempt(bia.token, REF_REMOTE_SCORE_95);
     await seed.closeRound();
 
     expect(await typesOf(seed, "Ana")).toContain("round-champion");
@@ -988,7 +990,7 @@ describe("reveal", () => {
   const REMOTE = "trabalho-remoto";
   const ALIGNMENT = "reuniao-alinhamento";
   const REF_REMOTE = CHALLENGES_SEED[0].referencePrompt;
-  const REF_REMOTE_SCORE_90 = REF_REMOTE.split("\n").slice(0, -1).join("\n");
+  const REF_REMOTE_SCORE_95 = REF_REMOTE.split("\n").slice(0, -1).join("\n");
 
   beforeEach(() => {
     seed = createEngine(database.prisma, { challenges: CHALLENGES_SEED, now: () => now });
@@ -1007,7 +1009,7 @@ describe("reveal", () => {
     const cy = await enterIn(seed, "Cy");
     await seed.openRound(REMOTE);
     await seed.submitAttempt(ana.token, REF_REMOTE);
-    await seed.submitAttempt(bia.token, REF_REMOTE_SCORE_90);
+    await seed.submitAttempt(bia.token, REF_REMOTE_SCORE_95);
     await seed.submitAttempt(cy.token, "oi");
     await seed.closeRound();
 
@@ -1018,7 +1020,7 @@ describe("reveal", () => {
         challenge: { title: CHALLENGES_SEED[0].title, referencePrompt: REF_REMOTE },
         top3: [
           { position: 1, nickname: "Ana", initials: "AN", score: 100, prompt: REF_REMOTE },
-          { position: 2, nickname: "Bia", initials: "BI", score: 90, prompt: REF_REMOTE_SCORE_90 },
+          { position: 2, nickname: "Bia", initials: "BI", score: 95, prompt: REF_REMOTE_SCORE_95 },
         ],
       },
     });
