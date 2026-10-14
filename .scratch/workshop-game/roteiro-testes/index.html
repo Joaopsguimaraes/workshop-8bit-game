@@ -68,7 +68,7 @@
 <header>
   <h1>Roteiro de testes humanos · Jogo de Prompts 8-bit</h1>
   <p class="sub">Workshop de Prompts · funcionalidade descrita em <code>.scratch/workshop-game/spec.md</code> · publicado em <code>/help</code></p>
-  <p class="sub">Versão testada: branch <code>feat/placar-conquistas-reveal</code>, commit <code>393700e</code> · Revisão: 14/10/2026</p>
+  <p class="sub">Notas calculadas no commit <code>393700e</code> (o Avaliador não mudou depois dele) · Código revisado até o commit <code>67fb508</code> (branch <code>main</code>) · Revisão: 14/10/2026</p>
 </header>
 
 <nav class="indice" aria-label="Sumário">
@@ -98,6 +98,14 @@
     <li><strong>Janela <code>DICAS.TXT</code></strong>: "Dicas deste envio" (uma dica por Critério parcial ou ✕ do último envio, da que mais custou para a que menos custou) e "Guia de um bom prompt" com os oito Critérios.</li>
     <li><strong>Roteiro em <code>/help</code>:</strong> esta página é servida pelo app enquanto ele está no ar.</li>
   </ul>
+  <p><strong>Mudanças no código depois do commit <code>393700e</code></strong> (não mudam as Notas, mas mudam o que o testador vê e como sobe o app):</p>
+  <ul>
+    <li><strong>Envio pendente:</strong> depois de 3 s sem resposta, aparece <em>"Ainda processando, aguarde..."</em>; depois de 10 s, <em>"Está demorando mais que o normal. Verifique sua conexão."</em>. Sem resposta em 30 s, o envio é liberado com <em>"Sem resposta do servidor. Verifique sua conexão e tente de novo."</em>. Texto digitado durante a espera fica no campo. Veja 4.3 e a seção 6.</li>
+    <li><strong>Facilitador:</strong> a lista de Jogadores atualiza ao entrar e ao sair de um Jogador, sem recarregar a página.</li>
+    <li><strong>Janelas redimensionáveis:</strong> cada janela tem uma alça no canto inferior direito, e o conteúdo rola quando a janela fica pequena. Veja 4.2.</li>
+    <li><strong>PIN fixo:</strong> o PIN do Facilitador é <code>4321</code>, definido no código (<code>docs/adr/0003-fixed-facilitator-pin.md</code>). A variável <code>FACILITADOR_PIN</code> não é mais lida. A sessão sobrevive a reinícios do servidor.</li>
+    <li><strong>Sem Socket.IO:</strong> as telas consultam o servidor a cada 2 s (<em>polling</em>). Os dados ficam em SQLite local ou em um libSQL hospedado (<code>DATABASE_URL</code>). <code>pnpm dev</code> agora roda só o Next.</li>
+  </ul>
   <p class="nota">As capturas de tela são da execução de 13/10 (commit <code>4430dbe</code>). Elas mostram Notas e Placar daquela versão e ainda não foram refeitas. Veja a seção de resultados.</p>
 </div>
 
@@ -123,10 +131,10 @@
 <div class="passo">
   <h3>2.1 Subir a aplicação</h3>
   <pre>pnpm install
-cp .env.example .env          # defina FACILITADOR_PIN (não use o valor de exemplo)
-pnpm db:deploy                # aplica as migrações do SQLite
-pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
-  <p>Use <code>pnpm start</code> (com <code>pnpm build</code> antes) para um teste com a versão de produção. O banco fica no arquivo indicado em <code>DATABASE_URL</code> e sobrevive a restarts.</p>
+cp .env.example .env          # DATABASE_URL: arquivo local (file:./data/workshop.db) ou libSQL hospedado
+pnpm db:deploy                # aplica as migrações no arquivo local
+pnpm dev                      # Next em http://localhost:3000</pre>
+  <p>Use <code>pnpm build</code> e depois <code>pnpm start</code> para um teste com a versão de produção. O banco fica no lugar indicado em <code>DATABASE_URL</code> e sobrevive a restarts. O PIN do Facilitador é <code>4321</code>, fixo no código (<code>lib/facilitator/session.ts</code>); não há variável para mudá-lo.</p>
   <p>Este roteiro fica disponível em <code>http://localhost:3000/help</code>. A rota lê o arquivo <code>.scratch/workshop-game/roteiro-testes/index.html</code> a cada acesso, então uma edição aparece sem rebuild. Ela depende de a pasta do repositório existir no servidor.</p>
 </div>
 
@@ -154,8 +162,8 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
   <h3>3.1 Entrar no painel <span class="quem">Facilitador</span></h3>
   <ol>
     <li>Abra <code>/facilitador</code>. Aparece a tela do PIN (captura 03).</li>
-    <li>Digite o PIN e clique em <strong>ENTRAR</strong>. Um PIN errado mostra <em>"PIN incorreto."</em> e não entra.</li>
-    <li>A sessão dura 12 horas. Reiniciar o servidor exige o PIN de novo.</li>
+    <li>Digite o PIN (<code>4321</code>) e clique em <strong>ENTRAR</strong>. Um PIN errado mostra <em>"PIN incorreto."</em> e não entra.</li>
+    <li>A sessão dura 12 horas. Reiniciar o servidor não exige o PIN de novo, porque o segredo da sessão deriva do PIN fixo.</li>
   </ol>
   <figure>
     <img src="screenshots/03-facilitador-pin.png" alt="Tela do PIN do Facilitador">
@@ -272,10 +280,10 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
 
 <div class="passo">
   <h3>4.2 Área de trabalho <span class="quem">Jogador</span></h3>
-  <p>A área tem quatro janelas: <code>DESAFIO.TXT</code> (cenário), <code>PLACAR.EXE</code> (ranking e feed), <code>DICAS.TXT</code> (dicas e guia) e <code>PROMPT.EXE</code> (onde você escreve). Arraste pela barra de título, minimize com <code>_</code> e restaure pela barra de tarefas embaixo. A posição fica salva no seu navegador.</p>
+  <p>A área tem quatro janelas: <code>DESAFIO.TXT</code> (cenário), <code>PLACAR.EXE</code> (ranking e feed), <code>DICAS.TXT</code> (dicas e guia) e <code>PROMPT.EXE</code> (onde você escreve). Arraste pela barra de título, redimensione pela alça no canto inferior direito, minimize com <code>_</code> e restaure pela barra de tarefas embaixo. Posição e tamanho ficam salvos no seu navegador.</p>
   <p>Enquanto não há Rodada aberta, a <code>PROMPT.EXE</code> mostra <code>AGUARDANDO O FACILITADOR...</code> com o cursor piscando.</p>
   <p>O botão <strong>SOM</strong> no topo começa <strong>desligado</strong>. Clique para ligar os efeitos 8-bit.</p>
-  <p class="aviso alerta"><strong>Atenção:</strong> no layout padrão, a <code>PROMPT.EXE</code> pode cobrir a <code>DESAFIO.TXT</code>. Para ler o cenário, minimize a <code>PROMPT.EXE</code> ou arraste a <code>DESAFIO.TXT</code> para fora. Veja o achado 2.</p>
+  <p class="aviso alerta"><strong>Atenção:</strong> no layout padrão, a <code>PROMPT.EXE</code> pode cobrir a <code>DESAFIO.TXT</code>. A altura padrão da <code>PROMPT.EXE</code> mudou para 300 px, e a conta sugere que ela não chega mais à <code>DESAFIO.TXT</code>. Isso precisa ser confirmado na tela. Se ainda cobrir, minimize a <code>PROMPT.EXE</code> ou arraste a <code>DESAFIO.TXT</code> para fora. Veja o achado 2.</p>
   <figure>
     <img src="screenshots/04-jogador-rodada-aberta.png" alt="Área de trabalho do Jogador com a Rodada aberta">
     <figcaption>Captura 04 (execução de 13/10): área de trabalho do Joao com a Rodada aberta. Ainda não tem a janela <code>DICAS.TXT</code>.</figcaption>
@@ -289,10 +297,12 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
     <li>Escreva o prompt no campo livre da <code>PROMPT.EXE</code>. Não há formulário com campos: você escreve do seu jeito. Enter quebra a linha.</li>
     <li>Confira o contador <code>n/4000</code>, o número de Tentativas restantes e o cronômetro (se houver).</li>
     <li>Clique em <strong>ENVIAR</strong>. O botão só fica ativo com texto e dentro do limite de caracteres.</li>
+    <li>Enquanto o servidor responde, o botão mostra <em>ENVIANDO...</em>. Depois de 3 s aparece <em>"Ainda processando, aguarde..."</em>, e depois de 10 s, <em>"Está demorando mais que o normal. Verifique sua conexão."</em>.</li>
     <li>A resposta aparece na hora: <strong>TENTATIVA n · NOTA x</strong>, o veredito e o checklist de Critérios. As dicas do envio aparecem na <code>DICAS.TXT</code>.</li>
   </ol>
   <p><strong>Regras que você vai notar:</strong></p>
   <ul>
+    <li>Se o servidor não responder em 30 s, o envio é liberado com <em>"Sem resposta do servidor. Verifique sua conexão e tente de novo."</em> e o texto fica para você reenviar. Essa Tentativa pode ou não ter sido gravada: confira o histórico antes de reenviar.</li>
     <li>Até <strong>3 Tentativas</strong> por Rodada. A recusa por texto vazio ou com mais de 4.000 caracteres <strong>não gasta</strong> Tentativa.</li>
     <li>Depois da 3ª Tentativa, o campo fica bloqueado com <em>"Você já usou as 3 Tentativas desta Rodada."</em></li>
     <li>Quando o Facilitador encerra a Rodada (ou o tempo acaba), o campo some e o envio fica bloqueado, mesmo que você estivesse digitando.</li>
@@ -442,7 +452,7 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
   <tr><td>1</td><td>Pedro</td><td>(enviar em branco, depois um texto de mais de 4.000 caracteres)</td><td class="num">recusado</td><td class="num">—</td><td>não consome Tentativa</td></tr>
   <tr><td>2</td><td>Pedro</td><td>Extraia os pontos-chave, as perguntas e o prazo do e-mail do cliente, em tópicos.</td><td class="num">25</td><td class="num">0 0 14 11 0 0 0 0</td><td>Tarefa parcial; Formato parcial. Primeiro sangue e Campeão da Rodada</td></tr>
 </table>
-<p><strong>Presença:</strong> feche a aba do Lucas e espere alguns segundos. Ele deve aparecer como <code>OFFLINE</code> no Placar, com os 149 pontos. Ao voltar, deve aparecer <code>ONLINE</code> de novo.</p>
+<p><strong>Presença:</strong> feche a aba do Lucas e espere cerca de 10 s (o Jogador conta como <code>ONLINE</code> enquanto o último poll de 2 s tiver chegado nesse intervalo). Ele deve aparecer como <code>OFFLINE</code> no Placar, com os 149 pontos. Ao voltar, deve aparecer <code>ONLINE</code> de novo. A regra mudou com o polling, então esse passo precisa ser repetido.</p>
 
 <h3>Moderação e reset</h3>
 <ol>
@@ -512,6 +522,8 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
   <li><span class="caixa"></span>Pontos parciais: uma frase natural dá 70% e uma menção fraca dá 30% (20). Ex.: Tarefa 14 e 6 nos envios da Rodada 2.</li>
   <li><span class="caixa"></span>Dica para cada Critério parcial ou não atendido, em <code>DICAS.TXT</code> (21). A ordem vai do que mais custou para o que menos custou.</li>
   <li><span class="caixa"></span>Trecho reconhecido para cada Critério atendido (22).</li>
+  <li><span class="caixa"></span>Envio que demora: "Ainda processando, aguarde..." aos 3 s e "Está demorando mais que o normal..." aos 10 s. Só pode ser visto com a rede lenta (ex.: DevTools, throttling). Texto digitado durante a espera fica no campo.</li>
+  <li><span class="caixa"></span>Envio sem resposta em 30 s libera o campo com "Sem resposta do servidor..." (simular com o servidor parado no meio do envio).</li>
   <li><span class="caixa"></span>Rótulo (<code>Papel:</code>, <code>## Contexto</code>) e frase natural ("Atue como…") são reconhecidos (23).</li>
   <li><span class="caixa"></span>Prompt em inglês é reconhecido (24, caso "Maria 2" da Rodada 1, com 75 pontos).</li>
   <li><span class="caixa"></span>Rótulo sem conteúdo não pontua (25, caso "Maria 1" da Rodada 1, com 0).</li>
@@ -530,6 +542,14 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
   <li><span class="caixa"></span>Condição sem ação ("se não souber") dá Incerteza parcial (4 pontos, 70% de 5 arredondado). Digite um prompt com só essa frase para conferir.</li>
   <li><span class="caixa"></span><code>DICAS.TXT</code> mostra "Dicas deste envio" com as dicas de Delimitadores e Incerteza no envio 8 da Rodada 1 (Joao, 85).</li>
   <li><span class="caixa"></span>O "Guia de um bom prompt" mostra as oito linhas, sempre (69, 70).</li>
+</ul>
+
+<h3>Mudanças desde 393700e (janelas, Facilitador, PIN)</h3>
+<ul class="checklist">
+  <li><span class="caixa"></span>Cada janela tem alça no canto inferior direito; redimensionar funciona e o conteúdo rola quando a janela fica pequena (4.2).</li>
+  <li><span class="caixa"></span>Tamanho e posição das janelas sobrevivem a um reload (4.2).</li>
+  <li><span class="caixa"></span>Facilitador com o painel aberto: um Jogador que entra aparece na hora na lista de JOGADORES, e a lista atualiza quando um Jogador sai, sem recarregar a página (3.2, 3.6).</li>
+  <li><span class="caixa"></span>PIN <code>4321</code> abre o painel; reiniciar o servidor não pede o PIN de novo (3.1). <em>Teste reiniciando o processo de propósito.</em></li>
 </ul>
 
 <h3>Placar e eventos (histórias 31 a 39)</h3>
@@ -635,6 +655,7 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
 <div class="passo">
   <h3>Achado 2 · DESAFIO.TXT pode ficar escondido atrás da PROMPT.EXE no layout padrão</h3>
   <p><strong>O que acontece:</strong> a posição padrão da <code>DESAFIO.TXT</code> é x=32, y=360 (<code>lib/client/windows.ts</code>), e a <code>PROMPT.EXE</code> começa em x=32, y=32 e é alta o bastante para cobrir essa posição. Na captura 05 (janela do Lucas, versão anterior), não há sinal da <code>DESAFIO.TXT</code> na tela. Ela só aparece na barra de tarefas. A <code>DICAS.TXT</code> entrou no layout com posição padrão x=640, y=360, do lado direito. A mudança do layout não foi conferida na tela nesta revisão.</p>
+  <p><strong>Situação em 67fb508:</strong> a posição padrão não mudou (x=32, y=360), mas a <code>PROMPT.EXE</code> agora tem 300 px de altura (termina em y=332), então, pelo código, não cobre mais a <code>DESAFIO.TXT</code>. Não confirmado na tela. Veja o item 2 da seção 6.</p>
   <p><strong>Impacto:</strong> o Jogador pode não ver o cenário (história 14), e o Desafio fica "invisível" no primeiro uso. O Jogador precisa descobrir que deve minimizar a <code>PROMPT.EXE</code> ou arrastar a outra janela.</p>
   <p><strong>Sugestão:</strong> posicionar a <code>DESAFIO.TXT</code> num lugar que não fique sob a <code>PROMPT.EXE</code> no layout padrão, ou destacar a <code>DESAFIO.TXT</code> quando uma Rodada abre.</p>
 </div>
@@ -663,6 +684,8 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
   <li><strong>Não repetido pelo navegador:</strong> o roteiro de tela, com quatro Jogadores e o Telão, não foi executado de novo. As capturas são de 13/10.</li>
   <li><strong>Não repetido pelo cenário automatizado:</strong> o <code>cenario-verificacao.cjs</code> ainda tem os valores antigos.</li>
   <li><strong>Efeitos e animações:</strong> o efeito sonoro, o arrastar com o mouse, o modo TELA CHEIA do Telão e o LEVEL UP continuam verificados só pelo texto da página, não pela imagem.</li>
+  <li><strong>Troca para polling e libSQL (67fb508):</strong> o roteiro de tela não foi repetido depois da troca de Socket.IO para polling. Presença (ONLINE/OFFLINE), envio pendente e atualização da lista do Facilitador têm verificação só pelo código e pelos testes de unidade.</li>
+  <li><strong>Suíte automatizada:</strong> o total de 239 testes vale para o commit <code>393700e</code>. Não foi rodada nesta revisão, depois de <code>67fb508</code>.</li>
   <li><strong>Reinício do servidor no meio do workshop (história 64):</strong> não testado.</li>
   <li><strong>Acesso pelo IP da rede local:</strong> não testado.</li>
 </ul>
@@ -670,10 +693,10 @@ pnpm dev                      # Next + Socket.IO em http://localhost:3000</pre>
 <h2 id="repetir">Apêndice · Como repetir a verificação automatizada</h2>
 <pre>APP_DIR=/caminho/para/uma/copia/com/node_modules \
 BASE_URL=http://localhost:3100 \
-PIN=1234 \
+PIN=4321 \
 SAIDA=resultado.json \
 node verificacao/cenario-verificacao.cjs</pre>
-<p><strong>Atenção:</strong> o script começa com a Sala vazia e termina com um <em>reset</em>. Rode-o só num servidor de teste com banco descartável, cujo <code>FACILITADOR_PIN</code> seja o mesmo do <code>PIN</code>. Não o rode no servidor do workshop.</p>
+<p><strong>Atenção:</strong> o script começa com a Sala vazia e termina com um <em>reset</em>. Rode-o só num servidor de teste com banco descartável (<code>DATABASE_URL</code> apontando para um arquivo de teste). O PIN é sempre <code>4321</code>. Não o rode no servidor do workshop.</p>
 <p><strong>Antes de rodar:</strong> o script e os arquivos <code>verificacao/saida-verificacao.txt</code> e <code>verificacao/resultado-verificacao.json</code> têm os valores da versão 4430dbe (207 de 207, Notas de seis Critérios). Com a pontuação atual, as Notas não batem e o script vai falhar. Atualize os valores esperados para os da seção 5 antes de usá-lo como prova.</p>
 
 </main>
