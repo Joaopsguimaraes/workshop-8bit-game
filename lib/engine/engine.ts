@@ -293,6 +293,45 @@ export function createEngine(prisma: PrismaClient, options: Options = {}) {
     return true;
   }
 
+  // The state of each token's Player. Queries run once for the whole batch, not once per token,
+  // so an update to every connected Player does not cost a round trip per Player.
+  async function playerStates(tokens: string[]): Promise<Map<string, PlayerState>> {
+    const states = new Map<string, PlayerState>();
+    if (tokens.length === 0) return states;
+
+    const rows = await prisma.player.findMany({ where: { token: { in: tokens } } });
+    const round = await findOpenRound();
+    const attempts = round
+      ? await prisma.attempt.findMany({
+          where: { roundId: round.id, playerId: { in: rows.map((row) => row.id) } },
+          orderBy: { number: "asc" },
+        })
+      : [];
+    // With no open round, the last one (already closed) stays in the reveal until the next opens.
+    const reveal = round ? null : await revealOfLatestRound();
+    const now = clock().toISOString();
+
+    const rowByToken = new Map(rows.map((row) => [row.token, row]));
+    for (const token of tokens) {
+      const row = rowByToken.get(token);
+      if (!row) {
+        states.set(token, { ok: false, error: SESSION_INVALID });
+        continue;
+      }
+      const ownAttempts = attempts.filter((attempt) => attempt.playerId === row.id);
+      states.set(token, {
+        ok: true,
+        player: toPlayer(row),
+        round: round ? toPublicRound(round) : null,
+        attempts: ownAttempts.map(toPublicAttempt),
+        attemptsLeft: round ? ATTEMPT_LIMIT - ownAttempts.length : 0,
+        reveal,
+        now,
+      });
+    }
+    return states;
+  }
+
   return {
     // Subscribes a listener to the feed. Returns the function that cancels the subscription.
     subscribe(listener: (event: Event) => void): () => void {
@@ -332,28 +371,10 @@ export function createEngine(prisma: PrismaClient, options: Options = {}) {
     },
 
     async playerState(token: string): Promise<PlayerState> {
-      const row = await findByToken(token);
-      if (!row) return { ok: false, error: SESSION_INVALID };
-
-      const round = await findOpenRound();
-      const attempts = round
-        ? await prisma.attempt.findMany({
-            where: { playerId: row.id, roundId: round.id },
-            orderBy: { number: "asc" },
-          })
-        : [];
-
-      return {
-        ok: true,
-        player: toPlayer(row),
-        round: round ? toPublicRound(round) : null,
-        attempts: attempts.map(toPublicAttempt),
-        attemptsLeft: round ? ATTEMPT_LIMIT - attempts.length : 0,
-        // With no open round, the last one (already closed) stays in the reveal until the next opens.
-        reveal: round ? null : await revealOfLatestRound(),
-        now: clock().toISOString(),
-      };
+      return (await playerStates([token])).get(token) ?? { ok: false, error: SESSION_INVALID };
     },
+
+    playerStates,
 
     async openRound(challengeId: string, durationSeconds?: number) {
       return exclusive(async () => {

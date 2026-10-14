@@ -145,3 +145,46 @@ describe("Round broadcasts", () => {
     expect(bruno.playerStates).toHaveLength(1);
   });
 });
+
+describe("Scoreboard broadcasts", () => {
+  type ScoreboardPlayer = { nickname: string; sentInRound: boolean };
+
+  // Records the Scoreboard each Player's socket receives.
+  function listenScoreboards(client: ClientSocket) {
+    const scoreboards: ScoreboardPlayer[][] = [];
+    client.on("scoreboard", (data: { players: ScoreboardPlayer[] }) => scoreboards.push(data.players));
+    return scoreboards;
+  }
+
+  it("sends the Scoreboard a few times during a burst, and the last send has every change", async () => {
+    const nicknames = Array.from({ length: 10 }, (_, index) => `Jogadora${index}`);
+    const players = [];
+    for (const nickname of nicknames) players.push(await connectPlayer(await enterAs(nickname)));
+    await engine.openRound(CHALLENGES[0].id);
+    // Let the Scoreboard sent on connection settle, so only the burst is counted.
+    await pause(600);
+
+    const scoreboards = listenScoreboards(players[0].socket);
+    await Promise.all(players.map((player) => submit(player.socket, PROMPT)));
+    await waitFor(() => scoreboards.at(-1)?.every((player) => player.sentInRound) ?? false);
+    await pause(600);
+
+    // Ten Attempts in one burst would be ten sends without coalescing; at most one now starts immediately,
+    // and at most one more waits for the interval.
+    expect(scoreboards.length).toBeLessThanOrEqual(3);
+    expect(scoreboards.at(-1)?.every((player) => player.sentInRound)).toBe(true);
+  });
+
+  it("sends a single change promptly when traffic is low", async () => {
+    const ana = await connectPlayer(await enterAs("Ana"));
+    await engine.openRound(CHALLENGES[0].id);
+    await pause(600);
+
+    const scoreboards = listenScoreboards(ana.socket);
+    const sentAt = Date.now();
+    await submit(ana.socket, PROMPT);
+    await waitFor(() => scoreboards.length === 1);
+
+    expect(Date.now() - sentAt).toBeLessThan(250);
+  });
+});

@@ -18,6 +18,7 @@ type Deps = { httpServer: HttpServer; engine: Engine; presence: Presence };
 
 const FACILITATOR_ROOM = "facilitators";
 const TICK_INTERVAL_MS = 1000;
+const SCOREBOARD_INTERVAL_MS = 500;
 const FEED_MAX = 30;
 
 // Thin shell: translates sockets into Engine calls and distributes each role's state.
@@ -45,7 +46,33 @@ export function installRealtime({ httpServer, engine, presence }: Deps) {
     io.emit("feed:event", item);
   });
 
+  // The Scoreboard goes out at most once per interval, so a burst of Attempts does not flood every screen.
+  // A change that comes sooner waits for the next slot, and each send reads the latest state, so no change is lost.
+  let scoreboardSentAt = 0;
+  let scoreboardTimer: NodeJS.Timeout | undefined;
+  let scoreboardReading = false;
+  let scoreboardStale = false;
+  let closed = false;
+
+  function requestScoreboard() {
+    scoreboardStale = true;
+    if (closed || scoreboardReading || scoreboardTimer) return;
+
+    const wait = Math.max(0, scoreboardSentAt + SCOREBOARD_INTERVAL_MS - Date.now());
+    if (wait === 0) {
+      void sendScoreboard();
+      return;
+    }
+    scoreboardTimer = setTimeout(() => {
+      scoreboardTimer = undefined;
+      void sendScoreboard();
+    }, wait);
+  }
+
   async function sendScoreboard() {
+    scoreboardReading = true;
+    scoreboardStale = false;
+    scoreboardSentAt = Date.now();
     try {
       const players = await engine.scoreboard();
       const scoreboard: LiveScoreboardEntry[] = players.map((player) => ({
@@ -56,6 +83,10 @@ export function installRealtime({ httpServer, engine, presence }: Deps) {
     } catch (error) {
       // A failure reading the Scoreboard must not bring down the whole server.
       console.error("Falha ao enviar o Placar", error);
+    } finally {
+      scoreboardReading = false;
+      // A change arrived while this send was reading: it goes out in the next slot.
+      if (scoreboardStale) requestScoreboard();
     }
   }
 
@@ -64,9 +95,18 @@ export function installRealtime({ httpServer, engine, presence }: Deps) {
     socket.emit("player:state", state);
   }
 
+  // Each socket gets the state of its own Player; the states are read together, in one batch.
   async function sendPlayerStates(include: (socket: Socket) => boolean) {
-    for (const socket of io.sockets.sockets.values()) {
-      if (socket.data.role === "player" && include(socket)) await sendPlayerState(socket);
+    const sockets = [...io.sockets.sockets.values()].filter(
+      (socket) => socket.data.role === "player" && include(socket),
+    );
+    if (sockets.length === 0) return;
+
+    const tokens = [...new Set<string>(sockets.map((socket) => socket.data.token))];
+    const states = await engine.playerStates(tokens);
+    for (const socket of sockets) {
+      const state = states.get(socket.data.token);
+      if (state) socket.emit("player:state", state);
     }
   }
 
@@ -81,14 +121,14 @@ export function installRealtime({ httpServer, engine, presence }: Deps) {
 
   // After any state change: each Player receives only their own state.
   async function updateAll() {
-    await sendScoreboard();
+    requestScoreboard();
     await sendFacilitatorState();
     await sendPlayerStates(() => true);
   }
 
   // After an Attempt: only the Player who sent it gets a new state, on every tab they have open.
   async function updateAfterAttempt(playerId: string) {
-    await sendScoreboard();
+    requestScoreboard();
     await sendFacilitatorState();
     await sendPlayerStates((socket) => socket.data.playerId === playerId);
   }
@@ -108,7 +148,7 @@ export function installRealtime({ httpServer, engine, presence }: Deps) {
 
     socket.on("disconnect", () => {
       presence.disconnect(socket.id);
-      void sendScoreboard();
+      requestScoreboard();
     });
 
     socket.on("attempt:submit", async (prompt: unknown, respond?: unknown) => {
@@ -177,7 +217,7 @@ export function installRealtime({ httpServer, engine, presence }: Deps) {
 
     void sendFacilitatorState();
     // The big screen needs the Scoreboard as soon as it opens; the Scoreboard is otherwise only sent after a change.
-    void sendScoreboard();
+    requestScoreboard();
   }
 
   io.on("connection", async (socket) => {
@@ -201,7 +241,7 @@ export function installRealtime({ httpServer, engine, presence }: Deps) {
         expel(socket);
         return;
       }
-      await sendScoreboard();
+      requestScoreboard();
       await sendPlayerState(socket);
       return;
     }
@@ -227,7 +267,11 @@ export function installRealtime({ httpServer, engine, presence }: Deps) {
       }
     })();
   }, TICK_INTERVAL_MS);
-  httpServer.on("close", () => clearInterval(tick));
+  httpServer.on("close", () => {
+    closed = true;
+    clearInterval(tick);
+    clearTimeout(scoreboardTimer);
+  });
 
   return io;
 }

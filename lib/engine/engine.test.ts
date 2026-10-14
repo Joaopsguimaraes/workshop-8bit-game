@@ -168,6 +168,58 @@ describe("playerState", () => {
   });
 });
 
+describe("playerStates", () => {
+  it("returns, for each token, the same state playerState returns", async () => {
+    const ana = await enterAs("Ana");
+    const bia = await enterAs("Bia");
+    await engine.openRound("alfa", 600);
+    await engine.submitAttempt(ana.token, PROMPT_ALFA);
+
+    const states = await engine.playerStates([ana.token, bia.token, "token-inventado"]);
+
+    expect(states.get(ana.token)).toEqual(await engine.playerState(ana.token));
+    expect(states.get(bia.token)).toEqual(await engine.playerState(bia.token));
+    expect(states.get("token-inventado")).toEqual({
+      ok: false,
+      error: "Sessão inválida. Entre novamente.",
+    });
+  });
+
+  it("reads the database the same number of times for one Player as for five", async () => {
+    const tokens: string[] = [];
+    for (const nickname of ["Ana", "Bia", "Caio", "Dani", "Eva"]) {
+      tokens.push((await enterAs(nickname)).token);
+    }
+    await engine.openRound("alfa");
+
+    const { engine: countedEngine, counter } = countingEngine();
+    await countedEngine.playerStates([tokens[0]]);
+    const forOne = counter.count;
+    counter.count = 0;
+    await countedEngine.playerStates(tokens);
+
+    expect(counter.count).toBe(forOne);
+  });
+});
+
+// An engine over a database client that counts every query it runs.
+function countingEngine() {
+  const counter = { count: 0 };
+  const prisma = database.prisma.$extends({
+    query: {
+      async $allOperations({ args, query }) {
+        counter.count++;
+        return query(args);
+      },
+    },
+  });
+  const countedEngine = createEngine(prisma as unknown as Parameters<typeof createEngine>[0], {
+    challenges: [ALFA, BETA],
+    now: () => now,
+  });
+  return { engine: countedEngine, counter };
+}
+
 describe("openRound", () => {
   it("opens the round with the chosen challenge and no deadline when there is no duration", async () => {
     const result = await engine.openRound("alfa");
